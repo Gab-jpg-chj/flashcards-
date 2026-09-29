@@ -1,0 +1,228 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Progression</title>
+<style>
+:root{--bg:#0f1226;--fg:#f4f5ff;--muted:#9aa1c0;--card:#ffffff12;--line:#ffffff22;--accent:#7c5cff;--accent2:#38bdf8;--yes:#5fbf85;--mid:#e6b85c;--no:#e0604e;--gold:#FFD23F}
+body.lolo{--accent:#ff5ca8;--accent2:#ffb35c}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui,sans-serif;color:var(--fg);
+ background:radial-gradient(circle at 15% 0,color-mix(in srgb,var(--accent) 30%,transparent),transparent 55%),var(--bg)}
+.wrap{max-width:1000px;margin:0 auto;padding:1.2rem 1rem 3rem}
+.top{display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:1rem}
+.top a{color:var(--muted);text-decoration:none}.top a:hover{color:var(--fg)}
+h1{margin:.2rem 0 .8rem;font-size:1.8rem;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.switch{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1.2rem}
+.switch a{padding:.45rem 1rem;border-radius:999px;background:#ffffff14;color:var(--fg);text-decoration:none;font-size:.9rem}
+.switch a.on{background:linear-gradient(90deg,var(--accent),var(--accent2));font-weight:600}
+.grid{display:grid;gap:1rem;grid-template-columns:1fr 280px;grid-template-areas:"stats hard" "chart hard"}
+@media(max-width:760px){.grid{grid-template-columns:1fr;grid-template-areas:"stats" "hard" "chart"}}
+.box{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem}
+.box h2{margin:0 0 .7rem;font-size:.85rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+#stats{grid-area:stats}#chartbox{grid-area:chart}#hard{grid-area:hard;align-self:start;border-color:var(--gold)}
+#hard h2{color:var(--gold)}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.6rem}
+.tile{background:#ffffff0d;border-radius:12px;padding:.6rem .7rem}
+.tile b{display:block;font-size:1.5rem;line-height:1.2}.tile span{font-size:.75rem;color:var(--muted)}
+.y{color:var(--yes)}.m{color:var(--mid)}.n{color:var(--no)}
+.sub{margin:.9rem 0 .5rem;font-size:.8rem;color:var(--muted)}
+.seg{display:inline-flex;background:#ffffff14;border-radius:999px;padding:.2rem;margin-bottom:.6rem}
+.seg button{border:0;background:none;color:var(--fg);padding:.3rem .9rem;border-radius:999px;cursor:pointer;font-size:.85rem}
+.seg button.on{background:var(--accent)}
+svg{width:100%;height:auto;display:block}
+svg text{fill:var(--muted);font-size:11px}
+svg rect.bar{cursor:pointer}
+#detail{min-height:1.4rem;font-size:.85rem;color:var(--muted);margin-top:.4rem}
+.legend{display:flex;gap:1rem;font-size:.8rem;color:var(--muted);flex-wrap:wrap}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:.3rem}
+.hc{padding:.7rem;border-radius:12px;background:#ffffff0d;margin-bottom:.6rem}
+.hc .r{font-size:1.1rem}.hc p{margin:.2rem 0;font-size:.82rem;line-height:1.35;display:-webkit-box;-webkit-line-clamp:4;-webkit-box-orient:vertical;overflow:hidden}
+.hc small{color:var(--muted);font-size:.75rem}
+.bloc{display:flex;align-items:center;gap:.6rem;font-size:.82rem;margin:.35rem 0}
+.bloc .nm{flex:0 0 42%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bloc .bg{flex:1;height:8px;background:#ffffff1a;border-radius:4px;overflow:hidden;display:flex}
+.bloc .pc{flex:0 0 3.2rem;text-align:right;color:var(--muted)}
+.empty{color:var(--muted);font-size:.9rem;padding:.5rem 0}
+.note{margin-top:1rem;font-size:.78rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top"><a id="home" href="index.html">← Accueil</a><a id="deckLink" href="#">Réviser ce deck →</a></div>
+  <h1 id="title">Progression</h1>
+  <div class="switch" id="switch"></div>
+  <div class="grid">
+    <section class="box" id="stats"></section>
+    <aside class="box" id="hard"><h2>🔥 Top 3 des cartes les plus dures</h2><div id="hardList"></div></aside>
+    <section class="box" id="chartbox">
+      <h2>Suivi</h2>
+      <div class="seg" id="seg"><button data-m="day" class="on">Jours</button><button data-m="week">Semaines</button><button data-m="month">Mois</button></div>
+      <svg id="chart" viewBox="0 0 600 250" role="img" aria-label="Graphique de progression"></svg>
+      <div class="legend" id="legend"></div>
+      <div id="detail">Touche une barre pour voir le détail.</div>
+      <div id="blocs"></div>
+    </section>
+  </div>
+  <p class="note">Les statistiques sont enregistrées sur cet appareil, à partir de ta première révision suivie. L'historique d'avant n'est pas récupérable.</p>
+</div>
+<script src="stats.js"></script>
+<script>
+(function(){
+  var $ = function(s){ return document.querySelector(s); };
+  var D = FCStats.DECKS;
+  var id = new URLSearchParams(location.search).get("deck");
+  if(!D[id]) id = "mna";
+  var deck = D[id];
+  document.body.className = deck.user;
+  document.title = "Progression — " + deck.title;
+  $("#title").textContent = "Progression · " + deck.title;
+  $("#home").href = "index.html#" + deck.user;
+  $("#deckLink").href = deck.file;
+  Object.keys(D).filter(function(k){ return D[k].user === deck.user; }).forEach(function(k){
+    var a = document.createElement("a");
+    a.href = "progression.html?deck=" + k; a.textContent = D[k].title;
+    if(k === id) a.className = "on";
+    $("#switch").appendChild(a);
+  });
+
+  var all = FCStats.load();
+  var data = all[id] || { days: {}, cards: {} };
+  var days = data.days, cards = data.cards;
+  var hasMid = deck.mid;
+  var pad = FCStats.pad;
+
+  function tot(o){ return (o.y||0) + (o.m||0) + (o.n||0); }
+  function pct(a, b){ return b ? Math.round(100 * a / b) + " %" : "—"; }
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+
+  // ---- stats globales ----
+  var today = days[FCStats.day()] || {y:0,m:0,n:0};
+  var sum = {y:0,m:0,n:0};
+  Object.keys(days).forEach(function(k){ sum.y += days[k].y; sum.m += days[k].m; sum.n += days[k].n; });
+  var activeDays = Object.keys(days).filter(function(k){ return tot(days[k]) > 0; }).length;
+
+  var streak = 0, d = new Date();
+  if(!tot(days[FCStats.day(d)] || {})) d.setDate(d.getDate() - 1);
+  while(tot(days[FCStats.day(d)] || {}) > 0){ streak++; d.setDate(d.getDate() - 1); }
+
+  var prog = {};
+  try { prog = JSON.parse(localStorage.getItem(deck.key)) || {}; } catch(e){}
+  var ids = Object.keys(prog);
+  var mastered = ids.filter(function(k){ return prog[k].box >= 5; }).length;
+  var todayStr = FCStats.day();
+  var due = (deck.total - ids.length) + ids.filter(function(k){ return prog[k].due <= todayStr; }).length;
+
+  function tile(v, l, c){ return '<div class="tile"><b class="' + (c||"") + '">' + v + '</b><span>' + l + '</span></div>'; }
+  var h = '<h2>Aujourd\'hui</h2><div class="tiles">' +
+    tile(today.y, "réussies", "y") + (hasMid ? tile(today.m, "partielles", "m") : "") + tile(today.n, "ratées", "n") +
+    tile(tot(today), "cartes revues") + tile(pct(today.y, tot(today)), "taux de réussite") + '</div>' +
+    '<div class="sub">Depuis le début</div><div class="tiles">' +
+    tile(tot(sum), "révisions") + tile(sum.y, "réussies", "y") + (hasMid ? tile(sum.m, "partielles", "m") : "") + tile(sum.n, "ratées", "n") +
+    tile(pct(sum.y, tot(sum)), "taux global") + '</div>' +
+    '<div class="sub">Maîtrise du deck</div><div class="tiles">' +
+    tile(ids.length + " / " + deck.total, "cartes découvertes") + tile(mastered, "maîtrisées (niveau 5)") +
+    tile(due, "à réviser aujourd'hui") + tile(streak + " j", "série en cours") +
+    tile(activeDays ? (Math.round(10 * tot(sum) / activeDays) / 10) : "—", "révisions / jour actif") + '</div>';
+  $("#stats").innerHTML = h;
+
+  // ---- top 3 ----
+  var list = Object.keys(cards).map(function(k){
+    var c = cards[k], t = tot(c), score = c.n + 0.5 * c.m;
+    return { c: c, t: t, score: score, rate: t ? score / t : 0 };
+  }).filter(function(x){ return x.score > 0; })
+    .sort(function(a, b){ return b.score - a.score || b.rate - a.rate; }).slice(0, 3);
+  var medals = ["🥇","🥈","🥉"];
+  $("#hardList").innerHTML = list.length ? list.map(function(x, i){
+    return '<div class="hc"><span class="r">' + medals[i] + '</span><p>' + esc(x.c.f) + '</p><small>ratée ' + x.c.n + ' fois sur ' + x.t +
+      (hasMid && x.c.m ? ' (+ ' + x.c.m + ' partielle' + (x.c.m > 1 ? 's' : '') + ')' : '') +
+      (x.c.bn ? ' · ' + esc(x.c.bn) : '') + '</small></div>';
+  }).join("") : '<div class="empty">Aucune carte ratée pour l\'instant 🎉</div>';
+
+  // ---- graphique ----
+  var COL = { y: "#5fbf85", m: "#e6b85c", n: "#e0604e" };
+  $("#legend").innerHTML = '<span><i style="background:' + COL.y + '"></i>Réussies</span>' +
+    (hasMid ? '<span><i style="background:' + COL.m + '"></i>Partielles</span>' : '') + '<span><i style="background:' + COL.n + '"></i>Ratées</span>';
+
+  function monday(dt){ var x = new Date(dt); var w = (x.getDay() + 6) % 7; x.setDate(x.getDate() - w); return x; }
+  function buckets(mode){
+    var out = [], now = new Date(), i, x;
+    if(mode === "day"){
+      for(i = 13; i >= 0; i--){ x = new Date(now); x.setDate(x.getDate() - i);
+        out.push({ key: FCStats.day(x), label: pad(x.getDate()) + "/" + pad(x.getMonth() + 1), long: x.toLocaleDateString("fr-FR", {weekday:"long", day:"numeric", month:"long"}) }); }
+    } else if(mode === "week"){
+      var m0 = monday(now);
+      for(i = 11; i >= 0; i--){ x = new Date(m0); x.setDate(x.getDate() - 7 * i);
+        out.push({ key: FCStats.day(x), label: pad(x.getDate()) + "/" + pad(x.getMonth() + 1), long: "semaine du " + x.toLocaleDateString("fr-FR", {day:"numeric", month:"long"}) }); }
+    } else {
+      for(i = 11; i >= 0; i--){ x = new Date(now.getFullYear(), now.getMonth() - i, 1);
+        out.push({ key: x.getFullYear() + "-" + pad(x.getMonth() + 1), label: x.toLocaleDateString("fr-FR", {month:"short"}), long: x.toLocaleDateString("fr-FR", {month:"long", year:"numeric"}) }); }
+    }
+    out.forEach(function(b){ b.y = b.m = b.n = 0; });
+    Object.keys(days).forEach(function(k){
+      var dt = new Date(k + "T00:00:00"), key;
+      key = mode === "day" ? k : mode === "week" ? FCStats.day(monday(dt)) : k.slice(0, 7);
+      out.forEach(function(b){ if(b.key === key){ b.y += days[k].y; b.m += days[k].m; b.n += days[k].n; } });
+    });
+    return out;
+  }
+
+  function draw(mode){
+    var bs = buckets(mode), W = 600, H = 250, L = 34, B = 26, T = 10, R = 6;
+    var max = Math.max.apply(null, bs.map(tot).concat([4]));
+    var step = max <= 8 ? 2 : max <= 20 ? 5 : max <= 50 ? 10 : max <= 100 ? 25 : Math.pow(10, Math.floor(Math.log10(max)));
+    max = Math.ceil(max / step) * step;
+    var ph = H - B - T, bw = (W - L - R) / bs.length, s = "", v;
+    for(v = 0; v <= max; v += step){
+      var yy = T + ph - ph * v / max;
+      s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + yy + '" y2="' + yy + '" stroke="#ffffff1c"/><text x="' + (L - 6) + '" y="' + (yy + 4) + '" text-anchor="end">' + v + '</text>';
+    }
+    bs.forEach(function(b, i){
+      var x = L + i * bw + bw * 0.15, w = bw * 0.7, y0 = T + ph;
+      ["y","m","n"].forEach(function(k){
+        if(!b[k]) return;
+        var hh = ph * b[k] / max; y0 -= hh;
+        s += '<rect class="bar" data-i="' + i + '" x="' + x + '" y="' + y0 + '" width="' + w + '" height="' + hh + '" rx="2" fill="' + COL[k] + '"/>';
+      });
+      s += '<rect class="bar" data-i="' + i + '" x="' + x + '" y="' + T + '" width="' + w + '" height="' + ph + '" fill="transparent"/>';
+      if(mode !== "day" || i % 2 === 1 || bs.length < 8) s += '<text x="' + (x + w / 2) + '" y="' + (H - 8) + '" text-anchor="middle">' + b.label + '</text>';
+    });
+    $("#chart").innerHTML = s;
+    function show(i){
+      var b = bs[i];
+      $("#detail").innerHTML = '<b style="color:var(--fg)">' + esc(b.long) + '</b> : ' + tot(b) + ' révision' + (tot(b) > 1 ? "s" : "") +
+        ' — <span class="y">' + b.y + ' réussie' + (b.y > 1 ? "s" : "") + '</span>' + (hasMid ? ' · <span class="m">' + b.m + ' partielle' + (b.m > 1 ? "s" : "") + '</span>' : '') +
+        ' · <span class="n">' + b.n + ' ratée' + (b.n > 1 ? "s" : "") + '</span> — réussite ' + pct(b.y, tot(b));
+    }
+    document.querySelectorAll("#chart .bar").forEach(function(r){
+      var f = function(){ show(+r.getAttribute("data-i")); };
+      r.addEventListener("click", f); r.addEventListener("mouseenter", f);
+    });
+    if(!Object.keys(days).length) $("#detail").textContent = "Pas encore de données : le graphique se remplit dès ta première révision.";
+  }
+  document.querySelectorAll("#seg button").forEach(function(b){
+    b.onclick = function(){
+      document.querySelectorAll("#seg button").forEach(function(x){ x.classList.toggle("on", x === b); });
+      draw(b.getAttribute("data-m"));
+    };
+  });
+  draw("day");
+
+  // ---- par bloc ----
+  var bl = {};
+  Object.keys(cards).forEach(function(k){
+    var c = cards[k], n = c.bn || ("Bloc " + c.b);
+    var o = bl[n] = bl[n] || {y:0,m:0,n:0, b: c.b}; o.y += c.y; o.m += c.m; o.n += c.n;
+  });
+  var names = Object.keys(bl).sort(function(a, b){ return bl[a].b - bl[b].b; });
+  if(names.length){
+    $("#blocs").innerHTML = '<div class="sub">Réussite par bloc</div>' + names.map(function(n){
+      var o = bl[n], t = tot(o);
+      return '<div class="bloc"><span class="nm" title="' + esc(n) + '">' + esc(n) + '</span><span class="bg"><i style="width:' + 100 * o.y / t + '%;background:' + COL.y + '"></i><i style="width:' + 100 * o.m / t + '%;background:' + COL.m + '"></i><i style="width:' + 100 * o.n / t + '%;background:' + COL.n + '"></i></span><span class="pc">' + pct(o.y, t) + '</span></div>';
+    }).join("");
+  }
+})();
+</script>
+</body>
+</html>

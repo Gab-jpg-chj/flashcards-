@@ -319,6 +319,7 @@
 </style>
 </head>
 <body>
+<script src="stats.js" data-deck="mna"></script>
 <div class="wrap">
 
   <div style="text-align:center; margin-bottom:14px;"><a href="index.html" style="color:var(--text-muted); font-family:'Source Sans 3', sans-serif; font-size:0.85rem; text-decoration:none;">← Tous les decks</a></div>
@@ -649,6 +650,7 @@
 
   function answer(knewIt){
     if(!current) return;
+    if(window.FCStats) FCStats.log("mna", current, arguments[0], BLOCS[current.bloc]);
     var s = stateFor(current.id);
     if(knewIt){
       s.box = Math.min(5, s.box + 1);

@@ -391,6 +391,7 @@
 </style>
 </head>
 <body>
+<script src="stats.js" data-deck="histoire"></script>
 <div class="popup-overlay" id="popupOverlay"></div>
 
 <div class="wrap">
@@ -734,6 +735,7 @@
 
   function answer(kind){
     if(!current) return;
+    if(window.FCStats) FCStats.log("histoire", current, arguments[0], BLOCS[current.bloc]);
     var s = stateFor(current.id);
     if(kind === "yes"){
       s.box = Math.min(5, s.box + 1);

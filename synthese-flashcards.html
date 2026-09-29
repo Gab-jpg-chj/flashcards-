@@ -319,6 +319,7 @@
 </style>
 </head>
 <body>
+<script src="stats.js" data-deck="synthese"></script>
 <div class="wrap">
 
   <header class="top">
@@ -666,6 +667,7 @@
 
   function answer(knewIt){
     if(!current) return;
+    if(window.FCStats) FCStats.log("synthese", current, arguments[0], BLOCS[current.bloc]);
     var s = stateFor(current.id);
     if(knewIt){
       s.box = Math.min(5, s.box + 1);
