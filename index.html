@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flashcards Gab & Lolo</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <h1>Flashcards</h1>
+  <nav class="tabs">
+    <button class="tab active" data-user="gab">Gab</button>
+    <button class="tab" data-user="lolo">Lolo</button>
+  </nav>
+</header>
+<main>
+  <section id="decks" class="grid"></section>
+  <section id="study" hidden>
+    <button id="back" class="link">← Retour aux decks</button>
+    <h2 id="study-title"></h2>
+    <p id="progress"></p>
+    <div id="card" class="card" tabindex="0" title="Cliquer pour retourner">
+      <div class="inner">
+        <div class="face front"></div>
+        <div class="face back"></div>
+      </div>
+    </div>
+    <div class="controls">
+      <button id="prev">←</button>
+      <button id="shuffle">🔀 Mélanger</button>
+      <button id="next">→</button>
+    </div>
+  </section>
+</main>
+<script src="decks.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
