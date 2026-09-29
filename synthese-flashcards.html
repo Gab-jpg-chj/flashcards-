@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fiche de Synthèse M&amp;A — Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#161B22;
+    --ink-2:#1E2530;
+    --ink-3:#262E3A;
+    --paper:#F1ECDD;
+    --paper-2:#E7E0C9;
+    --brass:#B08D57;
+    --brass-light:#D3B27E;
+    --forest:#3F6C4E;
+    --forest-light:#5C8B69;
+    --rust:#A8402F;
+    --rust-light:#C25B49;
+    --text-ink:#EDE9DB;
+    --text-muted:#8B95A3;
+    --text-onpaper:#20242C;
+    --text-onpaper-muted:#5B5548;
+    --rule:#39414E;
+  }
+  :root:not([data-theme="light"]){ }
+  :root[data-theme="dark"]{ }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ } }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--ink);
+    color:var(--text-ink);
+    font-family:'Source Sans 3', sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(176,141,87,0.10), transparent 45%),
+      radial-gradient(circle at 85% 92%, rgba(63,108,78,0.10), transparent 45%);
+  }
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:28px 20px 56px;
+  }
+
+  header.top{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .title-block h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:1.5rem;
+    margin:0 0 4px;
+    letter-spacing:0.2px;
+  }
+  .title-block p{
+    margin:0;
+    color:var(--text-muted);
+    font-size:0.88rem;
+  }
+  .stats{
+    display:flex;
+    gap:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--text-muted);
+    white-space:nowrap;
+  }
+  .stats b{ color:var(--brass-light); font-weight:600; }
+
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  select{
+    background:var(--ink-2);
+    color:var(--text-ink);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Source Sans 3', sans-serif;
+    font-size:0.9rem;
+    border-radius:2px;
+    cursor:pointer;
+  }
+  .counter{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    color:var(--text-muted);
+  }
+
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .shuffle-btn{
+    background:var(--ink-2);
+    color:var(--brass-light);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-size:0.9rem;
+    border-radius:2px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .shuffle-btn:hover{ border-color:var(--brass); }
+
+  .progress-track{
+    height:3px;
+    background:var(--ink-3);
+    border-radius:2px;
+    margin-bottom:16px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--brass);
+    width:0%;
+    transition:width 0.3s ease;
+  }
+
+  .stage{
+    perspective:1600px;
+    margin-bottom:22px;
+  }
+  .card{
+    position:relative;
+    min-height:380px;
+    transform-style:preserve-3d;
+    transition:transform 0.5s cubic-bezier(.4,.2,.2,1);
+    cursor:pointer;
+    touch-action:pan-y;
+    user-select:none;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .card.dragging{ transition:none; }
+  .card.fly-left{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+  .card.fly-right{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+
+  .face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--brass);
+    border-top:4px solid var(--brass);
+    border-radius:8px;
+    box-shadow:0 18px 40px -14px rgba(0,0,0,0.55), 0 2px 0 rgba(176,141,87,0.15);
+    padding:26px 26px 20px;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    transition:box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .face.back{ transform:rotateY(180deg); }
+  .card.drag-yes .face{ border-color:var(--forest); box-shadow:0 18px 40px -14px rgba(63,108,78,0.55); }
+  .card.drag-no .face{ border-color:var(--rust); box-shadow:0 18px 40px -14px rgba(168,64,47,0.55); }
+
+  .swipe-flag{
+    position:absolute;
+    top:18px;
+    padding:5px 12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    font-weight:600;
+    border-radius:3px;
+    opacity:0;
+    transition:opacity 0.15s ease;
+    pointer-events:none;
+    z-index:2;
+  }
+  .swipe-flag.yes{ right:18px; background:var(--forest); color:#EAF2EC; transform:rotate(6deg); }
+  .swipe-flag.no{ left:18px; background:var(--rust); color:#F6ECE8; transform:rotate(-6deg); }
+
+  .face-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .tag{
+    font-size:0.78rem;
+    color:var(--text-onpaper-muted);
+    border:1px solid rgba(32,36,44,0.25);
+    padding:3px 9px;
+    border-radius:2px;
+  }
+  .box-dots{ display:flex; gap:5px; }
+  .box-dots span{
+    width:7px; height:7px; border-radius:50%;
+    background:rgba(32,36,44,0.15);
+  }
+  .box-dots span.filled{ background:var(--brass); }
+
+  .face-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.03em;
+    color:var(--text-onpaper-muted);
+    margin-bottom:10px;
+  }
+  .q-text{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.42;
+    margin:0;
+  }
+  .a-text{
+    font-size:1rem;
+    line-height:1.62;
+    margin:0;
+  }
+  .hint{
+    margin-top:auto;
+    padding-top:16px;
+    font-size:0.8rem;
+    color:var(--text-onpaper-muted);
+    text-align:center;
+  }
+
+  .answer-buttons{
+    display:flex;
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .answer-buttons button{
+    flex:1;
+    padding:14px 10px;
+    font-family:'Source Sans 3', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    border-radius:2px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:filter 0.15s ease;
+  }
+  .answer-buttons button:hover{ filter:brightness(1.1); }
+  .btn-no{ background:var(--rust); color:#F6ECE8; }
+  .btn-yes{ background:var(--forest); color:#EAF2EC; }
+  .answer-buttons[hidden]{ display:none; }
+
+  .flip-hint-row{
+    text-align:center;
+    color:var(--text-muted);
+    font-size:0.8rem;
+    margin-bottom:26px;
+  }
+
+  .done-panel{
+    border:1px solid var(--rule);
+    background:var(--ink-2);
+    padding:32px 26px;
+    text-align:center;
+    border-radius:2px;
+  }
+  .done-panel h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    margin:0 0 10px;
+  }
+  .done-panel p{ color:var(--text-muted); margin:0 0 20px; }
+  .done-panel .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .done-panel button{
+    padding:11px 18px;
+    background:var(--brass);
+    color:var(--ink);
+    border:none;
+    font-weight:600;
+    border-radius:2px;
+    cursor:pointer;
+    font-family:'Source Sans 3', sans-serif;
+  }
+  .done-panel button.ghost{
+    background:transparent;
+    color:var(--brass-light);
+    border:1px solid var(--brass);
+  }
+
+  footer.bottom{
+    margin-top:30px;
+    text-align:center;
+  }
+  footer.bottom a{
+    color:var(--text-muted);
+    font-size:0.78rem;
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-family:'Source Sans 3', sans-serif;
+  }
+
+  @media (max-width:480px){
+    .card{ min-height:440px; }
+    .q-text{ font-size:1.12rem; }
+    header.top{ align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="title-block">
+      <h1>Fiche de Synthèse M&amp;A — Flashcards</h1>
+      <p>71 cartes, avec cas pratiques chiffrés — répétition espacée, progression sauvegardée sur cet appareil</p>
+    </div>
+    <div class="stats">
+      <span>À réviser <b id="statDue">0</b></span>
+      <span>Maîtrisées <b id="statMastered">0</b>/<span id="statTotal">71</span></span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="filter-row">
+      <select id="blocFilter" aria-label="Filtrer par bloc"></select>
+      <button class="shuffle-btn" id="shuffleBtn" title="Mélanger l'ordre des cartes">🔀 Mélanger</button>
+    </div>
+    <div class="counter" id="counter">—</div>
+  </div>
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div id="stage" class="stage">
+    <div class="card" id="card" tabindex="0">
+      <span class="swipe-flag no" id="flagNo">Je ne savais pas</span>
+      <span class="swipe-flag yes" id="flagYes">Je savais</span>
+      <div class="face front">
+        <div class="face-head">
+          <span class="tag" id="tagFront">—</span>
+          <div class="box-dots" id="dotsFront"></div>
+        </div>
+        <div class="face-label">Question</div>
+        <p class="q-text" id="qText"></p>
+        <div class="hint">Clique ou tape la carte pour voir la réponse</div>
+      </div>
+      <div class="face back">
+        <div class="face-head">
+          <span class="tag" id="tagBack">—</span>
+          <div class="box-dots" id="dotsBack"></div>
+        </div>
+        <div class="face-label">Réponse</div>
+        <p class="a-text" id="aText"></p>
+        <div class="hint">Glisse la carte ← → ou utilise les boutons</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="answer-buttons" id="answerButtons" hidden>
+    <button class="btn-no" id="btnNo">Je ne savais pas</button>
+    <button class="btn-yes" id="btnYes">Je savais</button>
+  </div>
+  <div class="flip-hint-row" id="flipHintRow">Espace ou clic = retourner la carte</div>
+
+  <div id="donePanel" class="done-panel" style="display:none;">
+    <h2 id="doneTitle">Session terminée</h2>
+    <p id="doneText">Toutes les cartes dues ont été révisées.</p>
+    <div class="row">
+      <button id="btnPractice">Réviser quand même</button>
+      <button class="ghost" id="btnAllBlocs">Voir tous les blocs</button>
+    </div>
+  </div>
+
+  <footer class="bottom">
+    <button id="resetProgress">Réinitialiser ma progression</button>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CARDS = [
+    {id:1,bloc:1,front:`Quelle est la différence entre origination et exécution en M&A ?`,back:`L'origination est la phase de démarchage commercial (le pitch) pour obtenir un mandat. L'exécution démarre une fois le mandat signé, avec le déroulement du process — environ 4 à 5 mois au total.`},
+    {id:2,bloc:1,front:`Comment se compose la rémunération d'une banque d'affaires sur un mandat M&A ?`,back:`Un retainer fee (forfait fixe, négociable, versé à la signature) et un success fee (% du prix de la transaction, versé uniquement si le deal se conclut — hypothétique, potentiellement bien plus important que le fixe).`},
+    {id:3,bloc:1,front:`Quelle est la différence entre Buy side et Sell side ?`,back:`En Buy side, la banque conseille l'acheteur dans l'acquisition d'une cible. En Sell side, elle conseille le vendeur — son objectif est de maximiser la valeur, chercher des acheteurs et vendre la cible.`},
+    {id:4,bloc:1,front:`Quelles sont les 4 grandes phases d'un process Sell-side, et leur durée typique ?`,back:`Préparation (4-6 sem.) → Contact (4-6 sem.) → Due diligence (4-6 sem.) → Négociation (1-2 sem.), soit environ 4 à 5 mois au total.`},
+    {id:5,bloc:1,front:`Quelle est la différence entre un teaser et un Information Memorandum ?`,back:`Le teaser est court (10 pages max), anonyme, envoyé avant la signature du NDA. L'IM est détaillé (30 pages minimum), confidentiel, envoyé après le NDA, et sert de base à la rédaction de la NBO.`},
+    {id:6,bloc:1,front:`Quelle est la différence entre une NBO et une Binding Offer ?`,back:`La NBO est non engageante, donnée en fin de phase de préparation/contact sur la base d'un prix indicatif. La Binding Offer est engageante, donnée en fin de due diligence, et conditionne l'entrée en négociation exclusive du SPA.`},
+    {id:7,bloc:1,front:`Qu'est-ce qu'une clause de garantie d'actif et de passif (GAP) ?`,back:`Le vendeur dédommage l'acheteur pour tout passif caché révélé après l'acquisition, dont le fait générateur est antérieur à la date d'acquisition. Durée typique : 3 à 5 ans, avec un plancher et un montant d'indemnisation définis.`},
+    {id:8,bloc:1,front:`En quoi la clause de locked box diffère-t-elle d'un mécanisme de prix ajustable classique ?`,back:`Le prix est fixé à une date de référence sur la base des derniers comptes audités et n'est plus ajustable ensuite — ce qui simplifie la négociation, mais transfère le risque économique à l'acheteur dès cette date de référence.`},
+    {id:9,bloc:1,front:`Qu'est-ce qu'un earn out, et à quoi sert-il ?`,back:`Un mécanisme indexant une partie du prix (souvent 10-15% de la valeur des CP) sur les résultats futurs de la cible, versé sur 1 à 3 ans — il permet à l'acheteur de ne pas surpayer et motive le dirigeant cédant.`},
+    {id:10,bloc:1,front:`Quelle est la différence entre une clause de drag along et une clause de tag along ?`,back:`Le drag along oblige les minoritaires à céder leurs titres en cas d'offre de rachat à 100% (évite le blocage). Le tag along protège les minoritaires en leur garantissant les mêmes conditions que le majoritaire.`},
+    {id:11,bloc:1,front:`Qu'est-ce qu'un processus de dual track ?`,back:`Le vendeur mène en parallèle un processus de cession classique et une introduction en bourse (IPO), pour renforcer son pouvoir de négociation et sécuriser la vente de l'actif (ex. Afflelou/Bridgepoint, 2012).`},
+    {id:12,bloc:1,front:`Pourquoi les fonds de private equity peuvent-ils parfois payer plus cher qu'un acheteur stratégique ?`,back:`En cas de build-up (la cible complète une entreprise déjà détenue en portefeuille), le fonds peut dégager des synergies et donc payer une prime, comme le ferait un acheteur stratégique.`},
+
+    {id:13,bloc:2,front:`Quelle est la différence entre book value et equity value des capitaux propres ?`,back:`La book value est la valeur comptable (capital social + réserves), inscrite au passif du bilan. L'equity value est la valeur de marché (NOSH ajusté × cours), souvent très différente de la book value.`},
+    {id:14,bloc:2,front:`Comment obtient-on le NOSH ajusté (nombre d'actions dilué) ?`,back:`Actions ordinaires − treasury shares (auto-détenues) + titres dilutifs « dans la monnaie » (options traitées via la treasury stock method : conversion → trésorerie reçue → rachat d'actions → effet dilutif net réduit).`},
+    {id:15,bloc:2,front:`Quelle est la formule générale du bridge EV → Equity Value ?`,back:`EV = Equity Value + Dette financière nette + Intérêts minoritaires − Sociétés mises en équivalence + Pensions non financées + Provisions + Leases.`},
+    {id:16,bloc:2,front:`Pourquoi ajoute-t-on les intérêts minoritaires dans le bridge EV ?`,back:`Par cohérence de consolidation : une filiale consolidée par intégration globale apporte 100% de son EBITDA au groupe, donc les minoritaires ont droit à une part de la valeur d'entreprise correspondante.`},
+    {id:17,bloc:2,front:`Pourquoi retranche-t-on les sociétés mises en équivalence (MEE) dans le bridge EV ?`,back:`Une participation en MEE (détention 20-50%) n'apporte 0% de son EBITDA au consolidé, alors que l'Equity Value contient déjà cette quote-part — il faut donc la retrancher pour rester cohérent.`},
+    {id:18,bloc:2,front:`Dans quel cas les pensions doivent-elles être retraitées dans le bridge EV ?`,back:`Uniquement en cas de régime à prestations définies. Le montant ajouté = engagement total actualisé − fair value des placements déjà constitués, net d'impôt (sauf Allemagne et Italie).`},
+    {id:19,bloc:2,front:`Quelles sont les 2 conditions pour qu'un engagement soit enregistré comme une provision dans le bridge EV ?`,back:`La probabilité de sortie de cash doit être supérieure à 50%, et cette sortie ne doit pas être liée à l'activité courante de l'entreprise (sinon elle est déjà incluse dans l'EBITDA).`},
+    {id:20,bloc:2,front:`Cas pratique — Une société a une Equity Value de 500 M€, une dette nette de 120 M€, des intérêts minoritaires de 30 M€, une participation en MEE de 15 M€ et des provisions de 10 M€. Calcule son EV.`,back:`EV = 500 + 120 + 30 − 15 + 10 = **645 M€**. (On ajoute la dette nette et les IM, on retranche la MEE, on ajoute les provisions hors activité courante.)`},
+    {id:21,bloc:2,front:`Cas pratique — Une entreprise a 80M d'actions ordinaires, dont 2M de treasury shares, et 3M d'options dilutives nettes (déjà retraitées via la treasury stock method). Le cours est de 25€. Calcule l'Equity Value.`,back:`NOSH ajusté = 80 − 2 + 3 = 81M actions. Equity Value = 81M × 25€ = **2 025 M€**.`},
+
+    {id:22,bloc:3,front:`Quels sont les 3 principes sur lesquels repose la méthode des comparables ?`,back:`L'entreprise est évaluée globalement (pas actif par actif) ; elle est valorisée par un multiple de sa capacité bénéficiaire ; les marchés sont supposés à l'équilibre.`},
+    {id:23,bloc:3,front:`Quels critères permettent de sélectionner de bons comparables boursiers ?`,back:`L'industrie, la géographie, la taille (CA proche), et des indicateurs financiers similaires (croissance, rentabilité opérationnelle, structure financière).`},
+    {id:24,bloc:3,front:`Pourquoi utilise-t-on généralement le multiple EV/EBITDA plutôt que EV/CA ?`,back:`L'EBITDA mesure la performance opérationnelle courante de l'entreprise, ce qui en fait un agrégat plus pertinent. EV/CA est réservé aux entreprises pas encore rentables (marge d'EBITDA négative ou faible).`},
+    {id:25,bloc:3,front:`Dans quel cas utilise-t-on plutôt EV/EBIT ou EV/(EBITDA−Capex) ?`,back:`Dans les secteurs à forte intensité capitalistique (ciment, télécoms, industrie lourde), pour refléter le cycle d'investissement de l'entreprise dans le multiple.`},
+    {id:26,bloc:3,front:`Quel est l'inconvénient principal des multiples calculés sur la valeur des capitaux propres (P/E, price to book) ?`,back:`Ils intègrent la structure financière de l'entreprise (après frais financiers), ce qui les rend moins comparables entre entreprises ayant des niveaux d'endettement différents.`},
+    {id:27,bloc:3,front:`Pourquoi les transactions précédentes donnent-elles généralement une valorisation plus élevée que les comparables boursiers ?`,back:`À cause de la prime d'acquisition/de contrôle payée par l'acheteur — mais cette prime ne s'applique qu'en cas d'acquisition majoritaire.`},
+    {id:28,bloc:3,front:`L'agrégat comptable utilisé au dénominateur d'un multiple est-il historique ou prévisionnel ?`,back:`Toujours prévisionnel — on valorise l'entreprise pour son avenir, pas pour son passé (broker notes, consensus publié, ou prévisions propres).`},
+
+    {id:29,bloc:4,front:`Quelle est la formule générale du DCF ?`,back:`EV = Σ FCFₜ/(1+WACC)ᵗ + Valeur Terminale actualisée, sur un horizon explicite de 5 à 7 ans en général.`},
+    {id:30,bloc:4,front:`Dans quels 2 cas allonge-t-on la durée de l'horizon explicite du DCF ?`,back:`Pour les startups non rentables (le temps qu'elles génèrent des FCF positifs, parfois 10-15 ans) et pour les concessions (revenus très prévisibles sur longue durée, mais sans valeur terminale à l'issue du contrat).`},
+    {id:31,bloc:4,front:`Quelle est la formule du FCFF (Free Cash-Flow to Firm) ?`,back:`EBIT − impôt (calculé sur l'EBIT) + D&A − Capex − variation du BFR. Revient à tous les pourvoyeurs de fonds et s'actualise au WACC pour obtenir l'EV.`},
+    {id:32,bloc:4,front:`Quelle est la différence entre le FCFF et le FCFE ?`,back:`FCFE = FCFF − intérêts financiers + nouveaux emprunts − remboursements. Il revient uniquement aux actionnaires et s'actualise au coût des capitaux propres pour obtenir directement la valeur des CP.`},
+    {id:33,bloc:4,front:`Quelle est la formule du MEDAF (CAPM) pour calculer le coût des capitaux propres ?`,back:`Ke = Rf + β × (Rm − Rf), où Rf est le taux sans risque et (Rm−Rf) la prime de risque de marché (equity risk premium).`},
+    {id:34,bloc:4,front:`Quelle est la formule du WACC ?`,back:`WACC = Ke × CP/(CP+D) + Kd × (1−IS) × D/(CP+D) — moyenne pondérée du coût des CP et du coût de la dette après impôt.`},
+    {id:35,bloc:4,front:`Le WACC dépend-il de la structure financière de l'entreprise ?`,back:`Non — il dépend uniquement du risque opérationnel (structure des coûts, cyclicité, visibilité de l'activité, taux de croissance), pas de la répartition dette/capitaux propres.`},
+    {id:36,bloc:4,front:`Comment calcule-t-on la valeur terminale par la méthode de Gordon Shapiro ?`,back:`VT = FCF normatif × (1+g) / (WACC − g), ensuite actualisée depuis la fin de l'horizon explicite jusqu'à aujourd'hui.`},
+    {id:37,bloc:4,front:`Cas pratique — Rf = 2,5%, β = 1,4, prime de risque de marché = 6%. Calcule Ke (CAPM).`,back:`Ke = 2,5% + 1,4 × 6% = 2,5% + 8,4% = **10,9%**.`},
+    {id:38,bloc:4,front:`Cas pratique — CP = 600, Dette = 400, Ke = 10%, Kd = 5%, IS = 25%. Calcule le WACC.`,back:`WACC = 10%×(600/1000) + 5%×(1−0,25)×(400/1000) = 6% + 1,5% = **7,5%**.`},
+
+    {id:39,bloc:5,front:`Quelle est la différence entre une fusion et une acquisition ?`,back:`La fusion crée une nouvelle entité entre deux entreprises de taille comparable (merger of equals, paiement en titres avec parité négociée). L'acquisition est le rachat d'une cible par un acheteur clairement identifié.`},
+    {id:40,bloc:5,front:`Que signifie l'expression « 1+1=3 » en M&A ?`,back:`Elle résume la notion de synergies : la valeur de l'entité combinée est supérieure à la somme des valeurs des deux entreprises prises séparément.`},
+    {id:41,bloc:5,front:`Quelle est la différence entre synergies de revenus et synergies de coûts ?`,back:`Les synergies de revenus proviennent de nouvelles opportunités commerciales (ventes croisées). Les synergies de coûts viennent d'une meilleure efficacité opérationnelle (suppression de doublons) — ces dernières sont généralement plus faciles à réaliser.`},
+    {id:42,bloc:5,front:`Quelle est la différence entre une OPA et une OPE ?`,back:`L'OPA (offre publique d'achat) se règle en cash. L'OPE (offre publique d'échange) se règle en titres de l'acheteur.`},
+    {id:43,bloc:5,front:`À partir de quel seuil de détention une offre publique devient-elle obligatoire en France, et à partir de quel seuil peut-on lancer un squeeze out ?`,back:`Offre obligatoire au franchissement de 30% du capital ou des droits de vote. Squeeze out possible à partir de 95% de détention.`},
+    {id:44,bloc:5,front:`Cite 2 tactiques de défense contre une OPA hostile et explique-les brièvement.`,back:`Le Chevalier blanc (un tiers allié lance une contre-offre concurrente) et la Vente des joyaux de la couronne (la cible cède ses actifs stratégiques pour devenir moins attractive pour l'attaquant).`},
+    {id:45,bloc:5,front:`Quel est l'avantage principal d'un paiement en cash pour l'acheteur, et son principal inconvénient ?`,back:`Avantage : pas de dilution des actionnaires existants. Inconvénient : hausse du levier financier (la dette nette augmente).`},
+    {id:46,bloc:5,front:`Quel est l'avantage principal d'un paiement en titres pour le vendeur ?`,back:`Une fiscalité différée avantageuse — les actionnaires ne paient pas d'impôt au moment de l'opération, mais seulement lors de la cession future des titres reçus.`},
+    {id:47,bloc:5,front:`Une acquisition est-elle relutive ou dilutive lorsque le BPA de l'acheteur augmente après l'opération ?`,back:`Relutive (le BPA augmente). Elle est dilutive lorsque le BPA diminue après l'opération.`},
+    {id:48,bloc:5,front:`Astuce rapide — à quelle condition une acquisition financée à 100% en titres est-elle relutive ?`,back:`Si le P/E de l'acheteur est supérieur au P/E de la cible (P/E acheteur > P/E cible) — sous réserve d'absence de synergies ou de forte prime d'acquisition.`},
+    {id:49,bloc:5,front:`Cas pratique — Une acquisition est financée à 100% en cash, coût de la dette = 4%. Le P/E de la cible est de 20x. L'opération est-elle relutive ou dilutive ?`,back:`Règle : relutif si 1/(P/E cible) > coût de la dette. 1/20 = 5% > 4% → **opération relutive** pour l'acheteur.`},
+    {id:50,bloc:5,front:`Cas pratique — Un acheteur (VE=800, VCP=600, DN=200) rachète 100% d'une cible pour un prix de 300 (= sa VCP, donc sans prime), DN cible=50, payé 60% cash / 40% titres. Calcule la VE combinée.`,back:`Sans prime, VE combinée = somme des VE = VE acheteur (800) + VE cible (VCP 300 + DN 50 = 350) = **1 150**. (Vérification par les composantes : VCP combinée 600+120=720, DN combinée 200+50+180=430, soit 720+430=1150 ✓)`},
+
+    {id:51,bloc:6,front:`Quelle est la définition d'un LBO ?`,back:`Le rachat d'une entreprise financé par une dette significative (levier), porté par un fonds de private equity, avec un horizon de sortie de 4 à 6 ans et un TRI cible d'au moins 15%.`},
+    {id:52,bloc:6,front:`Quels sont les 4 leviers de création de valeur dans un LBO ?`,back:`Le levier financier (rentabilité économique > coût de la dette), juridique (contrôle avec apport limité), fiscal (régime mère-fille + intégration fiscale), et opérationnel (théorie de l'agence, management package).`},
+    {id:53,bloc:6,front:`À partir de quel seuil de détention l'intégration fiscale est-elle généralement mise en place dans un LBO ?`,back:`Au-delà de 95% de détention de la cible par la holding — les deux sociétés ne forment alors plus qu'une seule entité au niveau fiscal.`},
+    {id:54,bloc:6,front:`Quelle est la formule du TRI dans un LBO ?`,back:`TRI = MOM^(1/n) − 1, où MOM = VCP sortie / VCP entrée et n = le nombre d'années de détention.`},
+    {id:55,bloc:6,front:`Quels sont les 3 leviers pour augmenter le TRI d'un fonds de PE ?`,back:`Réduire la durée de détention · réduire la VCP à l'entrée (prix ou davantage de levier) · augmenter la VCP à la sortie (performance opérationnelle ou meilleure négociation du prix de sortie).`},
+    {id:56,bloc:6,front:`Classe les 3 grands types de dette LBO du moins au plus risqué, avec leur rendement approximatif.`,back:`Dette senior (6-8%) < dette unitranche (8-10%) < dette subordonnée/mezzanine (10-13%).`},
+    {id:57,bloc:6,front:`Qu'est-ce qu'un equity kicker dans une dette mezzanine ?`,back:`Un complément de rémunération sous forme de bons de souscription d'actions (BSA), donnant droit à une part de la plus-value réalisée à la sortie de l'opération.`},
+    {id:58,bloc:6,front:`Quelles sont les caractéristiques typiquement recherchées chez une cible de LBO ?`,back:`Des cash-flows réguliers, un marché non risqué et mature (peu capexivore), et une forte équipe de management.`},
+    {id:59,bloc:6,front:`Quelle est la différence entre une sortie en cession industrielle et une sortie par IPO pour un fonds de PE ?`,back:`La cession industrielle permet souvent d'obtenir une prime de contrôle. L'IPO ne le permet pas, car le marché achète les titres par petits blocs successifs.`},
+    {id:60,bloc:6,front:`Qu'est-ce qu'un leverage recap dans un LBO ?`,back:`Le fonds réendette la cible pour se distribuer du cash — une sortie partielle des capitaux propres investis sans céder le contrôle, ce qui améliore le rendement global du fonds.`},
+    {id:61,bloc:6,front:`Paper LBO — EBITDA entrée=80M€, multiple=8x, levier=4x EBITDA (in fine). Sortie après 4 ans (isomultiple), EBITDA +5M€/an, cash généré=150M€. Calcule le TRI.`,back:`Prix=8×80=640. Dette=4×80=320, Equity=320. EBITDA sortie=80+5×4=100 → VE sortie=100×8=800. Dette nette sortie=320−150=170. VCP sortie=800−170=630. MOM=630/320≈1,97x → **TRI ≈ 18,5%**.`},
+    {id:62,bloc:6,front:`Cas pratique — Un fonds investit 250 M€ de CP et revend 4 ans plus tard pour 500 M€, sans dividende intermédiaire. Calcule le MOM et le TRI.`,back:`MOM = 500/250 = **2x**. TRI = 2^(1/4) − 1 ≈ **18,9%**.`},
+
+    {id:63,bloc:7,front:`À quelle question répond le compte de résultat (CDR) ?`,back:`De combien varie le patrimoine de l'entreprise au cours de la période (logique de richesse : produits qui créent de la valeur moins charges qui en détruisent, sur un flux entre deux dates).`},
+    {id:64,bloc:7,front:`Quelle est la chaîne de formules menant de l'EBITDA au résultat net ?`,back:`EBITDA − D&A = EBIT ; EBIT − Résultat financier = EBT ; EBT + résultat exceptionnel − impôt = Résultat net.`},
+    {id:65,bloc:7,front:`À quelle question répond le bilan ?`,back:`Combien vaut le patrimoine de l'entreprise à un instant T (logique de stock : photographie à une date donnée ; actif toujours égal au passif).`},
+    {id:66,bloc:7,front:`Comment passe-t-on du bilan patrimonial au bilan économique ?`,back:`Les dettes fournisseurs basculent du passif vers l'actif (elles diminuent le montant du BFR), et la trésorerie bascule de l'actif vers le passif (elle diminue la dette financière nette).`},
+    {id:67,bloc:7,front:`À quelle question répond le tableau des flux de trésorerie (TFT) ?`,back:`De combien varie la trésorerie de l'entreprise au cours de la période (encaissements moins décaissements, entre deux dates).`},
+    {id:68,bloc:7,front:`Quelle est la formule du flux de trésorerie d'exploitation dans le TFT ?`,back:`Résultat net + D&A − variation du BFR.`},
+    {id:69,bloc:7,front:`Pourquoi les D&A sont-elles réintégrées (ajoutées) dans le TFT alors qu'elles sont une charge au CDR ?`,back:`Ce sont des charges non décaissées (constatation comptable d'une dépréciation) : elles ont déjà réduit le résultat net sans sortie de trésorerie réelle correspondante — il faut donc les ajouter pour retrouver le vrai flux de cash.`},
+    {id:70,bloc:7,front:`L'achat d'un terrain a-t-il un impact sur le résultat net (CDR) ?`,back:`Non — l'achat d'un actif ne modifie pas le patrimoine net de l'entreprise : l'actif augmente, mais la trésorerie diminue (ou une dette est contractée) du même montant.`},
+    {id:71,bloc:7,front:`Cas pratique — CA=200, COGS=90, SG&A=40, D&A=20, résultat financier=−10, pas d'exceptionnel, IS=25%. Calcule le résultat net.`,back:`EBITDA=200−90−40=70. EBIT=70−20=50. EBT=50−10=40. Impôt=40×25%=10. **Résultat net = 30**.`}
+  ];
+
+  var BLOCS = {
+    1:"Process", 2:"Bridge EV/EQ", 3:"Comparables",
+    4:"DCF", 5:"Mergers", 6:"LBO", 7:"Comptabilité"
+  };
+
+  var STORAGE_KEY = "ma_synthese_progress_v1";
+  var INTERVALS = [0,1,3,7,16]; // days, index = box-1 (box 1..5)
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function addDays(dateStr, n){
+    var d = new Date(dateStr+"T00:00:00");
+    d.setDate(d.getDate()+n);
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+
+  function loadProgress(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {};
+      var parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === "object") ? parsed : {};
+    }catch(e){ return {}; }
+  }
+  function saveProgress(p){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+    catch(e){ /* storage unavailable — session continues without persistence */ }
+  }
+
+  var progress = loadProgress();
+  var today = todayStr();
+
+  function stateFor(cardId){
+    var s = progress[cardId];
+    if(!s){ s = {box:1, due:today}; }
+    return s;
+  }
+
+  // ---- DOM refs ----
+  var blocFilter = document.getElementById("blocFilter");
+  var counterEl = document.getElementById("counter");
+  var stageEl = document.getElementById("stage");
+  var cardEl = document.getElementById("card");
+  var qText = document.getElementById("qText");
+  var aText = document.getElementById("aText");
+  var tagFront = document.getElementById("tagFront");
+  var tagBack = document.getElementById("tagBack");
+  var dotsFront = document.getElementById("dotsFront");
+  var dotsBack = document.getElementById("dotsBack");
+  var answerButtons = document.getElementById("answerButtons");
+  var flipHintRow = document.getElementById("flipHintRow");
+  var btnNo = document.getElementById("btnNo");
+  var btnYes = document.getElementById("btnYes");
+  var donePanel = document.getElementById("donePanel");
+  var doneTitle = document.getElementById("doneTitle");
+  var doneText = document.getElementById("doneText");
+  var btnPractice = document.getElementById("btnPractice");
+  var btnAllBlocs = document.getElementById("btnAllBlocs");
+  var statDue = document.getElementById("statDue");
+  var statMastered = document.getElementById("statMastered");
+  var statTotal = document.getElementById("statTotal");
+  var resetBtn = document.getElementById("resetProgress");
+  var progressFill = document.getElementById("progressFill");
+  var shuffleBtn = document.getElementById("shuffleBtn");
+  var flagYes = document.getElementById("flagYes");
+  var flagNo = document.getElementById("flagNo");
+
+  statTotal.textContent = CARDS.length;
+
+  // ---- filter dropdown ----
+  var opt = document.createElement("option");
+  opt.value = "all"; opt.textContent = "Tous les blocs (" + CARDS.length + " cartes)";
+  blocFilter.appendChild(opt);
+  Object.keys(BLOCS).forEach(function(k){
+    var count = CARDS.filter(function(c){ return c.bloc == k; }).length;
+    var o = document.createElement("option");
+    o.value = k;
+    o.textContent = "Bloc " + k + " — " + BLOCS[k] + " (" + count + ")";
+    blocFilter.appendChild(o);
+  });
+
+  var queue = [];
+  var qIndex = 0;
+  var current = null;
+  var practiceMode = false;
+
+  function shuffleArray(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function cardsForFilter(){
+    var f = blocFilter.value;
+    if(f === "all") return CARDS.slice();
+    return CARDS.filter(function(c){ return String(c.bloc) === f; });
+  }
+
+  function buildQueue(forcePractice){
+    var pool = cardsForFilter();
+    var list;
+    if(forcePractice){
+      list = pool.slice();
+    }else{
+      list = pool.filter(function(c){
+        var s = stateFor(c.id);
+        return s.due <= today;
+      });
+    }
+    shuffleArray(list);
+    queue = list;
+    qIndex = 0;
+    practiceMode = !!forcePractice;
+  }
+
+  function updateStats(){
+    var pool = cardsForFilter();
+    var dueCount = pool.filter(function(c){ return stateFor(c.id).due <= today; }).length;
+    var masteredCount = pool.filter(function(c){ return stateFor(c.id).box >= 5; }).length;
+    statDue.textContent = dueCount;
+    statMastered.textContent = masteredCount;
+    statTotal.textContent = pool.length;
+  }
+
+  function renderDots(container, box){
+    container.innerHTML = "";
+    for(var i=1;i<=5;i++){
+      var s = document.createElement("span");
+      if(i <= box) s.className = "filled";
+      container.appendChild(s);
+    }
+  }
+
+  function showCard(){
+    if(qIndex >= queue.length){
+      showDone();
+      return;
+    }
+    current = queue[qIndex];
+    var s = stateFor(current.id);
+    cardEl.classList.remove("flipped");
+    qText.textContent = current.front;
+    aText.textContent = current.back;
+    var label = "Bloc " + current.bloc + " · " + BLOCS[current.bloc];
+    tagFront.textContent = label;
+    tagBack.textContent = label;
+    renderDots(dotsFront, s.box);
+    renderDots(dotsBack, s.box);
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "block";
+    counterEl.textContent = "Carte " + (qIndex+1) + " / " + queue.length + (practiceMode ? " · mode révision libre" : "");
+    stageEl.style.display = "block";
+    donePanel.style.display = "none";
+    progressFill.style.width = (queue.length ? Math.round((qIndex/queue.length)*100) : 0) + "%";
+    cardEl.style.transform = "";
+    cardEl.classList.remove("fly-left","fly-right","dragging","drag-yes","drag-no");
+  }
+
+  function showDone(){
+    stageEl.style.display = "none";
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "none";
+    counterEl.textContent = "";
+    donePanel.style.display = "block";
+    progressFill.style.width = "100%";
+    if(practiceMode){
+      doneTitle.textContent = "Révision libre terminée";
+      doneText.textContent = "Tu as repassé toutes les cartes de ce filtre, sans effet sur les dates de révision.";
+    }else{
+      doneTitle.textContent = "Session terminée";
+      doneText.textContent = "Toutes les cartes dues pour ce filtre ont été révisées. Reviens plus tard, ou révise-les quand même.";
+    }
+    updateStats();
+  }
+
+  function flip(){
+    if(!current) return;
+    var willShowBack = !cardEl.classList.contains("flipped");
+    cardEl.classList.toggle("flipped");
+    if(willShowBack){
+      answerButtons.hidden = false;
+      flipHintRow.style.display = "none";
+    }else{
+      answerButtons.hidden = true;
+      flipHintRow.style.display = "block";
+    }
+  }
+
+  function answer(knewIt){
+    if(!current) return;
+    var s = stateFor(current.id);
+    if(knewIt){
+      s.box = Math.min(5, s.box + 1);
+    }else{
+      s.box = 1;
+    }
+    s.due = addDays(today, INTERVALS[s.box - 1]);
+    progress[current.id] = s;
+    saveProgress(progress);
+    qIndex++;
+    updateStats();
+    showCard();
+  }
+
+  var dragState = null;
+  var DRAG_THRESHOLD = 90;
+
+  function onPointerDown(e){
+    if(answerButtons.hidden) return; // only swipe once the answer is showing
+    var point = (e.touches && e.touches[0]) || e;
+    dragState = { startX: point.clientX, dx: 0, moved:false, pointerId: e.pointerId };
+    cardEl.classList.add("dragging");
+    try{ if(e.pointerId !== undefined) cardEl.setPointerCapture(e.pointerId); }catch(err){}
+  }
+  function onPointerMove(e){
+    if(!dragState) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState.dx = point.clientX - dragState.startX;
+    if(Math.abs(dragState.dx) > 4) dragState.moved = true;
+    var rot = dragState.dx / 18;
+    cardEl.style.transform = "rotateY(180deg) translateX(" + dragState.dx + "px) rotate(" + (-rot) + "deg)";
+    cardEl.classList.toggle("drag-yes", dragState.dx > 30);
+    cardEl.classList.toggle("drag-no", dragState.dx < -30);
+    flagYes.style.opacity = dragState.dx > 30 ? Math.min(1,(dragState.dx-30)/60) : 0;
+    flagNo.style.opacity = dragState.dx < -30 ? Math.min(1,(-dragState.dx-30)/60) : 0;
+    if(e.cancelable) e.preventDefault();
+  }
+  function onPointerUp(){
+    if(!dragState) return;
+    cardEl.classList.remove("dragging");
+    var dx = dragState.dx;
+    var wasDrag = dragState.moved;
+    dragState = null;
+    flagYes.style.opacity = 0;
+    flagNo.style.opacity = 0;
+    if(Math.abs(dx) > DRAG_THRESHOLD){
+      var flyRight = dx > 0;
+      cardEl.classList.add(flyRight ? "fly-right" : "fly-left");
+      cardEl.style.transform = "rotateY(180deg) translateX(" + (flyRight ? 900 : -900) + "px) rotate(" + (flyRight ? 20 : -20) + "deg)";
+      setTimeout(function(){ answer(flyRight); }, 320);
+    }else{
+      cardEl.classList.remove("drag-yes","drag-no");
+      cardEl.style.transform = "";
+    }
+    // swallow the click that follows a real drag so it doesn't re-flip the card
+    if(wasDrag){
+      cardEl.addEventListener("click", function swallow(ev){ ev.stopPropagation(); cardEl.removeEventListener("click", swallow, true); }, {capture:true, once:true});
+    }
+  }
+
+  cardEl.addEventListener("pointerdown", onPointerDown);
+  cardEl.addEventListener("pointermove", onPointerMove);
+  cardEl.addEventListener("pointerup", onPointerUp);
+  cardEl.addEventListener("pointercancel", onPointerUp);
+  cardEl.addEventListener("pointerleave", function(e){ if(dragState) onPointerUp(); });
+
+  cardEl.addEventListener("click", flip);
+  cardEl.addEventListener("keydown", function(e){
+    if(e.code === "Space" || e.key === "Enter"){ e.preventDefault(); flip(); }
+  });
+
+  shuffleBtn.addEventListener("click", function(){
+    var remaining = queue.slice(qIndex);
+    shuffleArray(remaining);
+    queue = queue.slice(0, qIndex).concat(remaining);
+    showCard();
+  });
+  document.addEventListener("keydown", function(e){
+    var backVisible = !answerButtons.hidden;
+    if(!backVisible) return;
+    if(e.key === "ArrowRight"){ e.preventDefault(); answer(true); }
+    if(e.key === "ArrowLeft"){ e.preventDefault(); answer(false); }
+  });
+  btnNo.addEventListener("click", function(){ answer(false); });
+  btnYes.addEventListener("click", function(){ answer(true); });
+
+  blocFilter.addEventListener("change", function(){
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  btnPractice.addEventListener("click", function(){
+    buildQueue(true);
+    showCard();
+  });
+  btnAllBlocs.addEventListener("click", function(){
+    blocFilter.value = "all";
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  resetBtn.addEventListener("click", function(){
+    if(confirm("Réinitialiser toute ta progression sur toutes les cartes ?")){
+      progress = {};
+      saveProgress(progress);
+      today = todayStr();
+      buildQueue(false);
+      updateStats();
+      showCard();
+    }
+  });
+
+  // init
+  buildQueue(false);
+  updateStats();
+  showCard();
+})();
+</script>
+</body>
+</html>

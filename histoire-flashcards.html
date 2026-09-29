@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Histoire — Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#132845;
+    --bg-2:#1C3760;
+    --paper:#FFFFFF;
+    --paper-2:#F0F5FC;
+    --ink:#EAF1FB;
+    --ink-muted:#9FB4D4;
+    --blue:#4EA8DE;
+    --blue-light:#8AC8ED;
+    --blue-deep:#15335C;
+    --success:#2E8C5B;
+    --success-light:#4FAE7B;
+    --success-deep:#1C5C3B;
+    --coral:#E0654F;
+    --coral-light:#EE9280;
+    --rule:#2A4570;
+    --text-onpaper:#182B4A;
+    --text-onpaper-muted:#5C6F8C;
+  }
+  :root:not([data-theme="light"]){ }
+  :root[data-theme="dark"]{ }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ } }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Nunito', sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background-image:
+      radial-gradient(circle at 12% 6%, rgba(78,168,222,0.18), transparent 45%),
+      radial-gradient(circle at 88% 94%, rgba(46,140,91,0.14), transparent 45%);
+  }
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:28px 20px 56px;
+  }
+
+  .banner-love{
+    text-align:center;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    color:var(--blue-light);
+    background:rgba(78,168,222,0.14);
+    border:1px solid rgba(78,168,222,0.3);
+    border-radius:999px;
+    padding:9px 18px;
+    margin-bottom:20px;
+    display:inline-block;
+  }
+  .banner-love-row{ text-align:center; }
+
+  header.top{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .title-block h1{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.55rem;
+    margin:0 0 4px;
+    color:var(--blue-light);
+    letter-spacing:0.2px;
+  }
+  .title-block p{
+    margin:0;
+    color:var(--ink-muted);
+    font-size:0.88rem;
+  }
+  .stats{
+    display:flex;
+    gap:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink-muted);
+    white-space:nowrap;
+  }
+  .stats b{ color:var(--blue-light); font-weight:600; }
+
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  select{
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .shuffle-btn{
+    background:var(--paper);
+    color:var(--blue-deep);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .shuffle-btn:hover{ border-color:var(--blue); }
+  .counter{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    color:var(--ink-muted);
+  }
+
+  .progress-wrap{
+    position:relative;
+    margin-bottom:6px;
+  }
+  .progress-track{
+    height:4px;
+    background:var(--bg-2);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--blue);
+    width:0%;
+    transition:width 0.3s ease;
+  }
+  .almost-label{
+    text-align:right;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.8rem;
+    color:var(--blue-light);
+    opacity:0;
+    transition:opacity 0.3s ease;
+    height:20px;
+    margin:5px 0 12px;
+  }
+
+  .stage{
+    perspective:1600px;
+    margin-bottom:22px;
+  }
+  .card{
+    position:relative;
+    min-height:340px;
+    transform-style:preserve-3d;
+    transition:transform 0.5s cubic-bezier(.4,.2,.2,1);
+    cursor:pointer;
+    touch-action:pan-y;
+    user-select:none;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .card.dragging{ transition:none; }
+  .card.fly-left{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+  .card.fly-right{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+
+  .face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--blue-light);
+    border-top:4px solid var(--blue);
+    border-radius:14px;
+    box-shadow:0 18px 40px -16px rgba(46,84,128,0.28), 0 2px 0 rgba(74,127,181,0.10);
+    padding:26px 26px 20px;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    transition:box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .face.back{ transform:rotateY(180deg); background:var(--paper-2); }
+  .card.drag-yes .face{ border-color:var(--success); box-shadow:0 18px 40px -16px rgba(76,154,117,0.4); }
+  .card.drag-no .face{ border-color:var(--coral); box-shadow:0 18px 40px -16px rgba(224,121,106,0.4); }
+
+  .swipe-flag{
+    position:absolute;
+    top:18px;
+    padding:5px 12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    font-weight:600;
+    border-radius:6px;
+    opacity:0;
+    transition:opacity 0.15s ease;
+    pointer-events:none;
+    z-index:2;
+  }
+  .swipe-flag.yes{ right:18px; background:var(--success); color:#F3FBF6; transform:rotate(6deg); }
+  .swipe-flag.no{ left:18px; background:var(--coral); color:#FFF6F4; transform:rotate(-6deg); }
+
+  .face-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .tag{
+    font-size:0.76rem;
+    font-weight:600;
+    color:var(--blue-deep);
+    background:var(--bg-2);
+    background:#E4EEF9;
+    padding:3px 10px;
+    border-radius:20px;
+  }
+  .box-dots{ display:flex; gap:5px; }
+  .box-dots span{
+    width:7px; height:7px; border-radius:50%;
+    background:rgba(31,58,92,0.13);
+  }
+  .box-dots span.filled{ background:var(--blue); }
+
+  .face-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.03em;
+    color:var(--text-onpaper-muted);
+    margin-bottom:8px;
+  }
+  .q-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.4;
+    margin:0;
+    color:var(--blue-deep);
+  }
+  .a-text{
+    font-family:'Nunito', sans-serif;
+    font-weight:500;
+    font-size:1.05rem;
+    line-height:1.55;
+    margin:0;
+  }
+  .hint{
+    margin-top:auto;
+    padding-top:14px;
+    font-size:0.8rem;
+    color:var(--text-onpaper-muted);
+    text-align:center;
+  }
+
+  .answer-buttons{
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .answer-buttons button{
+    flex:1;
+    padding:12px 6px;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.78rem;
+    line-height:1.2;
+    white-space:normal;
+    border-radius:10px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:filter 0.15s ease, transform 0.1s ease;
+  }
+  .answer-buttons button:hover{ filter:brightness(1.06); }
+  .answer-buttons button:active{ transform:scale(0.97); }
+  .btn-no{ background:var(--coral); color:#FFF6F4; }
+  .btn-mid{ background:var(--bg-2); color:var(--blue-light); border:1px solid var(--blue-light); }
+  .btn-yes{ background:var(--success); color:#F3FBF6; }
+  .answer-buttons[hidden]{ display:none; }
+
+  .popup-overlay{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:60;
+  }
+  .popup-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:2.6rem;
+    letter-spacing:0.02em;
+    opacity:0;
+    text-shadow:0 4px 18px rgba(0,0,0,0.35);
+    animation:popSpawn 900ms cubic-bezier(.2,.9,.3,1.2) forwards;
+    white-space:nowrap;
+  }
+  @keyframes popSpawn{
+    0%{ opacity:0; transform:scale(0.4) rotate(-6deg) translateY(10px); }
+    35%{ opacity:1; transform:scale(1.15) rotate(3deg) translateY(-6px); }
+    55%{ opacity:1; transform:scale(1) rotate(0deg) translateY(0); }
+    85%{ opacity:1; }
+    100%{ opacity:0; transform:scale(1) translateY(-30px); }
+  }
+
+  .flip-hint-row{
+    text-align:center;
+    font-family:'Nunito', sans-serif;
+    color:var(--ink-muted);
+    font-size:0.8rem;
+    margin-bottom:26px;
+  }
+
+  .done-panel{
+    border:1px solid var(--rule);
+    background:var(--paper);
+    padding:32px 26px;
+    text-align:center;
+    border-radius:14px;
+  }
+  .done-panel h2{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:1.9rem;
+    margin:0 0 10px;
+    color:var(--success-deep);
+  }
+  .done-panel p{ font-family:'Nunito', sans-serif; color:var(--ink-muted); margin:0 0 20px; }
+  .done-panel .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .done-panel button{
+    padding:11px 18px;
+    background:var(--blue);
+    color:#fff;
+    border:none;
+    font-weight:600;
+    font-family:'Nunito', sans-serif;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .done-panel button.ghost{
+    background:transparent;
+    color:var(--blue-deep);
+    border:1px solid var(--blue-light);
+  }
+
+  footer.bottom{
+    margin-top:30px;
+    text-align:center;
+  }
+  footer.bottom button{
+    color:var(--ink-muted);
+    font-size:0.78rem;
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-family:'Nunito', sans-serif;
+  }
+
+  @media (max-width:480px){
+    .card{ min-height:400px; }
+    .q-text{ font-size:1.14rem; }
+    header.top{ align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="popup-overlay" id="popupOverlay"></div>
+
+<div class="wrap">
+
+  <div class="banner-love-row"><span class="banner-love">Courage ma Lolo d'amour ! 💙</span></div>
+  <div style="text-align:center; margin-bottom:14px;"><a href="index.html" style="color:var(--blue-light); font-family:'Nunito', sans-serif; font-size:0.85rem; text-decoration:none;">← Tous les decks</a></div>
+
+  <header class="top">
+    <div class="title-block">
+      <h1>Histoire — Flashcards</h1>
+      <p>Impérialisme, nationalismes, industrialisation — 44 cartes</p>
+    </div>
+    <div class="stats">
+      <span>À réviser <b id="statDue">0</b></span>
+      <span>Maîtrisées <b id="statMastered">0</b>/<span id="statTotal">44</span></span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="filter-row">
+      <select id="blocFilter" aria-label="Filtrer par thème"></select>
+      <button class="shuffle-btn" id="shuffleBtn" title="Mélanger l'ordre des cartes">🔀 Mélanger</button>
+    </div>
+    <div class="counter" id="counter">—</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <div class="almost-label" id="almostLabel">Tu y es presque ! 💙</div>
+
+  <div id="stage" class="stage">
+    <div class="card" id="card" tabindex="0">
+      <span class="swipe-flag no" id="flagNo">Demain !</span>
+      <span class="swipe-flag yes" id="flagYes">Trop facile !</span>
+      <div class="face front">
+        <div class="face-head">
+          <span class="tag" id="tagFront">—</span>
+          <div class="box-dots" id="dotsFront"></div>
+        </div>
+        <div class="face-label">Question</div>
+        <p class="q-text" id="qText"></p>
+        <div class="hint">Clique ou tape la carte pour voir la réponse</div>
+      </div>
+      <div class="face back">
+        <div class="face-head">
+          <span class="tag" id="tagBack">—</span>
+          <div class="box-dots" id="dotsBack"></div>
+        </div>
+        <div class="face-label">Réponse</div>
+        <p class="a-text" id="aText"></p>
+        <div class="hint">Glisse la carte ← → ou utilise les boutons</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="answer-buttons" id="answerButtons" hidden>
+    <button class="btn-no" id="btnNo">Pas aujourd'hui, mais demain !</button>
+    <button class="btn-mid" id="btnMid">À revoir</button>
+    <button class="btn-yes" id="btnYes">TROP FACILE pour LOLOCHE</button>
+  </div>
+  <div class="flip-hint-row" id="flipHintRow">Espace ou clic = retourner la carte</div>
+
+  <div id="donePanel" class="done-panel" style="display:none;">
+    <h2 id="doneTitle">Session terminée</h2>
+    <p id="doneText">Toutes les cartes dues ont été révisées.</p>
+    <div class="row">
+      <button id="btnPractice">Réviser quand même</button>
+      <button class="ghost" id="btnAllBlocs">Voir tous les thèmes</button>
+    </div>
+  </div>
+
+  <footer class="bottom">
+    <button id="resetProgress">Réinitialiser ma progression</button>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CARDS = [
+    {id:1,bloc:1,front:"Que dit Eric Hobsbawm sur la fin du XIXe siècle ?",back:"Il l'appelle « l'ère des Empires » — le début de la phase d'impérialisme, marquée par une compétition intense entre puissances européennes pour le contrôle de territoires extra-européens."},
+    {id:2,bloc:1,front:"Que veut dire Jules Ferry par « la politique coloniale est fille de la politique industrielle » ?",back:"Les colonies répondent à un besoin de matières premières et de débouchés économiques pour l'industrie ; pour lui, coloniser est la suite logique de l'industrialisation, pas un simple projet politique."},
+    {id:3,bloc:1,front:"Quelle citation de Kipling illustre la vision paternaliste de la colonisation ?",back:"« Half child, half devil » — les peuples colonisés vus comme innocents et dangereux à la fois, à « civiliser » ; cette image justifie la mission civilisatrice revendiquée par les puissances coloniales."},
+    {id:4,bloc:1,front:"Qu'est-ce que « la force noire » du Général Mangin (1910) ?",back:"L'idée que la France, moins peuplée que l'Allemagne, doit s'appuyer sur ses populations coloniales pour renforcer ses armées en vue d'un conflit futur."},
+    {id:5,bloc:1,front:"Que signifie la « Weltpolitik » défendue par Von Bülow ?",back:"L'Allemagne veut sa « place au soleil » — aligner ses ambitions géopolitiques (colonies, marine) sur sa puissance économique déjà acquise, quitte à inquiéter le Royaume-Uni."},
+    {id:6,bloc:1,front:"Définis l'impérialisme.",back:"Politique par laquelle un État impose sa domination politique, économique ou militaire à d'autres peuples, souvent au nom d'intérêts stratégiques ou économiques."},
+    {id:7,bloc:1,front:"Définis le jingoïsme.",back:"Nationalisme excessif combiné à une volonté de domination, associé à un patriotisme belliqueux prompt à soutenir la guerre pour affirmer la puissance nationale."},
+    {id:8,bloc:1,front:"Qu'est-ce que l'impérialisme formel selon Gallagher & Robinson ?",back:"L'administration coloniale directe d'un territoire, avec une autorité politique explicite exercée par la puissance dominante sur la population locale."},
+    {id:9,bloc:1,front:"Et l'impérialisme informel, selon eux ?",back:"La domination par des moyens détournés, notamment le libre-échange imposé — ex. l'Égypte, l'Empire ottoman, la Chine forcée à des traités inégaux, sans occupation directe."},
+    {id:10,bloc:1,front:"Qu'est-ce qu'une « économie-monde » selon Fernand Braudel ?",back:"Une économie mondiale organisée autour d'un centre qui met les périphéries à son service (ex. la Grande-Bretagne) ; le centre concentre richesse et décision, les périphéries fournissent matières premières et main-d'œuvre."},
+    {id:11,bloc:1,front:"Que désigne la « diplomatie économique » chez Laurence Badie ?",back:"Le lien étroit entre relations diplomatiques, finance et industrie — les choix diplomatiques d'un État servent souvent des intérêts économiques et financiers précis."},
+
+    {id:12,bloc:2,front:"Définis le sentiment national.",back:"La conscience qu'a un individu de faire partie d'un même pays ou d'un peuple uni, fondée sur une histoire, une langue ou une culture partagées."},
+    {id:13,bloc:2,front:"En quoi le nationalisme diffère-t-il du sentiment national ?",back:"C'est un sentiment national radicalisé, avec volonté de dominer et d'exclure les autres — souvent justifié par le darwinisme social, l'idée d'une lutte des nations pour la survie."},
+    {id:14,bloc:2,front:"Que répond Ernest Renan à « Qu'est-ce qu'une nation ? » (1882) ?",back:"La nation est une volonté de vivre ensemble — « un plébiscite de tous les jours » : un choix quotidien et individuel, plutôt qu'un fait racial ou linguistique figé."},
+    {id:15,bloc:2,front:"Qu'est-ce que le « Lebensraum » de Friedrich Ratzel ?",back:"L'« espace vital » : l'espace géographique dont un peuple a besoin pour se nourrir, se développer et maintenir sa puissance — une notion qui justifiera plus tard des expansions territoriales."},
+    {id:16,bloc:2,front:"Qu'est-ce que le « nationalisme intégral » de Charles Maurras ?",back:"Placer l'appartenance à la nation au-dessus de tout — une doctrine anti-républicaine et anti-démocrate, qui rejette les principes de 1789 au nom de l'unité nationale."},
+    {id:17,bloc:2,front:"Qui sont les « 4 états confédérés » détestés par Maurras ?",back:"Les « ennemis de l'intérieur » selon sa doctrine — des groupes jugés menaçants pour l'unité nationale et accusés de diviser la nation de l'intérieur."},
+    {id:18,bloc:2,front:"Qu'est-ce que « le Grand Jeu » d'Arthur Conolly (1840) ?",back:"La rivalité géopolitique entre puissances (Royaume-Uni, Russie) en Asie centrale, chacune cherchant à étendre son influence sans déclencher un conflit direct."},
+    {id:19,bloc:2,front:"Quel est le rôle de Von Tirpitz et du Flottenverein ?",back:"Ils portent une volonté d'expansion très forte de la flotte de guerre allemande, pour rivaliser avec la suprématie navale britannique."},
+    {id:20,bloc:2,front:"Que traduit le passage du « Two Power Standard » (1900s) au « Two Keels to One » (1912) ?",back:"Une course aux armements navals : le Royaume-Uni veut rester plus fort que ses deux principaux rivaux réunis, signe des tensions croissantes avant 1914."},
+    {id:21,bloc:2,front:"Que décrit Charles Péguy avec « longue veillée d'armes » (dès 1905) ?",back:"Une atmosphère de tensions militaires croissantes en Europe, où chaque nation se prépare discrètement à un conflit que beaucoup pressentent inévitable."},
+    {id:22,bloc:2,front:"Définis le protectorat.",back:"Un territoire juridiquement indépendant mais géré par le ministère des Affaires étrangères de la puissance protectrice, qui en contrôle en réalité la politique extérieure."},
+
+    {id:23,bloc:3,front:"Définis l'industrialisation.",back:"Un processus où des innovations s'entraînent mutuellement et se propagent à d'autres secteurs, transformant progressivement toute l'économie et pas seulement l'industrie concernée."},
+    {id:24,bloc:3,front:"Que caractérise la 1ère révolution industrielle ?",back:"Charbon, textile, machine à vapeur (1769) — fin XVIIIe, début XIXe siècle ; elle démarre en Grande-Bretagne avant de gagner le reste de l'Europe."},
+    {id:25,bloc:3,front:"Que caractérise la 2e révolution industrielle ?",back:"Chimie, électricité, sidérurgie, automobile — milieu du XIXe siècle ; elle s'appuie sur de nouvelles sources d'énergie et une science plus industrialisée."},
+    {id:26,bloc:3,front:"Qu'est-ce qu'un cycle de Kondratiev ?",back:"Un cycle économique long : récession (1872-1893) puis expansion (1893-1917) — l'idée que l'économie alterne de longues phases de ralentissement et de croissance."},
+    {id:27,bloc:3,front:"Définis le libéralisme.",back:"Doctrine centrée sur les libertés individuelles, en politique comme en économie, qui s'oppose à toute forme d'autorité jugée arbitraire."},
+    {id:28,bloc:3,front:"Que défend le libéralisme politique ?",back:"Les libertés civiles, la séparation des pouvoirs, le pluralisme, la protection contre l'arbitraire — l'État y est vu comme un pouvoir à encadrer, pas à subir."},
+    {id:29,bloc:3,front:"Que défend le libéralisme économique ?",back:"La liberté d'entreprendre, le libre-échange, la libre concurrence, une intervention minimale de l'État — le marché est censé s'autoréguler sans tutelle publique."},
+    {id:30,bloc:3,front:"Que prône Adam Smith sur le commerce international ?",back:"Le libre-échange et la « main invisible » — l'auto-régulation du marché ; chaque acteur, en poursuivant son intérêt propre, contribue sans le vouloir à l'intérêt collectif."},
+    {id:31,bloc:3,front:"Qu'est-ce que l'étalon-or ?",back:"Un système monétaire où chaque monnaie est définie par un poids fixe d'or, convertible en or — ce qui limite en théorie la création monétaire arbitraire."},
+    {id:32,bloc:3,front:"Que désigne C. Bayly par « la grande domestication du monde » ?",back:"Le thème de son livre *La Naissance du monde moderne* — l'unification progressive du monde au XIXe s., portée par le commerce, les migrations et les techniques."},
+    {id:33,bloc:3,front:"Que montre Suzanne Berger dans « Notre première mondialisation » (2004) ?",back:"Une 1ère vague de mondialisation avant 1914, stoppée par la 1ère Guerre mondiale — preuve que la mondialisation n'est pas un phénomène linéaire ou irréversible."},
+
+    {id:34,bloc:4,front:"Que montre Pierre Mélandri dans « Le Siècle américain » ?",back:"Le rêve américain passe du « pionnier » (XVIIIe s.) au « grand baron d'industrie » (fin XIXe s.) — la réussite individuelle change de visage avec l'industrialisation du pays."},
+    {id:35,bloc:4,front:"Que dit la doctrine Monroe (1823) ?",back:"« L'Amérique aux Américains » — une politique isolationniste vis-à-vis de l'Europe, qui refuse toute nouvelle colonisation européenne sur le continent américain."},
+    {id:36,bloc:4,front:"Qu'ajoute le Corollaire Roosevelt (1904) à la doctrine Monroe ?",back:"Les USA peuvent intervenir dans les affaires d'Amérique latine — politique du « Big Stick » (Panama, Nicaragua), qui transforme la doctrine Monroe en un vrai droit d'ingérence."},
+    {id:37,bloc:4,front:"Qu'est-ce que la « Destinée manifeste » de J. O'Sullivan ?",back:"Les USA auraient une mission divine : faire régner la paix dans le monde et s'étendre — une idée qui légitime l'expansion territoriale et l'influence américaine."},
+    {id:38,bloc:4,front:"Que défend Alfred Mahan avec le « sea power » ?",back:"L'expansionnisme américain via des bases navales à l'étranger — une flotte puissante est vue comme la condition du rayonnement commercial et politique des USA."},
+    {id:39,bloc:4,front:"Quel est l'objectif des réformes de l'ère Meiji au Japon ?",back:"Concurrencer les Occidentaux sur les plans économique et militaire, dans une quête de modernité — le Japon adopte vite des institutions et technologies occidentales pour éviter la colonisation."},
+    {id:40,bloc:4,front:"Que décrit Paul Claudel dans « Sous le signe du dragon » ?",back:"Le Japon contraint à l'agression : puissant mais pauvre, face à une Chine immense mais militairement faible — un déséquilibre qui pousse le Japon à l'expansion pour compenser son manque de ressources."},
+
+    {id:41,bloc:5,front:"Définis un trust.",back:"Des dirigeants d'entreprises confient leur administration à un trustee, en échange d'actions — un moyen de concentrer plusieurs entreprises concurrentes sous une même direction."},
+    {id:42,bloc:5,front:"Donne un exemple historique de trust.",back:"Standard Oil Trust de John Rockefeller ; Andrew Carnegie dans la sidérurgie — deux figures emblématiques de la concentration industrielle américaine fin XIXe."},
+    {id:43,bloc:5,front:"Définis un holding.",back:"Une société financière mère qui investit dans des sociétés filles (souvent d'anciens trusts) — elle prend des participations sans forcément diriger l'exploitation au quotidien."},
+    {id:44,bloc:5,front:"Que décrit Clément Juglar dans « Des crises commerciales » (1862) ?",back:"Des cycles de ~8 ans en 3 phases : essor, crise, liquidation — les crises deviennent internationales avec la mondialisation, se propageant d'un marché à l'autre."}
+  ];
+
+  var BLOCS = {
+    1:"Impérialisme", 2:"Nationalisme & tensions", 3:"Industrialisation & libéralisme",
+    4:"Expansion US & Japon", 5:"Trusts & cycles économiques"
+  };
+
+  var STORAGE_KEY = "histoire_deck_progress_v1";
+  var INTERVALS = [0,1,3,7,16]; // days, index = box-1 (box 1..5)
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function addDays(dateStr, n){
+    var d = new Date(dateStr+"T00:00:00");
+    d.setDate(d.getDate()+n);
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+
+  function loadProgress(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {};
+      var parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === "object") ? parsed : {};
+    }catch(e){ return {}; }
+  }
+  function saveProgress(p){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+    catch(e){ /* storage unavailable — session continues without persistence */ }
+  }
+
+  var progress = loadProgress();
+  var today = todayStr();
+
+  function stateFor(cardId){
+    var s = progress[cardId];
+    if(!s){ s = {box:1, due:today}; }
+    return s;
+  }
+
+  var blocFilter = document.getElementById("blocFilter");
+  var counterEl = document.getElementById("counter");
+  var stageEl = document.getElementById("stage");
+  var cardEl = document.getElementById("card");
+  var qText = document.getElementById("qText");
+  var aText = document.getElementById("aText");
+  var tagFront = document.getElementById("tagFront");
+  var tagBack = document.getElementById("tagBack");
+  var dotsFront = document.getElementById("dotsFront");
+  var dotsBack = document.getElementById("dotsBack");
+  var answerButtons = document.getElementById("answerButtons");
+  var flipHintRow = document.getElementById("flipHintRow");
+  var btnNo = document.getElementById("btnNo");
+  var btnMid = document.getElementById("btnMid");
+  var btnYes = document.getElementById("btnYes");
+  var donePanel = document.getElementById("donePanel");
+  var doneTitle = document.getElementById("doneTitle");
+  var doneText = document.getElementById("doneText");
+  var btnPractice = document.getElementById("btnPractice");
+  var btnAllBlocs = document.getElementById("btnAllBlocs");
+  var statDue = document.getElementById("statDue");
+  var statMastered = document.getElementById("statMastered");
+  var statTotal = document.getElementById("statTotal");
+  var resetBtn = document.getElementById("resetProgress");
+  var progressFill = document.getElementById("progressFill");
+  var almostLabel = document.getElementById("almostLabel");
+  var shuffleBtn = document.getElementById("shuffleBtn");
+  var flagYes = document.getElementById("flagYes");
+  var flagNo = document.getElementById("flagNo");
+
+  statTotal.textContent = CARDS.length;
+
+  var opt = document.createElement("option");
+  opt.value = "all"; opt.textContent = "Tous les thèmes (" + CARDS.length + " cartes)";
+  blocFilter.appendChild(opt);
+  Object.keys(BLOCS).forEach(function(k){
+    var count = CARDS.filter(function(c){ return c.bloc == k; }).length;
+    var o = document.createElement("option");
+    o.value = k;
+    o.textContent = BLOCS[k] + " (" + count + ")";
+    blocFilter.appendChild(o);
+  });
+
+  var queue = [];
+  var qIndex = 0;
+  var current = null;
+  var practiceMode = false;
+
+  function shuffleArray(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function cardsForFilter(){
+    var f = blocFilter.value;
+    if(f === "all") return CARDS.slice();
+    return CARDS.filter(function(c){ return String(c.bloc) === f; });
+  }
+
+  function buildQueue(forcePractice){
+    var pool = cardsForFilter();
+    var list;
+    if(forcePractice){
+      list = pool.slice();
+    }else{
+      list = pool.filter(function(c){
+        var s = stateFor(c.id);
+        return s.due <= today;
+      });
+    }
+    shuffleArray(list);
+    queue = list;
+    qIndex = 0;
+    practiceMode = !!forcePractice;
+  }
+
+  function updateStats(){
+    var pool = cardsForFilter();
+    var dueCount = pool.filter(function(c){ return stateFor(c.id).due <= today; }).length;
+    var masteredCount = pool.filter(function(c){ return stateFor(c.id).box >= 5; }).length;
+    statDue.textContent = dueCount;
+    statMastered.textContent = masteredCount;
+    statTotal.textContent = pool.length;
+  }
+
+  function renderDots(container, box){
+    container.innerHTML = "";
+    for(var i=1;i<=5;i++){
+      var s = document.createElement("span");
+      if(i <= box) s.className = "filled";
+      container.appendChild(s);
+    }
+  }
+
+  function showCard(){
+    if(qIndex >= queue.length){
+      showDone();
+      return;
+    }
+    current = queue[qIndex];
+    var s = stateFor(current.id);
+    cardEl.classList.remove("flipped");
+    qText.textContent = current.front;
+    aText.textContent = current.back;
+    var label = BLOCS[current.bloc];
+    tagFront.textContent = label;
+    tagBack.textContent = label;
+    renderDots(dotsFront, s.box);
+    renderDots(dotsBack, s.box);
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "block";
+    counterEl.textContent = "Carte " + (qIndex+1) + " / " + queue.length + (practiceMode ? " · révision libre" : "");
+    stageEl.style.display = "block";
+    donePanel.style.display = "none";
+    var pct = queue.length ? Math.round((qIndex/queue.length)*100) : 0;
+    progressFill.style.width = pct + "%";
+    almostLabel.style.opacity = (pct >= 70 && pct < 100) ? 1 : 0;
+    cardEl.style.transform = "";
+    cardEl.classList.remove("fly-left","fly-right","dragging","drag-yes","drag-no");
+  }
+
+  function showDone(){
+    stageEl.style.display = "none";
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "none";
+    counterEl.textContent = "";
+    donePanel.style.display = "block";
+    progressFill.style.width = "100%";
+    almostLabel.style.opacity = 0;
+    doneTitle.textContent = "BRAVOOO ! 🎉";
+    if(practiceMode){
+      doneText.textContent = "T'as tout repassé en révision libre, Lolo — t'assures ! 💙";
+    }else{
+      doneText.textContent = "T'as fini toutes les cartes du jour. On est trop fiers de toi ! 💙";
+    }
+    updateStats();
+  }
+
+  function flip(){
+    if(!current) return;
+    var willShowBack = !cardEl.classList.contains("flipped");
+    cardEl.classList.toggle("flipped");
+    if(willShowBack){
+      answerButtons.hidden = false;
+      flipHintRow.style.display = "none";
+    }else{
+      answerButtons.hidden = true;
+      flipHintRow.style.display = "block";
+    }
+  }
+
+  var popupOverlay = document.getElementById("popupOverlay");
+
+  function spawnPopup(text, color){
+    var el = document.createElement("div");
+    el.className = "popup-text";
+    el.textContent = text;
+    el.style.color = color;
+    popupOverlay.innerHTML = "";
+    popupOverlay.appendChild(el);
+    setTimeout(function(){
+      if(el.parentNode) el.parentNode.removeChild(el);
+    }, 900);
+  }
+
+  function answer(kind){
+    if(!current) return;
+    var s = stateFor(current.id);
+    if(kind === "yes"){
+      s.box = Math.min(5, s.box + 1);
+      s.due = addDays(today, INTERVALS[s.box - 1]);
+      spawnPopup("VAMOSSS 🔥", "#4FAE7B");
+    }else if(kind === "mid"){
+      s.due = addDays(today, 1);
+    }else{
+      s.box = 1;
+      s.due = addDays(today, INTERVALS[0]);
+      spawnPopup("Next time :)", "#EE9280");
+    }
+    progress[current.id] = s;
+    saveProgress(progress);
+    qIndex++;
+    updateStats();
+    showCard();
+  }
+
+  var dragState = null;
+  var DRAG_THRESHOLD = 90;
+
+  function onPointerDown(e){
+    if(answerButtons.hidden) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState = { startX: point.clientX, dx: 0, moved:false, pointerId: e.pointerId };
+    cardEl.classList.add("dragging");
+    try{ if(e.pointerId !== undefined) cardEl.setPointerCapture(e.pointerId); }catch(err){}
+  }
+  function onPointerMove(e){
+    if(!dragState) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState.dx = point.clientX - dragState.startX;
+    if(Math.abs(dragState.dx) > 4) dragState.moved = true;
+    var rot = dragState.dx / 18;
+    cardEl.style.transform = "rotateY(180deg) translateX(" + dragState.dx + "px) rotate(" + (-rot) + "deg)";
+    cardEl.classList.toggle("drag-yes", dragState.dx > 30);
+    cardEl.classList.toggle("drag-no", dragState.dx < -30);
+    flagYes.style.opacity = dragState.dx > 30 ? Math.min(1,(dragState.dx-30)/60) : 0;
+    flagNo.style.opacity = dragState.dx < -30 ? Math.min(1,(-dragState.dx-30)/60) : 0;
+    if(e.cancelable) e.preventDefault();
+  }
+  function onPointerUp(){
+    if(!dragState) return;
+    cardEl.classList.remove("dragging");
+    var dx = dragState.dx;
+    var wasDrag = dragState.moved;
+    dragState = null;
+    flagYes.style.opacity = 0;
+    flagNo.style.opacity = 0;
+    if(Math.abs(dx) > DRAG_THRESHOLD){
+      var flyRight = dx > 0;
+      cardEl.classList.add(flyRight ? "fly-right" : "fly-left");
+      cardEl.style.transform = "rotateY(180deg) translateX(" + (flyRight ? 900 : -900) + "px) rotate(" + (flyRight ? 20 : -20) + "deg)";
+      setTimeout(function(){ answer(flyRight ? "yes" : "no"); }, 320);
+    }else{
+      cardEl.classList.remove("drag-yes","drag-no");
+      cardEl.style.transform = "";
+    }
+    if(wasDrag){
+      cardEl.addEventListener("click", function swallow(ev){ ev.stopPropagation(); cardEl.removeEventListener("click", swallow, true); }, {capture:true, once:true});
+    }
+  }
+
+  cardEl.addEventListener("pointerdown", onPointerDown);
+  cardEl.addEventListener("pointermove", onPointerMove);
+  cardEl.addEventListener("pointerup", onPointerUp);
+  cardEl.addEventListener("pointercancel", onPointerUp);
+  cardEl.addEventListener("pointerleave", function(){ if(dragState) onPointerUp(); });
+
+  cardEl.addEventListener("click", flip);
+  cardEl.addEventListener("keydown", function(e){
+    if(e.code === "Space" || e.key === "Enter"){ e.preventDefault(); flip(); }
+  });
+  document.addEventListener("keydown", function(e){
+    var backVisible = !answerButtons.hidden;
+    if(!backVisible) return;
+    if(e.key === "ArrowRight"){ e.preventDefault(); answer("yes"); }
+    if(e.key === "ArrowLeft"){ e.preventDefault(); answer("no"); }
+    if(e.key === "ArrowUp"){ e.preventDefault(); answer("mid"); }
+  });
+  btnNo.addEventListener("click", function(){ answer("no"); });
+  btnMid.addEventListener("click", function(){ answer("mid"); });
+  btnYes.addEventListener("click", function(){ answer("yes"); });
+
+  blocFilter.addEventListener("change", function(){
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  shuffleBtn.addEventListener("click", function(){
+    var remaining = queue.slice(qIndex);
+    shuffleArray(remaining);
+    queue = queue.slice(0, qIndex).concat(remaining);
+    showCard();
+  });
+
+  btnPractice.addEventListener("click", function(){
+    buildQueue(true);
+    showCard();
+  });
+  btnAllBlocs.addEventListener("click", function(){
+    blocFilter.value = "all";
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  resetBtn.addEventListener("click", function(){
+    if(confirm("Réinitialiser toute ta progression sur ces 44 cartes ?")){
+      progress = {};
+      saveProgress(progress);
+      today = todayStr();
+      buildQueue(false);
+      updateStats();
+      showCard();
+    }
+  });
+
+  buildQueue(false);
+  updateStats();
+  showCard();
+})();
+</script>
+</body>
+</html>

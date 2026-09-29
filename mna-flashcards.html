@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fiche M&amp;A — Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#161B22;
+    --ink-2:#1E2530;
+    --ink-3:#262E3A;
+    --paper:#F1ECDD;
+    --paper-2:#E7E0C9;
+    --brass:#B08D57;
+    --brass-light:#D3B27E;
+    --forest:#3F6C4E;
+    --forest-light:#5C8B69;
+    --rust:#A8402F;
+    --rust-light:#C25B49;
+    --text-ink:#EDE9DB;
+    --text-muted:#8B95A3;
+    --text-onpaper:#20242C;
+    --text-onpaper-muted:#5B5548;
+    --rule:#39414E;
+  }
+  :root:not([data-theme="light"]){ }
+  :root[data-theme="dark"]{ }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ } }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--ink);
+    color:var(--text-ink);
+    font-family:'Source Sans 3', sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background-image:
+      radial-gradient(circle at 15% 8%, rgba(176,141,87,0.10), transparent 45%),
+      radial-gradient(circle at 85% 92%, rgba(63,108,78,0.10), transparent 45%);
+  }
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:28px 20px 56px;
+  }
+
+  header.top{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .title-block h1{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:1.5rem;
+    margin:0 0 4px;
+    letter-spacing:0.2px;
+  }
+  .title-block p{
+    margin:0;
+    color:var(--text-muted);
+    font-size:0.88rem;
+  }
+  .stats{
+    display:flex;
+    gap:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--text-muted);
+    white-space:nowrap;
+  }
+  .stats b{ color:var(--brass-light); font-weight:600; }
+
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  select{
+    background:var(--ink-2);
+    color:var(--text-ink);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Source Sans 3', sans-serif;
+    font-size:0.9rem;
+    border-radius:2px;
+    cursor:pointer;
+  }
+  .counter{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    color:var(--text-muted);
+  }
+
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  .shuffle-btn{
+    background:var(--ink-2);
+    color:var(--brass-light);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-size:0.9rem;
+    border-radius:2px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .shuffle-btn:hover{ border-color:var(--brass); }
+
+  .progress-track{
+    height:3px;
+    background:var(--ink-3);
+    border-radius:2px;
+    margin-bottom:16px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--brass);
+    width:0%;
+    transition:width 0.3s ease;
+  }
+
+  .stage{
+    perspective:1600px;
+    margin-bottom:22px;
+  }
+  .card{
+    position:relative;
+    min-height:380px;
+    transform-style:preserve-3d;
+    transition:transform 0.5s cubic-bezier(.4,.2,.2,1);
+    cursor:pointer;
+    touch-action:pan-y;
+    user-select:none;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .card.dragging{ transition:none; }
+  .card.fly-left{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+  .card.fly-right{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+
+  .face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--brass);
+    border-top:4px solid var(--brass);
+    border-radius:8px;
+    box-shadow:0 18px 40px -14px rgba(0,0,0,0.55), 0 2px 0 rgba(176,141,87,0.15);
+    padding:26px 26px 20px;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    transition:box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .face.back{ transform:rotateY(180deg); }
+  .card.drag-yes .face{ border-color:var(--forest); box-shadow:0 18px 40px -14px rgba(63,108,78,0.55); }
+  .card.drag-no .face{ border-color:var(--rust); box-shadow:0 18px 40px -14px rgba(168,64,47,0.55); }
+
+  .swipe-flag{
+    position:absolute;
+    top:18px;
+    padding:5px 12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    font-weight:600;
+    border-radius:3px;
+    opacity:0;
+    transition:opacity 0.15s ease;
+    pointer-events:none;
+    z-index:2;
+  }
+  .swipe-flag.yes{ right:18px; background:var(--forest); color:#EAF2EC; transform:rotate(6deg); }
+  .swipe-flag.no{ left:18px; background:var(--rust); color:#F6ECE8; transform:rotate(-6deg); }
+
+  .face-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:16px;
+  }
+  .tag{
+    font-size:0.78rem;
+    color:var(--text-onpaper-muted);
+    border:1px solid rgba(32,36,44,0.25);
+    padding:3px 9px;
+    border-radius:2px;
+  }
+  .box-dots{ display:flex; gap:5px; }
+  .box-dots span{
+    width:7px; height:7px; border-radius:50%;
+    background:rgba(32,36,44,0.15);
+  }
+  .box-dots span.filled{ background:var(--brass); }
+
+  .face-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    letter-spacing:0.03em;
+    color:var(--text-onpaper-muted);
+    margin-bottom:10px;
+  }
+  .q-text{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.42;
+    margin:0;
+  }
+  .a-text{
+    font-size:1rem;
+    line-height:1.62;
+    margin:0;
+  }
+  .hint{
+    margin-top:auto;
+    padding-top:16px;
+    font-size:0.8rem;
+    color:var(--text-onpaper-muted);
+    text-align:center;
+  }
+
+  .answer-buttons{
+    display:flex;
+    gap:12px;
+    margin-bottom:10px;
+  }
+  .answer-buttons button{
+    flex:1;
+    padding:14px 10px;
+    font-family:'Source Sans 3', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    border-radius:2px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:filter 0.15s ease;
+  }
+  .answer-buttons button:hover{ filter:brightness(1.1); }
+  .btn-no{ background:var(--rust); color:#F6ECE8; }
+  .btn-yes{ background:var(--forest); color:#EAF2EC; }
+  .answer-buttons[hidden]{ display:none; }
+
+  .flip-hint-row{
+    text-align:center;
+    color:var(--text-muted);
+    font-size:0.8rem;
+    margin-bottom:26px;
+  }
+
+  .done-panel{
+    border:1px solid var(--rule);
+    background:var(--ink-2);
+    padding:32px 26px;
+    text-align:center;
+    border-radius:2px;
+  }
+  .done-panel h2{
+    font-family:'Fraunces', serif;
+    font-weight:600;
+    margin:0 0 10px;
+  }
+  .done-panel p{ color:var(--text-muted); margin:0 0 20px; }
+  .done-panel .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .done-panel button{
+    padding:11px 18px;
+    background:var(--brass);
+    color:var(--ink);
+    border:none;
+    font-weight:600;
+    border-radius:2px;
+    cursor:pointer;
+    font-family:'Source Sans 3', sans-serif;
+  }
+  .done-panel button.ghost{
+    background:transparent;
+    color:var(--brass-light);
+    border:1px solid var(--brass);
+  }
+
+  footer.bottom{
+    margin-top:30px;
+    text-align:center;
+  }
+  footer.bottom a{
+    color:var(--text-muted);
+    font-size:0.78rem;
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-family:'Source Sans 3', sans-serif;
+  }
+
+  @media (max-width:480px){
+    .card{ min-height:440px; }
+    .q-text{ font-size:1.12rem; }
+    header.top{ align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div style="text-align:center; margin-bottom:14px;"><a href="index.html" style="color:var(--text-muted); font-family:'Source Sans 3', sans-serif; font-size:0.85rem; text-decoration:none;">← Tous les decks</a></div>
+
+  <header class="top">
+    <div class="title-block">
+      <h1>Fiche M&amp;A — Flashcards</h1>
+      <p>50 cartes, répétition espacée, progression sauvegardée sur cet appareil</p>
+    </div>
+    <div class="stats">
+      <span>À réviser <b id="statDue">0</b></span>
+      <span>Maîtrisées <b id="statMastered">0</b>/<span id="statTotal">50</span></span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="filter-row">
+      <select id="blocFilter" aria-label="Filtrer par bloc"></select>
+      <button class="shuffle-btn" id="shuffleBtn" title="Mélanger l'ordre des cartes">🔀 Mélanger</button>
+    </div>
+    <div class="counter" id="counter">—</div>
+  </div>
+
+  <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div id="stage" class="stage">
+    <div class="card" id="card" tabindex="0">
+      <span class="swipe-flag no" id="flagNo">Je ne savais pas</span>
+      <span class="swipe-flag yes" id="flagYes">Je savais</span>
+      <div class="face front">
+        <div class="face-head">
+          <span class="tag" id="tagFront">—</span>
+          <div class="box-dots" id="dotsFront"></div>
+        </div>
+        <div class="face-label">Question</div>
+        <p class="q-text" id="qText"></p>
+        <div class="hint">Clique ou tape la carte pour voir la réponse</div>
+      </div>
+      <div class="face back">
+        <div class="face-head">
+          <span class="tag" id="tagBack">—</span>
+          <div class="box-dots" id="dotsBack"></div>
+        </div>
+        <div class="face-label">Réponse</div>
+        <p class="a-text" id="aText"></p>
+        <div class="hint">Glisse la carte ← → ou utilise les boutons</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="answer-buttons" id="answerButtons" hidden>
+    <button class="btn-no" id="btnNo">Je ne savais pas</button>
+    <button class="btn-yes" id="btnYes">Je savais</button>
+  </div>
+  <div class="flip-hint-row" id="flipHintRow">Espace ou clic = retourner la carte</div>
+
+  <div id="donePanel" class="done-panel" style="display:none;">
+    <h2 id="doneTitle">Session terminée</h2>
+    <p id="doneText">Toutes les cartes dues ont été révisées.</p>
+    <div class="row">
+      <button id="btnPractice">Réviser quand même</button>
+      <button class="ghost" id="btnAllBlocs">Voir tous les blocs</button>
+    </div>
+  </div>
+
+  <footer class="bottom">
+    <button id="resetProgress">Réinitialiser ma progression</button>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CARDS = [
+    {id:1,bloc:1,front:`Qu'est-ce que le crédit-bail et quel est l'intérêt principal pour l'entreprise utilisatrice ? Quelles sont les 3 options à l'échéance ?`,back:`Mode de financement où un organisme de crédit-bail achète le bien et en reste propriétaire pendant la durée du contrat ; l'entreprise l'utilise en payant des loyers, sans avancer la somme d'achat — elle évite donc un gros investissement initial et préserve sa trésorerie/capacité d'emprunt. À l'échéance, 3 options : acheter (lever l'option d'achat et devenir propriétaire), restituer (rendre le bien), ou renouveler (repartir sur un nouveau contrat).`},
+    {id:2,bloc:1,front:`Un site de production, initialement loué en location simple, est transféré en crédit-bail. Quel est l'impact sur l'Ebitda et où les coûts réapparaissent-ils dans les comptes ?`,back:`La charge de loyer disparaît des charges d'exploitation → l'Ebitda augmente mécaniquement (effet trompeur si on ne retraite pas). Le coût réapparaît plus bas : en dotations aux amortissements (D&A) pour la valeur du bien, et en charges financières (comme le remboursement d'une dette classique). Au bilan, le bien et la dette de crédit-bail apparaissent à l'actif et au passif. Point de vigilance en DD financière : un Ebitda « amélioré » par un passage en crédit-bail doit être retraité pour rester comparable dans le temps.`},
+    {id:3,bloc:1,front:`Pourquoi une entreprise préfère-t-elle tirer sur une RCF plutôt que d'emprunter directement le montant total en Term Loan B (TLB) ?`,back:`Avec un TLB, les intérêts courent sur la totalité du montant emprunté dès le premier jour, même si les fonds ne sont pas utilisés. Avec une RCF (Revolving Credit Facility), l'entreprise ne paie des intérêts que sur ce qu'elle tire réellement et garde une réserve disponible sans renégocier. Exemple : plutôt que d'emprunter 365 M€ de TLB dès le départ, une structure 305 M€ TLB + 60 M€ RCF limite les intérêts pleins à 305 M€, les 60 M€ restant en réserve pour de futurs besoins.`},
+    {id:4,bloc:1,front:`Dans un montage LBO/PE typique, quels rôles jouent respectivement le TLB et la RCF ?`,back:`Le TLB finance durablement l'opération : rachat de la cible, refinancement de dette existante, acquisitions déjà identifiées au moment du deal. La RCF sert de coussin de liquidité flexible pour les besoins futurs non identifiés à l'avance : trésorerie ponctuelle, BFR, petites acquisitions bolt-on, décalages entre dépenses et encaissements. Le duo TLB + RCF est quasi systématique en LBO.`},
+    {id:5,bloc:1,front:`Qu'est-ce qu'un debt-to-equity swap et dans quel contexte les prêteurs y ont-ils recours ? (cas Tikehau / Modéal)`,back:`Conversion de tout ou partie d'une créance (dette) en capital (actions) de l'entreprise débitrice. Les prêteurs y recourent quand l'entreprise ne peut plus assurer le service de sa dette et qu'une conversion vaut mieux qu'un défaut ou une liquidation — elle préserve de la valeur et aligne créanciers devenus actionnaires sur le redressement. Cas d'usage : Tikehau avait financé le LBO d'Equistone sur Modéal via de la dette ; Modéal ne pouvant pas rembourser, un debt-to-equity swap est exploré comme piste alternative.`},
+
+    {id:6,bloc:2,front:`Que doit contenir une lettre d'offre non engageante (indicative offer letter) envoyée à la cible avant la due diligence ?`,back:`Identité du bidder, contexte et raisons de l'offre publique, prix offert, modalités de financement de l'offre, demande formelle de mener une due diligence (souvent posée comme condition pour faire une offre publique), et attentes concernant l'obtention d'une recommandation du board de la cible et d'irrevocable undertakings des actionnaires majeurs.`},
+    {id:7,bloc:2,front:`En quoi la due diligence en M&A public diffère-t-elle de celle d'une opération privée, et à quoi sert-elle principalement ?`,back:`Elle est nettement moins extensive qu'en M&A privé (le prix est déjà public via le cours de bourse, moins d'asymétrie d'information à combler). Son rôle principal est de permettre au bidder de justifier le prix offert, en particulier la prime par rapport au cours de bourse actuel de la cible.`},
+    {id:8,bloc:2,front:`Quelles sont les règles encadrant la recommandation du board de la cible dans une OPA ? Qui est exclu de cette délibération ?`,back:`Le board doit exprimer son opinion sur l'offre au plus tard 2 semaines avant l'expiration de la période d'acceptation. Les administrateurs en conflit d'intérêt vis-à-vis du bidder ou de l'offre — par exemple parce qu'ils ont signé un irrevocable undertaking, ou représentent un actionnaire qui l'a fait — sont exclus de la gestion de l'offre par le board, pour garantir l'indépendance de la recommandation.`},
+    {id:9,bloc:2,front:`Qu'est-ce qu'un irrevocable undertaking et pourquoi le bidder cherche-t-il à en obtenir avant/pendant une OPA ?`,back:`Un engagement ferme et irrévocable pris par un actionnaire majeur de la cible d'accepter l'offre publique si/quand elle est faite. Le bidder les recherche en complément d'une recommandation positive du board pour sécuriser un socle de soutien actionnarial dès l'annonce, ce qui rassure le marché et augmente la probabilité d'atteindre le seuil nécessaire au squeeze-out (90%).`},
+    {id:10,bloc:2,front:`Une fois l'offre publique annoncée par communiqué de presse, le bidder peut-il se rétracter ? Quelles sont les conditions de closing typiques ?`,back:`En général non : une fois annoncée, l'offre ne peut plus être retirée, sauf conditions spécifiques explicitement prévues dans l'offre. Conditions de closing typiques : seuil d'acceptation de 90% (nécessaire pour le squeeze-out), obtention des autorisations réglementaires, absence d'offre concurrente, absence de législation empêchant ou entravant l'opération.`},
+    {id:11,bloc:2,front:`Pourquoi le seuil des 90% est-il si stratégique dans une OPA, et que se passe-t-il en dessous de ce seuil ?`,back:`Atteindre 90% déclenche un squeeze-out : le rachat obligatoire des minoritaires restants, permettant à l'acquéreur de récupérer 100% du capital et de retirer la société de la cote (P2P). En dessous de 90%, les minoritaires conservent leur libre arbitre et ne peuvent pas être contraints de vendre. Cas d'usage : c'est précisément l'objectif de Proengin sur Serstech — atteindre 90% pour exercer un retrait obligatoire.`},
+    {id:12,bloc:2,front:`Décris le calendrier réglementaire d'une OPA depuis l'annonce jusqu'au règlement : délais de dépôt, d'approbation, et de paiement.`,back:`Le document d'offre doit être présenté au régulateur dans les 4 semaines suivant l'annonce. Après approbation (ex. SFSA), l'offre peut être publiée 1 à 2 semaines après. La période d'acceptation doit être assez longue pour que les conditions (notamment réglementaires) puissent être satisfaites. Dès son expiration, le bidder publie le résultat de l'offre, puis paie les actionnaires ayant accepté sous 3 à 5 jours ouvrés (pratique de marché). Si l'OPA échoue, le bidder ne peut pas retenter avant un an.`},
+
+    {id:13,bloc:3,front:`Décris le déroulé d'un process sell-side en M&A privé, du teaser jusqu'à l'offre engageante.`,back:`1) BP puis Information Memorandum (IM), autosuffisant pour permettre l'écriture d'une NBO. 2) La banque d'affaires diffuse un teaser à des acquéreurs potentiels. 3) S'ils sont intéressés, signature d'un NDA puis accès à l'IM complet. 4) Rédaction d'une NBO/LOI sous 4 à 6 semaines. 5) Sélection des 3-4 meilleures offres → DD approfondie + Data Room. 6) Management presentations et Q&A. 7) Remise d'une Binding Offer, engageante et financée.`},
+    {id:14,bloc:3,front:`Quelle est la différence de rôle entre le teaser et l'Information Memorandum (IM) dans un process sell-side ?`,back:`Le teaser est court et anonymisé, diffusé largement pour susciter l'intérêt sans dévoiler d'informations sensibles. L'IM est le document complet, transmis après NDA, suffisamment détaillé pour comprendre activité, marché, points forts et historique financier de la cible — au point de permettre une NBO chiffrée sur cette seule base.`},
+    {id:15,bloc:3,front:`Qu'est-ce que la VDD (Vendor Due Diligence) et quels types d'audits peut-elle inclure ?`,back:`DD commanditée par le vendeur lui-même, réalisée en amont pour anticiper les questions et sécuriser la valorisation. Peut inclure : conseil stratégique, DD juridique, DD IT, et rapport commercial — ce dernier aussi couramment réalisé par des MBB dans le cas d'un LBO/PE, pour présenter le marché de la cible aux fonds intéressés.`},
+    {id:16,bloc:3,front:`Dans une LOI, que doit contenir la section « Prix » concernant la Valeur d'Entreprise et la Valeur des fonds propres ?`,back:`Le prix pour 100% des titres doit préciser : la Valeur d'Entreprise (VE) avec le détail des hypothèses de valorisation ; la Valeur des fonds propres (Equity Value), avec le détail du calcul permettant de passer de la VE à l'Equity Value (le « bridge EV to Equity ») ; et le détail des hypothèses principales que l'acquéreur souhaite vérifier avant de confirmer ce prix dans une offre ferme.`},
+    {id:17,bloc:3,front:`Au-delà du prix, quelles sont les 4 autres grandes catégories d'informations qu'une LOI doit couvrir ?`,back:`1) Structuration : schéma d'opération envisagé (entité juridique) + tableau Emplois & Ressources. 2) Financement : description, démarches déjà réalisées, étapes restantes. 3) Management : intentions sur l'équipe en place, mécanisme d'incentive envisagé. 4) Due diligence & conseils : travail déjà réalisé, nature/durée des audits à venir, conseils mandatés. (+ autorisations internes/réglementaires et contacts côté acquéreur.)`},
+    {id:18,bloc:3,front:`Pourquoi le vendeur cherche-t-il à minimiser ses « carve-out costs » lors d'une cession, et en quoi ses intérêts divergent-ils de ceux de l'acheteur ?`,back:`Les carve-out costs sont les coûts liés à la séparation de l'activité cédée du reste du groupe vendeur (IT, fonctions support, contrats, marque…). Le vendeur veut les minimiser pour préserver le prix net et limiter les engagements post-closing. L'acheteur, à l'inverse, cherche à en faire porter un maximum par le vendeur (TSA, ajustements de prix), car ils pèseront sur sa propre rentabilité post-acquisition s'il doit les assumer seul.`},
+    {id:19,bloc:3,front:`Quelles étapes séparent la réception d'une NBO de la remise d'une Binding Offer ?`,back:`Après réception des NBO (4 à 6 semaines), le vendeur sélectionne les 3-4 offres les plus intéressantes. Ces acquéreurs entrent en DD approfondie avec accès à la Data Room (financier, juridique, RH…). En parallèle : management presentations et Q&A. Sur cette base, les acquéreurs sélectionnés remettent une Binding Offer, engageante et financée.`},
+
+    {id:20,bloc:4,front:`Quelles sont les trois grandes briques de financement d'un montage LBO/MBO classique ?`,back:`La dette senior (bancaire, la moins risquée et la moins chère, remboursée en priorité), la dette mezzanine/obligataire (subordonnée, plus chère, souvent apportée par des mezzaneurs), et l'equity apporté par le repreneur et/ou un investisseur, qui absorbe le risque résiduel mais capte le principal potentiel de création de valeur.`},
+    {id:21,bloc:4,front:`Décris la structure d'un MBO de transmission typique : rôles de la banque d'affaires, du mezzaneur, du repreneur, des banques de dette senior.`,back:`La banque d'affaires (ex. Rothschild) est mandatée par le cédant pour structurer la transmission ; elle fait appel à un mezzaneur (ex. Indigo Capital) pour la dette obligataire, qui prend aussi souvent une part du capital. Le repreneur (ex. François Espieux) devient actionnaire majoritaire, aux côtés d'une dizaine de cadres qui participent également au capital. La dette senior est répartie entre plusieurs banques (ex. LCL, BNP Paribas, HSBC) pour mutualiser le risque.`},
+    {id:22,bloc:4,front:`Qu'est-ce qu'un MBI (Management Buy-In) via un search fund, et en quoi diffère-t-il d'un MBO ?`,back:`Dans un MBI, un entrepreneur externe (le « searcher ») lève des fonds en amont pour identifier une PME cible, la racheter, puis en prendre la direction. Cela diffère du MBO, où ce sont les cadres déjà en place qui rachètent l'entreprise avec l'appui d'investisseurs — dans un MBI, le repreneur-dirigeant vient de l'extérieur.`},
+    {id:23,bloc:4,front:`Dans une société sous LBO, pourquoi l'endettement additionnel peut-il en réalité répondre à un besoin de BFR plutôt qu'à un besoin d'investissement ?`,back:`Une entreprise en croissance ou à cycle d'exploitation long voit son BFR augmenter avec l'activité, ce qui consomme de la trésorerie indépendamment de tout Capex. Si l'endettement supplémentaire sert en réalité à combler ce besoin de financement du cycle d'exploitation, il faut le distinguer d'un endettement destiné à financer un investissement productif — la nature du besoin financé impacte directement l'analyse du risque de crédit et la soutenabilité de la dette.`},
+    {id:24,bloc:4,front:`Quel est l'intérêt, pour un repreneur, de faire participer une dizaine de cadres au capital lors d'un MBO ?`,back:`Aligner les intérêts du management sur la création de valeur, fidéliser les compétences clés au moment sensible de la transmission, réduire le montant d'equity à apporter par l'investisseur financier principal, et répartir le risque entre plusieurs parties prenantes internes qui connaissent bien l'entreprise.`},
+
+    {id:25,bloc:5,front:`Pourquoi une valorisation par LBO donne-t-elle généralement un résultat inférieur à une valorisation par DCF, toutes choses égales par ailleurs ?`,back:`Le taux d'actualisation diffère : le DCF actualise au WACC, le LBO actualise implicitement au taux de rentabilité exigé par l'investisseur, l'IRR — structurellement plus élevé (l'equity en LBO est plus risqué et plus cher que le coût moyen pondéré du capital). Actualiser avec un taux plus élevé réduit mécaniquement la valeur présente des flux futurs : plus le taux est élevé, plus la valorisation obtenue est faible.`},
+    {id:26,bloc:5,front:`Explique la méthode « à la française » de calcul du FCF et l'erreur classique qu'elle peut produire si mal appliquée.`,back:`Cette méthode part de l'EBIT et applique le taux d'IS directement dessus. Problème : elle surestime l'impôt réellement payé si l'on ne retraite pas ensuite l'effet du tax shield — l'économie d'impôt liée à la déductibilité des charges financières. Pour corriger, il faut soustraire (Charges financières × taux d'IS), ce qui redonne l'économie d'impôt correspondante et évite de surestimer la charge fiscale réelle.`},
+    {id:27,bloc:5,front:`En quoi la méthode de calcul du FCF « à l'anglo-saxonne » (via le CIT) diffère-t-elle de la méthode française ?`,back:`Le Corporate Income Tax (CIT) est calculé directement à partir des Cash-Flows Opérationnels plutôt que sur l'EBIT théorique. Le calcul intègre nativement la structure de flux réels, donc l'effet de la déductibilité des charges financières est déjà capté dans le CIT — pas besoin d'un retraitement séparé du tax shield comme dans la méthode française.`},
+    {id:28,bloc:5,front:`Pourquoi faut-il soustraire la variation du BFR dans le calcul du Free Cash Flow to Firm (FCFF) ?`,back:`Le FCF part du résultat opérationnel, qui suit une logique de comptabilité d'engagement (le CA est comptabilisé dès la facturation, pas à l'encaissement). Si le BFR augmente (plus de stocks, plus de créances non encaissées), de la trésorerie réelle a été consommée pour financer ce cycle, sans apparaître dans le résultat comptable. Il faut donc déduire cette variation pour passer d'un résultat comptable à un flux de trésorerie réellement disponible.`},
+    {id:29,bloc:5,front:`Qu'est-ce que le « bridge EV to Equity Value » et pourquoi est-il central dans une négociation de prix (LOI) ?`,back:`Calcul permettant de passer de la Valeur d'Entreprise (VE, indépendante du financement) à la Valeur des fonds propres (Equity Value, ce que touchent réellement les actionnaires) : Equity Value = VE − Dette financière nette (+/− ajustements hors exploitation, ex. CCA, provisions). Central car c'est l'Equity Value, non la VE, que l'acquéreur paie aux actionnaires vendeurs — une LOI doit impérativement détailler ce calcul.`},
+    {id:30,bloc:5,front:`Quelle erreur fréquente est commise dans le calcul d'un exit multiple, et quelle est la bonne définition ?`,back:`L'erreur fréquente : calculer l'exit multiple comme EV de sortie / EV d'entrée. En réalité c'est un pur cash-on-cash multiple calculé sur l'equity (Equity Value de sortie / Equity investi à l'entrée). Cette confusion a été identifiée sur un deck de transaction (Sogetrel) — à vérifier systématiquement. Conséquence : comme l'Equity Value de sortie est rarement publique, l'exit multiple réel d'une transaction est peu souvent connu du marché.`},
+    {id:31,bloc:5,front:`Comment l'IRR (taux de rentabilité interne) d'un LBO se déduit-il une fois l'exit multiple connu ?`,back:`L'IRR se calcule à partir du multiple cash-on-cash et de la durée de détention : c'est le taux annuel composé qui, appliqué à l'equity investi initialement sur la durée de détention, aboutit à l'Equity Value de sortie. Exemple : un multiple de 2x sur 5 ans correspond à un IRR d'environ 15%/an (2^(1/5) − 1). À multiple égal, plus la durée de détention est courte, plus l'IRR est élevé.`},
+    {id:32,bloc:5,front:`Pourquoi dit-on que les intérêts de la dette sont « inclus » dans une valorisation LBO mais pas dans une valorisation DCF classique ?`,back:`En DCF, on valorise l'entreprise indépendamment de sa structure de financement : on actualise les flux disponibles avant charges financières (FCFF) au WACC, qui reflète le coût moyen pondéré de toutes les sources de financement — la dette n'apparaît pas explicitement dans les flux, seulement dans le taux. En LBO, la structure de dette est un input direct : les intérêts réduisent le résultat net et les flux disponibles, affectant directement l'IRR obtenu par l'investisseur.`},
+    {id:33,bloc:5,front:`Qu'est-ce que la décote boursière et comment peut-elle être exploitée dans un mécanisme de prise de contrôle ?`,back:`Une société cotée se négocie à un cours inférieur à sa valeur intrinsèque estimée (manque de liquidité, faible couverture analystes, structure actionnariale complexe). Un acquéreur peut exploiter cette décote pour lancer une OPA à un prix inférieur à la valeur réelle tout en offrant une prime suffisante par rapport au cours coté — permettant une prise de contrôle relativement peu coûteuse par rapport à la valeur fondamentale de la cible.`},
+    {id:34,bloc:5,front:`Dans un DCF, pourquoi l'utilisation du WACC comme taux d'actualisation suppose-t-elle une hypothèse implicite sur la structure de financement ?`,back:`Le WACC est une moyenne pondérée du coût des fonds propres et du coût de la dette, pondérée par leurs poids dans la structure de financement cible. Utiliser un WACC unique sur tout l'horizon suppose que cette structure reste stable — hypothèse mise à mal en LBO, où le désendettement rapide fait chuter le poids de la dette d'année en année, rendant le WACC théoriquement variable (d'où l'intérêt de méthodes alternatives comme l'APV).`},
+
+    {id:35,bloc:6,front:`Pourquoi une créance client « gonfle » le chiffre d'affaires sans que la trésorerie de l'entreprise augmente d'autant ?`,back:`Une créance client correspond à une vente facturée (comptabilisée en CA dès la facturation, en comptabilité d'engagement) mais non encore encaissée. Le CA apparaît immédiatement au compte de résultat, mais l'encaissement réel n'intervient qu'au paiement effectif — d'où le décalage entre performance comptable et performance de trésorerie réelle, sensible si les délais clients (DSO) sont longs ou si l'activité croît vite.`},
+    {id:36,bloc:6,front:`Quelle est la différence entre le BFR d'exploitation et le BFR hors exploitation ?`,back:`Le BFR d'exploitation regroupe les éléments liés au cycle commercial courant : stocks, créances clients, dettes fournisseurs — il varie avec le CA et dépend des conditions commerciales. Le BFR hors exploitation regroupe des éléments non liés au cœur de métier : créances/dettes diverses, IS à payer, comptes courants d'associés — à isoler pour ne pas fausser l'analyse du cycle d'exploitation « pur ».`},
+    {id:37,bloc:6,front:`Que désignent les PCA et les CCA en comptabilité, et à quoi servent ces ajustements ?`,back:`Les PCA (Produits Constatés d'Avance) et CCA (Charges Constatées d'Avance) sont des écritures de régularisation qui rattachent un produit ou une charge au bon exercice comptable, indépendamment de la date d'encaissement/décaissement. Exemple : un abonnement annuel facturé en novembre doit voir sa part « non courue » sur l'exercice en cours constatée en PCA — application du principe de séparation des exercices.`},
+    {id:38,bloc:6,front:`Comment se décompose le coût total employeur d'un salarié, et quelle est la différence avec ce que perçoit réellement le salarié ?`,back:`Pour l'entreprise, coût total = salaire brut + charges patronales (échelonnées, souvent 30 à 40% du brut à partir d'un certain niveau). Pour le salarié, salaire net perçu = salaire brut − charges salariales. Deux jeux de charges sociales distincts (patronales côté employeur, salariales côté salarié) à ne pas confondre dans une analyse de masse salariale ou un retraitement d'Ebitda.`},
+    {id:39,bloc:6,front:`Que mesurent respectivement le DSO, le DPO et les stocks, et pourquoi sont-ils suivis de près en due diligence financière ?`,back:`Le DSO mesure le délai moyen de paiement obtenu des clients (en jours de CA). Le DPO mesure le délai moyen accordé par les fournisseurs (en jours d'achats). Les stocks mesurent la durée moyenne de rotation. Ensemble, ils déterminent le BFR d'exploitation : un DSO qui se dégrade ou des stocks qui gonflent sans raison opérationnelle sont des signaux d'alerte classiques en DD financière.`},
+    {id:40,bloc:6,front:`Qu'est-ce que le Crédit d'Impôt Recherche (CIR) et pourquoi faut-il en tenir compte dans un retraitement d'Ebitda ou de cash-flow ?`,back:`Dispositif fiscal permettant à une entreprise ayant des dépenses de R&D éligibles de bénéficier d'un crédit d'impôt réduisant son IS (voire un remboursement). À retraiter car c'est un avantage lié à un choix d'activité, pas à la performance opérationnelle courante — un Ebitda « boosté » par un CIR ponctuel doit être normalisé pour donner une image représentative de la rentabilité structurelle.`},
+    {id:41,bloc:6,front:`Pourquoi doit-on systématiquement vérifier si une cible a des actifs financés en crédit-bail avant de faire des retraitements d'Ebitda pour une négociation de prix ?`,back:`Un passage en crédit-bail modifie la présentation comptable sans changer la réalité économique du bien : la charge de loyer disparaît des charges d'exploitation et se retrouve en D&A + charges financières, ce qui gonfle artificiellement l'Ebitda affiché par rapport à une location simple. Deux entreprises économiquement identiques mais avec des choix de financement différents afficheront des Ebitda différents si ce point n'est pas retraité — risque de biais dans la négociation du multiple.`},
+    {id:42,bloc:6,front:`Quelle est la démarche générale pour construire un Ebitda « normatif » en vue d'une négociation de prix ?`,back:`Retraiter l'Ebitda comptable pour neutraliser : les éléments exceptionnels ou non récurrents (litiges, restructurations), les effets de périmètre (acquisitions/cessions en cours d'exercice), les choix de financement qui affectent artificiellement le résultat opérationnel (crédit-bail vs location simple), et les avantages fiscaux ponctuels type CIR. Objectif : un Ebitda représentatif de la performance courante et récurrente, seule base fiable pour appliquer un multiple cohérent.`},
+
+    {id:43,bloc:7,front:`Qu'est-ce que le Pacte Dutreil et pourquoi le timing de l'exit doit-il être anticipé quand une holding en bénéficie ?`,back:`Dispositif fiscal français d'exonération partielle des droits de mutation à titre gratuit sur la transmission de titres, sous conditions d'engagement collectif puis individuel de conservation. Une sortie (cession) avant la fin de la période d'engagement peut remettre en cause l'exonération, avec un rappel des droits potentiellement dû — d'où la nécessité d'anticiper le calendrier de sortie en amont de toute structuration en Pacte Dutreil.`},
+    {id:44,bloc:7,front:`Quelle est la différence fondamentale entre un Compte Courant d'Associé (CCA) et le Capital Social, et quel est l'impact sur le bridge EV to Equity ?`,back:`Le CCA est une avance de trésorerie d'un associé à sa société, comptabilisée comme une dette au passif (remboursable) — pas un apport en capital. Le Capital Social constitue les fonds propres (apport définitif). Dans un bridge EV to Equity, un CCA doit être traité comme de la dette nette (à déduire de la VE) et non comme des fonds propres — une confusion fausserait directement l'Equity Value revenant aux actionnaires cédants.`},
+    {id:45,bloc:7,front:`Qu'est-ce qu'une vente en réméré et dans quel contexte ce mécanisme peut-il être utilisé comme outil de financement ?`,back:`Vente d'un bien assortie d'une faculté de rachat : le vendeur cède la propriété mais conserve le droit de le racheter dans un délai déterminé, contre remboursement du prix (et souvent une indemnité). Outil de financement alternatif, notamment pour des entreprises en difficulté de trésorerie ayant besoin de liquidités rapides sans emprunt bancaire classique, en mobilisant un actif (souvent immobilier) sans en perdre définitivement la propriété si le rachat intervient à temps.`},
+    {id:46,bloc:7,front:`En quoi le mécanisme du squeeze-out et celui de la décote boursière sont-ils liés dans une logique de prise de contrôle à moindre coût ?`,back:`Un acquéreur peut lancer une OPA sur une société décotée en offrant une prime suffisante sans payer la pleine valeur fondamentale. S'il atteint 90% d'acceptation, il déclenche un squeeze-out pour racheter les minoritaires restants au même prix, prendre le contrôle total et retirer la société de la cote — combinant l'effet de la décote (prix d'entrée avantageux) et le mécanisme légal du squeeze-out (sortie de la contrainte des minoritaires).`},
+
+    {id:47,bloc:8,front:`Pourquoi est-il déconseillé de « coller en valeur » un poste comme le BFR dans un modèle financier, même si le résultat numérique est correct à un instant T ?`,back:`Coller une valeur en dur casse le lien entre le poste et ses hypothèses sous-jacentes (délais clients/fournisseurs, rotation des stocks, projections de CA). Si une hypothèse change ailleurs (ex. le CA est révisé), le poste collé en dur ne se met pas à jour automatiquement, ce qui rend le modèle faux sans que cela soit visible, et empêche de comprendre « d'où sort » le chiffre affiché.`},
+    {id:48,bloc:8,front:`Concrètement, comment doit-on lier par formule des postes comme le D&A ou les créances clients aux hypothèses de CA dans un modèle ?`,back:`Chaque poste doit référencer directement les cellules d'hypothèses dont il dépend réellement : les créances clients calculées à partir d'un DSO cible appliqué au CA projeté (Créances = CA × DSO / 365) ; le D&A calculé à partir des Capex projetés et d'une durée d'amortissement, elle-même liée aux hypothèses de croissance. Objectif : qu'un changement d'hypothèse de CA en amont se propage automatiquement jusqu'à tous les postes qui en dépendent.`},
+    {id:49,bloc:8,front:`Que signifie la règle « ne plug que ce que le client plug lui-même », et pourquoi est-elle importante en modélisation financière ?`,back:`Un « plug » est une valeur ou un ajustement manuel introduit pour équilibrer ou forcer un résultat, sans passer par une formule dérivée d'hypothèses. La règle : n'ajouter des plugs que là où le client en a lui-même prévu ou en utilise déjà — en ajouter d'autres rend le modèle incompréhensible pour celui qui doit le reprendre ou le vérifier, car il perd la traçabilité entre hypothèses et résultats.`},
+    {id:50,bloc:8,front:`Comment doit-on modéliser un poste de management fees dans un LBO plutôt que de le figer en valeur absolue ?`,back:`Comme tout poste dérivé, les management fees doivent être reliés à leur propre base de calcul par formule — typiquement un taux appliqué à une assiette définie contractuellement (% du CA, % de l'Ebitda, ou montant fixe indexé). Les figer en valeur absolue casserait la cohérence du modèle si l'assiette évolue dans les scénarios de sensibilité, et empêcherait de tester l'impact d'une renégociation du taux ou de l'assiette sur la rentabilité globale de l'opération.`}
+  ];
+
+  var BLOCS = {
+    1:"Financement & dette", 2:"M&A Public (OPA)", 3:"Sell-side / LOI",
+    4:"LBO / MBO", 5:"Valorisation", 6:"Comptabilité",
+    7:"Structuration juridique", 8:"Modélisation Excel"
+  };
+
+  var STORAGE_KEY = "mna50_progress_v1";
+  var INTERVALS = [0,1,3,7,16]; // days, index = box-1 (box 1..5)
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function addDays(dateStr, n){
+    var d = new Date(dateStr+"T00:00:00");
+    d.setDate(d.getDate()+n);
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+
+  function loadProgress(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {};
+      var parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === "object") ? parsed : {};
+    }catch(e){ return {}; }
+  }
+  function saveProgress(p){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+    catch(e){ /* storage unavailable — session continues without persistence */ }
+  }
+
+  var progress = loadProgress();
+  var today = todayStr();
+
+  function stateFor(cardId){
+    var s = progress[cardId];
+    if(!s){ s = {box:1, due:today}; }
+    return s;
+  }
+
+  // ---- DOM refs ----
+  var blocFilter = document.getElementById("blocFilter");
+  var counterEl = document.getElementById("counter");
+  var stageEl = document.getElementById("stage");
+  var cardEl = document.getElementById("card");
+  var qText = document.getElementById("qText");
+  var aText = document.getElementById("aText");
+  var tagFront = document.getElementById("tagFront");
+  var tagBack = document.getElementById("tagBack");
+  var dotsFront = document.getElementById("dotsFront");
+  var dotsBack = document.getElementById("dotsBack");
+  var answerButtons = document.getElementById("answerButtons");
+  var flipHintRow = document.getElementById("flipHintRow");
+  var btnNo = document.getElementById("btnNo");
+  var btnYes = document.getElementById("btnYes");
+  var donePanel = document.getElementById("donePanel");
+  var doneTitle = document.getElementById("doneTitle");
+  var doneText = document.getElementById("doneText");
+  var btnPractice = document.getElementById("btnPractice");
+  var btnAllBlocs = document.getElementById("btnAllBlocs");
+  var statDue = document.getElementById("statDue");
+  var statMastered = document.getElementById("statMastered");
+  var statTotal = document.getElementById("statTotal");
+  var resetBtn = document.getElementById("resetProgress");
+  var progressFill = document.getElementById("progressFill");
+  var shuffleBtn = document.getElementById("shuffleBtn");
+  var flagYes = document.getElementById("flagYes");
+  var flagNo = document.getElementById("flagNo");
+
+  statTotal.textContent = CARDS.length;
+
+  // ---- filter dropdown ----
+  var opt = document.createElement("option");
+  opt.value = "all"; opt.textContent = "Tous les blocs (" + CARDS.length + " cartes)";
+  blocFilter.appendChild(opt);
+  Object.keys(BLOCS).forEach(function(k){
+    var count = CARDS.filter(function(c){ return c.bloc == k; }).length;
+    var o = document.createElement("option");
+    o.value = k;
+    o.textContent = "Bloc " + k + " — " + BLOCS[k] + " (" + count + ")";
+    blocFilter.appendChild(o);
+  });
+
+  var queue = [];
+  var qIndex = 0;
+  var current = null;
+  var practiceMode = false;
+
+  function shuffleArray(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function cardsForFilter(){
+    var f = blocFilter.value;
+    if(f === "all") return CARDS.slice();
+    return CARDS.filter(function(c){ return String(c.bloc) === f; });
+  }
+
+  function buildQueue(forcePractice){
+    var pool = cardsForFilter();
+    var list;
+    if(forcePractice){
+      list = pool.slice();
+    }else{
+      list = pool.filter(function(c){
+        var s = stateFor(c.id);
+        return s.due <= today;
+      });
+    }
+    shuffleArray(list);
+    queue = list;
+    qIndex = 0;
+    practiceMode = !!forcePractice;
+  }
+
+  function updateStats(){
+    var pool = cardsForFilter();
+    var dueCount = pool.filter(function(c){ return stateFor(c.id).due <= today; }).length;
+    var masteredCount = pool.filter(function(c){ return stateFor(c.id).box >= 5; }).length;
+    statDue.textContent = dueCount;
+    statMastered.textContent = masteredCount;
+    statTotal.textContent = pool.length;
+  }
+
+  function renderDots(container, box){
+    container.innerHTML = "";
+    for(var i=1;i<=5;i++){
+      var s = document.createElement("span");
+      if(i <= box) s.className = "filled";
+      container.appendChild(s);
+    }
+  }
+
+  function showCard(){
+    if(qIndex >= queue.length){
+      showDone();
+      return;
+    }
+    current = queue[qIndex];
+    var s = stateFor(current.id);
+    cardEl.classList.remove("flipped");
+    qText.textContent = current.front;
+    aText.textContent = current.back;
+    var label = "Bloc " + current.bloc + " · " + BLOCS[current.bloc];
+    tagFront.textContent = label;
+    tagBack.textContent = label;
+    renderDots(dotsFront, s.box);
+    renderDots(dotsBack, s.box);
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "block";
+    counterEl.textContent = "Carte " + (qIndex+1) + " / " + queue.length + (practiceMode ? " · mode révision libre" : "");
+    stageEl.style.display = "block";
+    donePanel.style.display = "none";
+    progressFill.style.width = (queue.length ? Math.round((qIndex/queue.length)*100) : 0) + "%";
+    cardEl.style.transform = "";
+    cardEl.classList.remove("fly-left","fly-right","dragging","drag-yes","drag-no");
+  }
+
+  function showDone(){
+    stageEl.style.display = "none";
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "none";
+    counterEl.textContent = "";
+    donePanel.style.display = "block";
+    progressFill.style.width = "100%";
+    if(practiceMode){
+      doneTitle.textContent = "Révision libre terminée";
+      doneText.textContent = "Tu as repassé toutes les cartes de ce filtre, sans effet sur les dates de révision.";
+    }else{
+      doneTitle.textContent = "Session terminée";
+      doneText.textContent = "Toutes les cartes dues pour ce filtre ont été révisées. Reviens plus tard, ou révise-les quand même.";
+    }
+    updateStats();
+  }
+
+  function flip(){
+    if(!current) return;
+    var willShowBack = !cardEl.classList.contains("flipped");
+    cardEl.classList.toggle("flipped");
+    if(willShowBack){
+      answerButtons.hidden = false;
+      flipHintRow.style.display = "none";
+    }else{
+      answerButtons.hidden = true;
+      flipHintRow.style.display = "block";
+    }
+  }
+
+  function answer(knewIt){
+    if(!current) return;
+    var s = stateFor(current.id);
+    if(knewIt){
+      s.box = Math.min(5, s.box + 1);
+    }else{
+      s.box = 1;
+    }
+    s.due = addDays(today, INTERVALS[s.box - 1]);
+    progress[current.id] = s;
+    saveProgress(progress);
+    qIndex++;
+    updateStats();
+    showCard();
+  }
+
+  var dragState = null;
+  var DRAG_THRESHOLD = 90;
+
+  function onPointerDown(e){
+    if(answerButtons.hidden) return; // only swipe once the answer is showing
+    var point = (e.touches && e.touches[0]) || e;
+    dragState = { startX: point.clientX, dx: 0, moved:false, pointerId: e.pointerId };
+    cardEl.classList.add("dragging");
+    try{ if(e.pointerId !== undefined) cardEl.setPointerCapture(e.pointerId); }catch(err){}
+  }
+  function onPointerMove(e){
+    if(!dragState) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState.dx = point.clientX - dragState.startX;
+    if(Math.abs(dragState.dx) > 4) dragState.moved = true;
+    var rot = dragState.dx / 18;
+    cardEl.style.transform = "rotateY(180deg) translateX(" + dragState.dx + "px) rotate(" + (-rot) + "deg)";
+    cardEl.classList.toggle("drag-yes", dragState.dx > 30);
+    cardEl.classList.toggle("drag-no", dragState.dx < -30);
+    flagYes.style.opacity = dragState.dx > 30 ? Math.min(1,(dragState.dx-30)/60) : 0;
+    flagNo.style.opacity = dragState.dx < -30 ? Math.min(1,(-dragState.dx-30)/60) : 0;
+    if(e.cancelable) e.preventDefault();
+  }
+  function onPointerUp(){
+    if(!dragState) return;
+    cardEl.classList.remove("dragging");
+    var dx = dragState.dx;
+    var wasDrag = dragState.moved;
+    dragState = null;
+    flagYes.style.opacity = 0;
+    flagNo.style.opacity = 0;
+    if(Math.abs(dx) > DRAG_THRESHOLD){
+      var flyRight = dx > 0;
+      cardEl.classList.add(flyRight ? "fly-right" : "fly-left");
+      cardEl.style.transform = "rotateY(180deg) translateX(" + (flyRight ? 900 : -900) + "px) rotate(" + (flyRight ? 20 : -20) + "deg)";
+      setTimeout(function(){ answer(flyRight); }, 320);
+    }else{
+      cardEl.classList.remove("drag-yes","drag-no");
+      cardEl.style.transform = "";
+    }
+    // swallow the click that follows a real drag so it doesn't re-flip the card
+    if(wasDrag){
+      cardEl.addEventListener("click", function swallow(ev){ ev.stopPropagation(); cardEl.removeEventListener("click", swallow, true); }, {capture:true, once:true});
+    }
+  }
+
+  cardEl.addEventListener("pointerdown", onPointerDown);
+  cardEl.addEventListener("pointermove", onPointerMove);
+  cardEl.addEventListener("pointerup", onPointerUp);
+  cardEl.addEventListener("pointercancel", onPointerUp);
+  cardEl.addEventListener("pointerleave", function(e){ if(dragState) onPointerUp(); });
+
+  cardEl.addEventListener("click", flip);
+  cardEl.addEventListener("keydown", function(e){
+    if(e.code === "Space" || e.key === "Enter"){ e.preventDefault(); flip(); }
+  });
+
+  shuffleBtn.addEventListener("click", function(){
+    var remaining = queue.slice(qIndex);
+    shuffleArray(remaining);
+    queue = queue.slice(0, qIndex).concat(remaining);
+    showCard();
+  });
+  document.addEventListener("keydown", function(e){
+    var backVisible = !answerButtons.hidden;
+    if(!backVisible) return;
+    if(e.key === "ArrowRight"){ e.preventDefault(); answer(true); }
+    if(e.key === "ArrowLeft"){ e.preventDefault(); answer(false); }
+  });
+  btnNo.addEventListener("click", function(){ answer(false); });
+  btnYes.addEventListener("click", function(){ answer(true); });
+
+  blocFilter.addEventListener("change", function(){
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  btnPractice.addEventListener("click", function(){
+    buildQueue(true);
+    showCard();
+  });
+  btnAllBlocs.addEventListener("click", function(){
+    blocFilter.value = "all";
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  resetBtn.addEventListener("click", function(){
+    if(confirm("Réinitialiser toute ta progression sur les 50 cartes ?")){
+      progress = {};
+      saveProgress(progress);
+      today = todayStr();
+      buildQueue(false);
+      updateStats();
+      showCard();
+    }
+  });
+
+  // init
+  buildQueue(false);
+  updateStats();
+  showCard();
+})();
+</script>
+</body>
+</html>

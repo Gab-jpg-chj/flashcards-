@@ -4,36 +4,50 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Flashcards Gab & Lolo</title>
-<link rel="stylesheet" href="style.css">
+<style>
+:root{--bg:#0f1226;--fg:#f4f5ff;--accent:#7c5cff;--accent2:#38bdf8}
+body.lolo{--accent:#ff5ca8;--accent2:#ffb35c}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui,sans-serif;color:var(--fg);
+ background:radial-gradient(circle at 20% 0,color-mix(in srgb,var(--accent) 35%,transparent),transparent 55%),var(--bg);transition:background .4s}
+header{text-align:center;padding:2.5rem 1rem 1rem}
+h1{margin:0 0 1.2rem;font-size:2.4rem;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tabs{display:inline-flex;gap:.4rem;background:#ffffff14;padding:.35rem;border-radius:999px}
+.tab{border:0;background:none;color:var(--fg);padding:.6rem 2rem;border-radius:999px;font-size:1rem;cursor:pointer}
+.tab.active{background:linear-gradient(90deg,var(--accent),var(--accent2));font-weight:600}
+main{max-width:860px;margin:0 auto;padding:1.5rem 1rem 3rem}
+.panel{display:none;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:1.2rem}
+.panel.show{display:grid}
+.deck{display:block;text-decoration:none;color:inherit;background:#ffffff12;border:1px solid #ffffff22;border-radius:20px;padding:1.6rem;transition:transform .2s,box-shadow .2s}
+.deck:hover{transform:translateY(-4px);box-shadow:0 10px 30px -10px var(--accent)}
+.deck .e{font-size:2.4rem}.deck h3{margin:.5rem 0 .2rem}.deck p{margin:0;opacity:.7;font-size:.92rem}
+.count{display:inline-block;margin-top:.9rem;padding:.2rem .7rem;border-radius:999px;background:var(--accent);font-size:.85rem}
+</style>
 </head>
 <body>
 <header>
   <h1>Flashcards</h1>
   <nav class="tabs">
-    <button class="tab active" data-user="gab">Gab</button>
-    <button class="tab" data-user="lolo">Lolo</button>
+    <button class="tab active" data-p="gab">Gab</button>
+    <button class="tab" data-p="lolo">Lolo</button>
   </nav>
 </header>
 <main>
-  <section id="decks" class="grid"></section>
-  <section id="study" hidden>
-    <button id="back" class="link">← Retour aux decks</button>
-    <h2 id="study-title"></h2>
-    <p id="progress"></p>
-    <div id="card" class="card" tabindex="0" title="Cliquer pour retourner">
-      <div class="inner">
-        <div class="face front"></div>
-        <div class="face back"></div>
-      </div>
-    </div>
-    <div class="controls">
-      <button id="prev">←</button>
-      <button id="shuffle">🔀 Mélanger</button>
-      <button id="next">→</button>
-    </div>
+  <section class="panel show" id="gab">
+    <a class="deck" href="mna-flashcards.html"><div class="e">📘</div><h3>Fiche M&amp;A</h3><p>Le deck M&amp;A</p><span class="count">50 cartes</span></a>
+    <a class="deck" href="synthese-flashcards.html"><div class="e">🧠</div><h3>Fiche de synthèse</h3><p>Process, valorisation, DCF, LBO, comptabilité</p><span class="count">71 cartes</span></a>
+  </section>
+  <section class="panel" id="lolo">
+    <a class="deck" href="histoire-flashcards.html"><div class="e">🏛️</div><h3>Impérialisme &amp; Nationalisme</h3><p>Histoire</p><span class="count">44 cartes</span></a>
+    <a class="deck" href="geopolitique-1913-flashcards.html"><div class="e">🌍</div><h3>Géopolitique 1913</h3><p>Histoire</p><span class="count">86 cartes</span></a>
   </section>
 </main>
-<script src="decks.js"></script>
-<script src="app.js"></script>
+<script>
+document.querySelectorAll(".tab").forEach(t=>t.onclick=()=>{
+  document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x===t));
+  document.querySelectorAll(".panel").forEach(p=>p.classList.toggle("show",p.id===t.dataset.p));
+  document.body.className=t.dataset.p;
+});
+</script>
 </body>
 </html>

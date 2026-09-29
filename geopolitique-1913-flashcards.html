@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Géopolitique 1913 — Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#132845;
+    --bg-2:#1C3760;
+    --paper:#FFFFFF;
+    --paper-2:#F0F5FC;
+    --ink:#EAF1FB;
+    --ink-muted:#9FB4D4;
+    --blue:#4EA8DE;
+    --blue-light:#8AC8ED;
+    --blue-deep:#15335C;
+    --success:#2E8C5B;
+    --success-light:#4FAE7B;
+    --success-deep:#1C5C3B;
+    --coral:#E0654F;
+    --coral-light:#EE9280;
+    --rule:#2A4570;
+    --text-onpaper:#182B4A;
+    --text-onpaper-muted:#5C6F8C;
+  }
+  :root:not([data-theme="light"]){ }
+  :root[data-theme="dark"]{ }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ } }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Nunito', sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background-image:
+      radial-gradient(circle at 12% 6%, rgba(78,168,222,0.18), transparent 45%),
+      radial-gradient(circle at 88% 94%, rgba(46,140,91,0.14), transparent 45%);
+  }
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:28px 20px 56px;
+  }
+
+  .banner-love{
+    text-align:center;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    color:var(--blue-light);
+    background:rgba(78,168,222,0.14);
+    border:1px solid rgba(78,168,222,0.3);
+    border-radius:999px;
+    padding:9px 18px;
+    margin-bottom:20px;
+    display:inline-block;
+  }
+  .banner-love-row{ text-align:center; }
+
+  header.top{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .title-block h1{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.55rem;
+    margin:0 0 4px;
+    color:var(--blue-light);
+    letter-spacing:0.2px;
+  }
+  .title-block p{
+    margin:0;
+    color:var(--ink-muted);
+    font-size:0.88rem;
+  }
+  .stats{
+    display:flex;
+    gap:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink-muted);
+    white-space:nowrap;
+  }
+  .stats b{ color:var(--blue-light); font-weight:600; }
+
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  select{
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .shuffle-btn{
+    background:var(--paper);
+    color:var(--blue-deep);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .shuffle-btn:hover{ border-color:var(--blue); }
+  .counter{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    color:var(--ink-muted);
+  }
+
+  .progress-wrap{
+    position:relative;
+    margin-bottom:6px;
+  }
+  .progress-track{
+    height:4px;
+    background:var(--bg-2);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--blue);
+    width:0%;
+    transition:width 0.3s ease;
+  }
+  .almost-label{
+    text-align:right;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.8rem;
+    color:var(--blue-light);
+    opacity:0;
+    transition:opacity 0.3s ease;
+    height:20px;
+    margin:5px 0 12px;
+  }
+
+  .stage{
+    perspective:1600px;
+    margin-bottom:22px;
+  }
+  .card{
+    position:relative;
+    min-height:340px;
+    transform-style:preserve-3d;
+    transition:transform 0.5s cubic-bezier(.4,.2,.2,1);
+    cursor:pointer;
+    touch-action:pan-y;
+    user-select:none;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .card.dragging{ transition:none; }
+  .card.fly-left{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+  .card.fly-right{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+
+  .face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--blue-light);
+    border-top:4px solid var(--blue);
+    border-radius:14px;
+    box-shadow:0 18px 40px -16px rgba(46,84,128,0.28), 0 2px 0 rgba(74,127,181,0.10);
+    padding:26px 26px 20px;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    transition:box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .face.back{ transform:rotateY(180deg); background:var(--paper-2); }
+  .card.drag-yes .face{ border-color:var(--success); box-shadow:0 18px 40px -16px rgba(76,154,117,0.4); }
+  .card.drag-no .face{ border-color:var(--coral); box-shadow:0 18px 40px -16px rgba(224,121,106,0.4); }
+
+  .swipe-flag{
+    position:absolute;
+    top:18px;
+    padding:5px 12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    font-weight:600;
+    border-radius:6px;
+    opacity:0;
+    transition:opacity 0.15s ease;
+    pointer-events:none;
+    z-index:2;
+  }
+  .swipe-flag.yes{ right:18px; background:var(--success); color:#F3FBF6; transform:rotate(6deg); }
+  .swipe-flag.no{ left:18px; background:var(--coral); color:#FFF6F4; transform:rotate(-6deg); }
+
+  .face-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .tag{
+    font-size:0.76rem;
+    font-weight:600;
+    color:var(--blue-deep);
+    background:var(--bg-2);
+    background:#E4EEF9;
+    padding:3px 10px;
+    border-radius:20px;
+  }
+  .box-dots{ display:flex; gap:5px; }
+  .box-dots span{
+    width:7px; height:7px; border-radius:50%;
+    background:rgba(31,58,92,0.13);
+  }
+  .box-dots span.filled{ background:var(--blue); }
+
+  .face-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.03em;
+    color:var(--text-onpaper-muted);
+    margin-bottom:8px;
+  }
+  .q-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.4;
+    margin:0;
+    color:var(--blue-deep);
+  }
+  .a-text{
+    font-family:'Nunito', sans-serif;
+    font-weight:500;
+    font-size:1.05rem;
+    line-height:1.55;
+    margin:0;
+  }
+  .hint{
+    margin-top:auto;
+    padding-top:14px;
+    font-size:0.8rem;
+    color:var(--text-onpaper-muted);
+    text-align:center;
+  }
+
+  .answer-buttons{
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .answer-buttons button{
+    flex:1;
+    padding:12px 6px;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.78rem;
+    line-height:1.2;
+    white-space:normal;
+    border-radius:10px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:filter 0.15s ease, transform 0.1s ease;
+  }
+  .answer-buttons button:hover{ filter:brightness(1.06); }
+  .answer-buttons button:active{ transform:scale(0.97); }
+  .btn-no{ background:var(--coral); color:#FFF6F4; }
+  .btn-mid{ background:var(--bg-2); color:var(--blue-light); border:1px solid var(--blue-light); }
+  .btn-yes{ background:var(--success); color:#F3FBF6; }
+  .answer-buttons[hidden]{ display:none; }
+
+  .popup-overlay{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:60;
+  }
+  .popup-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:2.6rem;
+    letter-spacing:0.02em;
+    opacity:0;
+    text-shadow:0 4px 18px rgba(0,0,0,0.35);
+    animation:popSpawn 900ms cubic-bezier(.2,.9,.3,1.2) forwards;
+    white-space:nowrap;
+  }
+  @keyframes popSpawn{
+    0%{ opacity:0; transform:scale(0.4) rotate(-6deg) translateY(10px); }
+    35%{ opacity:1; transform:scale(1.15) rotate(3deg) translateY(-6px); }
+    55%{ opacity:1; transform:scale(1) rotate(0deg) translateY(0); }
+    85%{ opacity:1; }
+    100%{ opacity:0; transform:scale(1) translateY(-30px); }
+  }
+
+  .flip-hint-row{
+    text-align:center;
+    font-family:'Nunito', sans-serif;
+    color:var(--ink-muted);
+    font-size:0.8rem;
+    margin-bottom:26px;
+  }
+
+  .done-panel{
+    border:1px solid var(--rule);
+    background:var(--paper);
+    padding:32px 26px;
+    text-align:center;
+    border-radius:14px;
+  }
+  .done-panel h2{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:1.9rem;
+    margin:0 0 10px;
+    color:var(--success-deep);
+  }
+  .done-panel p{ font-family:'Nunito', sans-serif; color:var(--ink-muted); margin:0 0 20px; }
+  .done-panel .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .done-panel button{
+    padding:11px 18px;
+    background:var(--blue);
+    color:#fff;
+    border:none;
+    font-weight:600;
+    font-family:'Nunito', sans-serif;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .done-panel button.ghost{
+    background:transparent;
+    color:var(--blue-deep);
+    border:1px solid var(--blue-light);
+  }
+
+  footer.bottom{
+    margin-top:30px;
+    text-align:center;
+  }
+  footer.bottom button{
+    color:var(--ink-muted);
+    font-size:0.78rem;
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-family:'Nunito', sans-serif;
+  }
+
+  @media (max-width:480px){
+    .card{ min-height:400px; }
+    .q-text{ font-size:1.14rem; }
+    header.top{ align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+<div class="popup-overlay" id="popupOverlay"></div>
+
+<div class="wrap">
+
+  <div class="banner-love-row"><span class="banner-love">Courage ma Lolo d'amour ! 💙</span></div>
+  <div style="text-align:center; margin-bottom:14px;"><a href="index.html" style="color:var(--blue-light); font-family:'Nunito', sans-serif; font-size:0.85rem; text-decoration:none;">← Tous les decks</a></div>
+
+  <header class="top">
+    <div class="title-block">
+      <h1>Géopolitique 1913 — Flashcards</h1>
+      <p>Tableau géopolitique du monde en 1913 — 86 cartes</p>
+    </div>
+    <div class="stats">
+      <span>À réviser <b id="statDue">0</b></span>
+      <span>Maîtrisées <b id="statMastered">0</b>/<span id="statTotal">86</span></span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="filter-row">
+      <select id="blocFilter" aria-label="Filtrer par thème"></select>
+      <button class="shuffle-btn" id="shuffleBtn" title="Mélanger l'ordre des cartes">🔀 Mélanger</button>
+    </div>
+    <div class="counter" id="counter">—</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <div class="almost-label" id="almostLabel">Tu y es presque ! 💙</div>
+
+  <div id="stage" class="stage">
+    <div class="card" id="card" tabindex="0">
+      <span class="swipe-flag no" id="flagNo">Demain !</span>
+      <span class="swipe-flag yes" id="flagYes">Trop facile !</span>
+      <div class="face front">
+        <div class="face-head">
+          <span class="tag" id="tagFront">—</span>
+          <div class="box-dots" id="dotsFront"></div>
+        </div>
+        <div class="face-label">Question</div>
+        <p class="q-text" id="qText"></p>
+        <div class="hint">Clique ou tape la carte pour voir la réponse</div>
+      </div>
+      <div class="face back">
+        <div class="face-head">
+          <span class="tag" id="tagBack">—</span>
+          <div class="box-dots" id="dotsBack"></div>
+        </div>
+        <div class="face-label">Réponse</div>
+        <p class="a-text" id="aText"></p>
+        <div class="hint">Glisse la carte ← → ou utilise les boutons</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="answer-buttons" id="answerButtons" hidden>
+    <button class="btn-no" id="btnNo">Pas aujourd'hui, mais demain !</button>
+    <button class="btn-mid" id="btnMid">À revoir</button>
+    <button class="btn-yes" id="btnYes">TROP FACILE pour LOLOCHE</button>
+  </div>
+  <div class="flip-hint-row" id="flipHintRow">Espace ou clic = retourner la carte</div>
+
+  <div id="donePanel" class="done-panel" style="display:none;">
+    <h2 id="doneTitle">Session terminée</h2>
+    <p id="doneText">Toutes les cartes dues ont été révisées.</p>
+    <div class="row">
+      <button id="btnPractice">Réviser quand même</button>
+      <button class="ghost" id="btnAllBlocs">Voir tous les thèmes</button>
+    </div>
+  </div>
+
+  <footer class="bottom">
+    <button id="resetProgress">Réinitialiser ma progression</button>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CARDS = [
+    {id:1,bloc:1,front:"Quelle est la problématique du chapitre 1 ?",back:"1913 est-il l'apogée ou le crépuscule du long XIXe siècle européen ? — tension entre l'impression de puissance et la réalité des fragilités (crises, nationalismes, rivalités)."},
+    {id:2,bloc:1,front:"Définis la révolution industrielle.",back:"Processus par lequel des innovations de toute nature s'entraînent réciproquement et se diffusent à tous les secteurs — passage d'une économie agricole à une économie industrielle."},
+    {id:3,bloc:1,front:"Que montre P. Mathias sur la Grande-Bretagne (« The First Industrial Nation ») ?",back:"Dans les années 1830, elle concentre 40% de la population active, 2/3 du charbon et 1/2 du fer mondiaux — la première nation industrielle."},
+    {id:4,bloc:1,front:"Que caractérise la 2e révolution industrielle (fin XIXe) ?",back:"Chimie, électricité, acier, automobile (Ford T, 1908) — elle permet le rattrapage de l'Allemagne et des États-Unis entre 1870 et 1890."},
+    {id:5,bloc:1,front:"Distingue concentration horizontale, verticale et conglomérale.",back:"Horizontale = même secteur ; verticale = maîtrise de toute la chaîne de production ; conglomérale = secteurs différents, pour réduire les risques."},
+    {id:6,bloc:1,front:"Que sont un Konzern et un cartel ?",back:"Un Konzern est un groupe très concentré sous direction unique ; un cartel est une entente entre entreprises pour fixer les prix et se partager un marché — l'Allemagne en est la championne."},
+    {id:7,bloc:1,front:"Que sont le taylorisme et le fordisme ?",back:"Le taylorisme parcellise le travail et sépare conception et exécution ; le fordisme organise le travail à la chaîne et double les salaires, ce qui augmente productivité et consommation."},
+    {id:8,bloc:1,front:"Que sont les cycles de Kondratiev ?",back:"Des cycles économiques longs (40-60 ans) alternant phase A d'expansion et phase B de récession — la Grande Dépression (1873-1896) précède la Belle Époque (1896-1914)."},
+    {id:9,bloc:1,front:"Quels chiffres caractérisent la Belle Époque (1896-1914) ?",back:"Crédit facile, échanges en hausse, croissance ≈ 5%/an (1910-1913), chômage en baisse, salaires en hausse — l'Europe en profite surtout (40% de la production industrielle mondiale)."},
+    {id:10,bloc:1,front:"Définis le libéralisme (doctrine).",back:"Doctrine née avec les Lumières, centrée sur les libertés individuelles et civiles, la séparation des pouvoirs et le pluralisme ; en économie : libre entreprise, libre concurrence, libre-échange, État minimal — à l'opposé du mercantilisme."},
+    {id:11,bloc:1,front:"Que défendent Adam Smith, Richard Cobden et Friedrich List ?",back:"Smith : le marché s'autorégule par la « main invisible ». Cobden : le commerce est source de paix. List : un « protectionnisme éducateur », protection temporaire des industries naissantes."},
+    {id:12,bloc:1,front:"Quelles dates marquent l'essor puis le recul du libre-échange en Europe ?",back:"1846 : abolition des Corn Laws (GB) ; 1860 : traité Cobden-Chevalier (GB-France) ; mais retour du protectionnisme dès les années 1870 (Allemagne 1879, tarif Méline en France 1892)."},
+    {id:13,bloc:1,front:"Définis l'étalon-or et la formule de B. Eichengreen.",back:"Système où chaque monnaie est définie par un poids d'or fixe et convertible en or (taux de change fixes) ; Eichengreen parle de « menottes d'or » — contraignant, mais créant la confiance et facilitant les échanges."},
+    {id:14,bloc:1,front:"Quels progrès de transport et d'information accélèrent les échanges avant 1914 ?",back:"Coûts terrestres divisés par 10, réseau ferré doublé, canaux de Suez (1869) et Panama (1914), câble télégraphique transatlantique (1866) — 450 000 km de câbles sous-marins en 1913, dont 60% britanniques."},
+    {id:15,bloc:1,front:"Que montre C. Bayly dans La Naissance du monde moderne (2004) ?",back:"Un monde qui s'unifie et s'accélère sous l'effet conjugué des transports, de l'information et des échanges."},
+    {id:16,bloc:1,front:"Que montre Suzanne Berger dans Notre première mondialisation (2003) ?",back:"Entre 1870 et 1914, on échange autant que jamais, avec une première division internationale du travail et un rôle croissant des acteurs privés — un essor stoppé net par la 1ère Guerre mondiale (« l'échec oublié »)."},
+    {id:17,bloc:1,front:"Quels chiffres illustrent les flux financiers, commerciaux et migratoires avant 1914 ?",back:"80% des investissements étrangers sont européens ; les échanges commerciaux sont multipliés par 25 (1815-1914) ; 100 millions de migrants entre 1880 et 1914, dont 33 millions d'Européens vers les États-Unis."},
+    {id:18,bloc:1,front:"Peut-on vraiment parler d'une « première mondialisation » avant 1914 ?",back:"Oui, par l'intégration financière, commerciale et migratoire inédite (Berger) ; mais les échanges restent surtout des matières premières, le protectionnisme reste la norme, et l'ensemble demeure européocentré."},
+
+    {id:19,bloc:2,front:"Quel poids économique a l'Europe dans la première mondialisation ?",back:"40% de la production industrielle mondiale (57% de l'acier), 55% des échanges, 80% des flux de capitaux (via la City de Londres) — mais surtout l'Europe du Nord-Ouest, le Sud et l'Est restant en retard."},
+    {id:20,bloc:2,front:"Que dit Hobsbawm dans L'Ère des empires sur le « tournant impérial » ?",back:"Il situe à la fin du XIXe siècle un tournant impérial, une intensification de la compétition coloniale entre puissances européennes."},
+    {id:21,bloc:2,front:"Que veut dire Jules Ferry par « la politique coloniale est fille de la politique industrielle » ?",back:"Les colonies sont vues comme un prolongement nécessaire de l'industrialisation, pour ses débouchés et ses matières premières."},
+    {id:22,bloc:2,front:"Que décrit Kipling dans Le Fardeau de l'homme blanc (1899) ?",back:"L'idée d'une « mission civilisatrice » des puissances coloniales envers les peuples colonisés, présentée comme un devoir plutôt qu'une domination."},
+    {id:23,bloc:2,front:"Que dit le Général Mangin dans La Force noire (1910) ?",back:"Les colonies sont vues comme un réservoir de soldats pour compenser l'infériorité démographique française face à l'Allemagne."},
+    {id:24,bloc:2,front:"Que montre J. Marseille dans Empire colonial et capitalisme français (1984) ?",back:"Il analyse comment l'empire colonial devient peu à peu un frein, et non un moteur, pour le capitalisme français — une « histoire d'un divorce »."},
+    {id:25,bloc:2,front:"Que distinguent Gallagher et Robinson dans « The Imperialism of Free Trade » (1953) ?",back:"L'impérialisme formel (administration directe) et l'impérialisme informel (domination économique sans administration, ex. Chine, Empire ottoman)."},
+    {id:26,bloc:2,front:"Quelles sont les 4 grandes motivations de la colonisation ?",back:"Économiques (débouchés), civilisationnelles et religieuses, géostratégiques (points d'appui, soldats), et le prestige (laver une défaite, jingoïsme, Weltpolitik)."},
+    {id:27,bloc:2,front:"Que signifient jingoïsme et Weltpolitik ?",back:"Le jingoïsme est un nationalisme britannique exacerbé favorable à l'expansion (Disraeli, 1872) ; la Weltpolitik est la « politique mondiale » de l'Allemagne de Guillaume II (« sa place au soleil », von Bülow)."},
+    {id:28,bloc:2,front:"Que s'est-il passé entre 1880 et 1914 dans la course coloniale ?",back:"Ruée coloniale des années 1880-1890 (« scramble for Africa »), formalisée par la conférence de Berlin (1884-1885) ; en 1914, les empires couvrent environ 1/3 des terres émergées."},
+    {id:29,bloc:2,front:"Compare les superficies des empires coloniaux en 1914.",back:"Le Royaume-Uni domine avec environ 30 millions de km², la France 11-12 millions, l'Allemagne seulement 3 millions."},
+    {id:30,bloc:2,front:"Distingue dominions, colonies et protectorats.",back:"Les dominions ont une large autonomie (ex. Canada), les colonies sont administrées directement, les protectorats gardent une souveraineté formelle mais sous contrôle extérieur (ex. AOF/AEF pour la France)."},
+    {id:31,bloc:2,front:"Qu'est-ce que l'« économie de traite » ?",back:"Une relation asymétrique où la colonie exporte des matières premières bon marché et la métropole des produits manufacturés plus chers."},
+    {id:32,bloc:2,front:"Donne des exemples d'impérialisme informel.",back:"L'Empire ottoman (« l'homme malade de l'Europe », chemin de fer de Bagdad), l'Égypte (occupée en 1882), la Chine (traités inégaux après les guerres de l'opium, traité de Nankin en 1842)."},
+
+    {id:33,bloc:3,front:"Que définit Fernand Braudel avec l'« économie-monde » ?",back:"Un espace économique autonome organisé autour d'un centre dominant qui contrôle des périphéries."},
+    {id:34,bloc:3,front:"Pourquoi dit-on que la Grande-Bretagne est une « économie-monde » en perte de vitesse ?",back:"Malgré ses atouts (City, livre sterling, réseaux commerciaux, Inde), elle recule dès 1870 face au dumping allemand ; en 1913, les États-Unis l'ont déjà dépassée en production industrielle."},
+    {id:35,bloc:3,front:"Quels sont les atouts et les faiblesses de la France en 1913 ?",back:"Atouts : deuxième empire colonial, innovations (Renault, aéronautique, Marie Curie). Faiblesses : seulement 4e puissance industrielle, peu de firmes à l'étranger, démographie faible (≈39 millions d'habitants)."},
+    {id:36,bloc:3,front:"Que montre Laurence Badel sur la « diplomatie économique » ?",back:"La naissance d'un lien étroit entre diplomatie, finance et industrie (terme de Théophile Delcassé), via les attachés commerciaux et les chambres de commerce."},
+    {id:37,bloc:3,front:"Quels facteurs expliquent la percée allemande avant 1914 ?",back:"Une démographie en forte hausse (40 à 67 millions d'habitants entre 1870 et 1913), le charbon et le fer de la Ruhr, des banques étroitement liées à l'industrie, et des cartels puissants."},
+    {id:38,bloc:3,front:"En quoi l'Allemagne est-elle en 1913 la championne des cartels ?",back:"Ses grandes entreprises (Siemens, AEG, BASF, Krupp, Thyssen) s'entendent pour fixer les prix et se partager les marchés, combinant protectionnisme intérieur et dumping à l'export."},
+    {id:39,bloc:3,front:"Que montre Pierre Mélandri dans Le Siècle américain (2016) ?",back:"Une industrialisation tardive mais très rapide des États-Unis, qui représentent déjà 1/3 de la production industrielle mondiale en 1913."},
+    {id:40,bloc:3,front:"Quels sont les fondements de la puissance industrielle américaine ?",back:"Les matières premières, le Manufacturing Belt, un marché intérieur unifié par le chemin de fer transcontinental (1869), une immigration massive et la mécanisation agricole (Middle West)."},
+    {id:41,bloc:3,front:"Que sont les trusts américains, et comment ont-ils été encadrés ?",back:"Des entreprises confiant leur gestion à un trustee en échange d'actions (ex. Standard Oil de Rockefeller) ; le Sherman Act (1890) les interdit, ce qui pousse à la création de holdings (J.P. Morgan)."},
+    {id:42,bloc:3,front:"Comment les États-Unis passent-ils de l'isolationnisme à l'impérialisme ?",back:"De la doctrine Monroe (1823) à la destinée manifeste (O'Sullivan, 1845) et au Sea Power de Mahan (1890), jusqu'à la guerre hispano-américaine (1898) et le corollaire Roosevelt (1904, « Big Stick »)."},
+    {id:43,bloc:3,front:"Que retenir de l'ère Meiji au Japon (depuis 1868) ?",back:"Le pouvoir est rendu à l'empereur, une constitution est adoptée (1889), l'industrialisation est impulsée par l'État puis confiée aux zaibatsu (Mitsui, Mitsubishi) — devise « un pays riche, une armée forte »."},
+    {id:44,bloc:3,front:"Quelles victoires marquent l'expansion japonaise avant 1914 ?",back:"Victoire sur la Chine (Shimonoseki, 1895), alliance anglo-japonaise (1902), victoire sur la Russie (1905), annexion de la Corée (1910)."},
+    {id:45,bloc:3,front:"Que dit Paul Claudel du Japon dans Sous le signe du dragon (1909) ?",back:"Il le décrit comme un pays « formidablement armé et pauvre » — puissant militairement mais économiquement fragile."},
+    {id:46,bloc:3,front:"Quelles sont les limites de la puissance japonaise en 1914 ?",back:"Seulement 2% du PIB mondial, une croissance fragile due aux dépenses militaires et à la dépendance aux matières premières, et des tensions sociales internes."},
+    {id:47,bloc:3,front:"Pourquoi le rattrapage industriel de la Russie reste-t-il inachevé en 1913 ?",back:"Malgré une industrialisation tardive dans le Donbass (avec des capitaux français) qui en fait la 4e-5e puissance industrielle, 3/4 de sa main-d'œuvre reste agricole."},
+    {id:48,bloc:3,front:"Qu'est-ce qu'un zaibatsu ?",back:"Un conglomérat japonais contrôlé par une famille via une holding, structure qui perdurera jusqu'en 1945."},
+
+    {id:49,bloc:4,front:"Que montre Clément Juglar sur les crises économiques (1862) ?",back:"Des crises cycliques d'environ 8 ans, en trois phases : essor, crise, liquidation — elles deviennent internationales (krachs de 1873 et de 1882)."},
+    {id:50,bloc:4,front:"Qu'est-ce que le « système-monde » d'Immanuel Wallerstein ?",back:"Une économie-monde hiérarchisée en trois niveaux : un centre (pays riches et industrialisés), une semi-périphérie (Japon, Russie) et une périphérie (les colonies)."},
+    {id:51,bloc:4,front:"Comment les régimes politiques diffèrent-ils entre l'Ouest et l'Est de l'Europe en 1913 ?",back:"À l'Ouest domine le libéralisme politique (monarchie parlementaire britannique, République française) ; à l'Est, l'autoritarisme persiste (Kaiser Guillaume II, tsar Nicolas II malgré la Douma de 1905)."},
+    {id:52,bloc:4,front:"Distingue sentiment national, nationalisme, darwinisme social et pangermanisme.",back:"Le sentiment national est l'appartenance ressentie à une nation ; le nationalisme l'exacerbe avec une volonté de dominer et d'exclure ; le darwinisme social justifie la domination des « forts » sur les « faibles » ; le pangermanisme vise à rassembler tous les Allemands dans un même territoire."},
+    {id:53,bloc:4,front:"Oppose la conception subjective (Renan) et objective (Fichte) de la nation.",back:"Pour Renan, la nation est une adhésion volontaire, « un plébiscite de tous les jours » ; pour Fichte, elle repose sur des critères objectifs — langue, culture, histoire, « race »."},
+    {id:54,bloc:4,front:"Qu'est-ce que le « nationalisme intégral » de Charles Maurras ?",back:"Une doctrine hostile à la République qui exclut de la nation les « 4 États confédérés » : juifs, protestants, francs-maçons et étrangers."},
+    {id:55,bloc:4,front:"Comment l'école participe-t-elle à la construction du sentiment national en France ?",back:"Via des ouvrages comme Le Tour de la France par deux enfants de G. Bruno (1877), diffusé dans le cadre des lois Ferry sur l'école."},
+    {id:56,bloc:4,front:"Comment les minorités des grands empires réagissent-elles avant 1914 ?",back:"Par des compromis (l'Autriche-Hongrie en 1867) ou des revendications d'autonomie/indépendance ; hors d'Europe, le parti du Congrès émerge en Inde dès 1885."},
+    {id:57,bloc:4,front:"Qu'est-ce que le « Grand Jeu » entre le Royaume-Uni et la Russie ?",back:"Une rivalité en Asie centrale (Perse, Afghanistan servant de zones tampons protégeant l'Inde), qui prend fin avec l'accord anglo-russe de 1907."},
+    {id:58,bloc:4,front:"Que s'est-il passé à Fachoda en 1898 ?",back:"L'axe colonial britannique Le Caire-Le Cap (Kitchener) croise l'axe français Dakar-Djibouti (Marchand) ; la France, par la voix de Delcassé, cède face au Royaume-Uni."},
+    {id:59,bloc:4,front:"Que retenir des crises marocaines de 1905 et 1911 ?",back:"La crise de Tanger (1905) mène à la conférence d'Algésiras (1906) ; celle d'Agadir (1911, envoi d'une canonnière allemande) aboutit au protectorat français sur le Maroc (1912), l'Allemagne recevant en échange une partie du Congo."},
+    {id:60,bloc:4,front:"Décris la course aux armements navals avant 1914.",back:"L'amiral Tirpitz et la ligue navale (Flottenverein) poussent la marine allemande ; le Royaume-Uni abandonne le Two Power Standard pour la doctrine « two keels to one » (1912), avec les nouveaux cuirassés Dreadnought."},
+    {id:61,bloc:4,front:"Pourquoi la France vote-t-elle la loi des 3 ans en 1913 ?",back:"Pour compenser sa forte infériorité démographique face à l'Allemagne (39 contre 65 millions d'habitants environ) en allongeant le service militaire."},
+    {id:62,bloc:4,front:"Que décrit Charles Péguy avec « une longue veillée d'armes » (1905) ?",back:"Un climat de tension militaire permanente en Europe, où chaque puissance se prépare à un conflit pressenti."},
+    {id:63,bloc:4,front:"Retrace le système des alliances européennes de 1879 à 1907.",back:"Duplice Allemagne-Autriche-Hongrie (1879) puis Triple Alliance avec l'Italie (1882) isolent la France ; l'alliance franco-russe (1892) prend l'Allemagne « en sandwich » ; l'Entente cordiale (1904) puis la Triple Entente (1907) répondent à ce bloc."},
+    {id:64,bloc:4,front:"Pourquoi dit-on que la diplomatie des congrès meurt avant 1914 ?",back:"Le système de concertation né du congrès de Vienne (1815) est remplacé par des alliances rigides et secrètes, qui rendent tout conflit local plus difficile à contenir."},
+    {id:65,bloc:4,front:"En quoi les guerres balkaniques (1912-1913) préfigurent-elles la Grande Guerre ?",back:"La Ligue balkanique libère la Macédoine en 1912, mais les vainqueurs se déchirent en 1913 ; ces guerres annoncent déjà l'artillerie de masse, les civils visés et le nettoyage ethnique."},
+    {id:66,bloc:4,front:"Pourquoi la Serbie renforcée inquiète-t-elle l'Autriche-Hongrie après 1913 ?",back:"Alliée de la Russie, elle sort agrandie des guerres balkaniques, ce qui menace directement l'équilibre interne de l'Autriche-Hongrie face à ses minorités slaves."},
+    {id:67,bloc:4,front:"Reconstitue la chronologie exacte de l'engrenage de 1914.",back:"28 juin : assassinat de François-Ferdinand à Sarajevo par Gavrilo Princip ; ultimatum autrichien ; 28 juillet : déclaration de guerre de l'Autriche-Hongrie à la Serbie ; 1er-3 août : l'Allemagne déclare la guerre à la Russie puis à la France ; 4 août : entrée en guerre du Royaume-Uni après l'invasion de la Belgique neutre."},
+
+    {id:68,bloc:5,front:"Que montre K. Pomeranz dans La Grande Divergence (2000) ?",back:"La Chine et l'Europe étaient à un niveau comparable à la fin du XVIIIe siècle ; ce sont le charbon et les colonies qui font ensuite diverger l'Europe."},
+    {id:69,bloc:5,front:"Que soutient N. Angell dans La Grande Illusion (1910), et quelle est la limite de sa thèse ?",back:"Il soutient que la mondialisation rendrait la guerre absurde économiquement ; mais cela suppose des puissances rationnelles, alors que Mahan rappelle le poids des passions nationales."},
+    {id:70,bloc:5,front:"Que montre P. Moreau-Defarges sur les ordres mondiaux (2003) ?",back:"La Première Guerre mondiale fait basculer d'un ordre européocentré à un ordre partagé, notamment avec la montée des États-Unis."},
+    {id:71,bloc:5,front:"Compare les positions de P. Renouvin et F. Fischer sur les responsabilités de la guerre.",back:"Renouvin voit une responsabilité allemande supérieure mais pas exclusive ; Fischer (1961), dans Les Buts de guerre de l'Allemagne impériale, défend une forte culpabilité allemande — une thèse qui fait scandale."},
+    {id:72,bloc:5,front:"Que montre Christopher Clark dans Les Somnambules (2012) ?",back:"Les Européens marchent « les yeux fermés » vers la guerre, par une suite de décisions plutôt qu'une fatalité — il décentre le regard vers les Balkans."},
+    {id:73,bloc:5,front:"Quelle est la conclusion générale du chapitre sur 1913 ?",back:"Une apogée européenne réelle mais déjà contestée : la montée des États-Unis et du Japon montre que la hiérarchie de la puissance bascule, et la mondialisation n'a pas empêché les rivalités, contrairement à l'espoir des libéraux."},
+    {id:74,bloc:5,front:"Quelles sont les vraies dates de la Belle Époque et de la Grande Dépression (erreur fréquente) ?",back:"Belle Époque : 1895/96-1914 (pas 1917) ; Grande Dépression : 1873-1896."},
+    {id:75,bloc:5,front:"Quel est le titre exact de l'ouvrage de Mahan (erreur fréquente) ?",back:"The Influence of Sea Power upon History (1890) — pas simplement « Sea Power »."},
+    {id:76,bloc:5,front:"Un cartel fixe-t-il ou baisse-t-il les prix (erreur fréquente) ?",back:"Un cartel fixe les prix entre les entreprises membres — il ne les baisse pas, contrairement à une confusion fréquente."},
+    {id:77,bloc:5,front:"Quelle est la bonne orthographe du groupe industriel très concentré sous direction unique ?",back:"Konzern (et non une autre orthographe) — à retenir tel quel pour la copie."},
+    {id:78,bloc:5,front:"Bessemer est-il un inventeur français ou britannique (erreur fréquente) ?",back:"Britannique — le convertisseur Bessemer est une invention britannique clé de la sidérurgie du XIXe siècle."},
+    {id:79,bloc:5,front:"L'invention de Hertz concerne-t-elle les ondes ou le téléphone (erreur fréquente) ?",back:"Les ondes (les ondes hertziennes) — le téléphone est une invention de Bell, à ne pas confondre."},
+    {id:80,bloc:5,front:"Pourquoi parle-t-on de navires « frigorifiques » et pas « Froud » (erreur fréquente) ?",back:"Le terme vient du froid (réfrigération), qui permet le transport de denrées périssables sur de longues distances — « Froud » est une déformation à corriger."},
+    {id:81,bloc:5,front:"BNP Paribas existait-elle sous ce nom avant 1914 (erreur fréquente) ?",back:"Non — avant 1914, seule Paribas existait ; la fusion avec la BNP est bien postérieure, à ne pas anachroniser."},
+    {id:82,bloc:5,front:"À quelles dates l'Égypte est-elle occupée et la Grèce indépendante (erreur fréquente) ?",back:"L'Égypte est occupée par le Royaume-Uni en 1882 ; la Grèce devient indépendante en 1830 — deux dates à ne pas confondre ni inverser."},
+    {id:83,bloc:5,front:"Quelle est la durée exacte des cycles de Juglar (erreur fréquente) ?",back:"Environ 8 ans — à ne pas confondre avec les cycles longs de Kondratiev (40-60 ans)."},
+    {id:84,bloc:5,front:"Après la crise d'Agadir, qui reçoit une partie du Congo (erreur fréquente) ?",back:"C'est l'Allemagne qui reçoit une partie du Congo français en compensation de son retrait, et non l'inverse."},
+    {id:85,bloc:5,front:"En 1913, qui devance qui en production industrielle entre le Royaume-Uni et les États-Unis (erreur fréquente) ?",back:"Les États-Unis ont déjà dépassé le Royaume-Uni en production industrielle dès 1913 — la supériorité britannique date en réalité des années 1850-1870."},
+    {id:86,bloc:5,front:"Dans des notes qui utilisent « EU », à quoi ce sigle peut-il faire référence, et quel est le risque ?",back:"Il peut désigner tantôt l'Europe, tantôt les États-Unis — un sigle ambigu à toujours écrire en toutes lettres pour éviter toute confusion à l'écrit."}
+  ];
+
+  var BLOCS = {
+    1:"Fondements de la mondialisation", 2:"Europe & colonisation", 3:"Puissances émergentes",
+    4:"Tensions & marche vers la guerre", 5:"Conclusion & points de vigilance"
+  };
+
+  var STORAGE_KEY = "geopolitique_1913_progress_v1";
+  var INTERVALS = [0,1,3,7,16]; // days, index = box-1 (box 1..5)
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function addDays(dateStr, n){
+    var d = new Date(dateStr+"T00:00:00");
+    d.setDate(d.getDate()+n);
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+
+  function loadProgress(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {};
+      var parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === "object") ? parsed : {};
+    }catch(e){ return {}; }
+  }
+  function saveProgress(p){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+    catch(e){ /* storage unavailable — session continues without persistence */ }
+  }
+
+  var progress = loadProgress();
+  var today = todayStr();
+
+  function stateFor(cardId){
+    var s = progress[cardId];
+    if(!s){ s = {box:1, due:today}; }
+    return s;
+  }
+
+  var blocFilter = document.getElementById("blocFilter");
+  var counterEl = document.getElementById("counter");
+  var stageEl = document.getElementById("stage");
+  var cardEl = document.getElementById("card");
+  var qText = document.getElementById("qText");
+  var aText = document.getElementById("aText");
+  var tagFront = document.getElementById("tagFront");
+  var tagBack = document.getElementById("tagBack");
+  var dotsFront = document.getElementById("dotsFront");
+  var dotsBack = document.getElementById("dotsBack");
+  var answerButtons = document.getElementById("answerButtons");
+  var flipHintRow = document.getElementById("flipHintRow");
+  var btnNo = document.getElementById("btnNo");
+  var btnMid = document.getElementById("btnMid");
+  var btnYes = document.getElementById("btnYes");
+  var donePanel = document.getElementById("donePanel");
+  var doneTitle = document.getElementById("doneTitle");
+  var doneText = document.getElementById("doneText");
+  var btnPractice = document.getElementById("btnPractice");
+  var btnAllBlocs = document.getElementById("btnAllBlocs");
+  var statDue = document.getElementById("statDue");
+  var statMastered = document.getElementById("statMastered");
+  var statTotal = document.getElementById("statTotal");
+  var resetBtn = document.getElementById("resetProgress");
+  var progressFill = document.getElementById("progressFill");
+  var almostLabel = document.getElementById("almostLabel");
+  var shuffleBtn = document.getElementById("shuffleBtn");
+  var flagYes = document.getElementById("flagYes");
+  var flagNo = document.getElementById("flagNo");
+
+  statTotal.textContent = CARDS.length;
+
+  var opt = document.createElement("option");
+  opt.value = "all"; opt.textContent = "Tous les thèmes (" + CARDS.length + " cartes)";
+  blocFilter.appendChild(opt);
+  Object.keys(BLOCS).forEach(function(k){
+    var count = CARDS.filter(function(c){ return c.bloc == k; }).length;
+    var o = document.createElement("option");
+    o.value = k;
+    o.textContent = BLOCS[k] + " (" + count + ")";
+    blocFilter.appendChild(o);
+  });
+
+  var queue = [];
+  var qIndex = 0;
+  var current = null;
+  var practiceMode = false;
+
+  function shuffleArray(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function cardsForFilter(){
+    var f = blocFilter.value;
+    if(f === "all") return CARDS.slice();
+    return CARDS.filter(function(c){ return String(c.bloc) === f; });
+  }
+
+  function buildQueue(forcePractice){
+    var pool = cardsForFilter();
+    var list;
+    if(forcePractice){
+      list = pool.slice();
+    }else{
+      list = pool.filter(function(c){
+        var s = stateFor(c.id);
+        return s.due <= today;
+      });
+    }
+    shuffleArray(list);
+    queue = list;
+    qIndex = 0;
+    practiceMode = !!forcePractice;
+  }
+
+  function updateStats(){
+    var pool = cardsForFilter();
+    var dueCount = pool.filter(function(c){ return stateFor(c.id).due <= today; }).length;
+    var masteredCount = pool.filter(function(c){ return stateFor(c.id).box >= 5; }).length;
+    statDue.textContent = dueCount;
+    statMastered.textContent = masteredCount;
+    statTotal.textContent = pool.length;
+  }
+
+  function renderDots(container, box){
+    container.innerHTML = "";
+    for(var i=1;i<=5;i++){
+      var s = document.createElement("span");
+      if(i <= box) s.className = "filled";
+      container.appendChild(s);
+    }
+  }
+
+  function showCard(){
+    if(qIndex >= queue.length){
+      showDone();
+      return;
+    }
+    current = queue[qIndex];
+    var s = stateFor(current.id);
+    cardEl.classList.remove("flipped");
+    qText.textContent = current.front;
+    aText.textContent = current.back;
+    var label = BLOCS[current.bloc];
+    tagFront.textContent = label;
+    tagBack.textContent = label;
+    renderDots(dotsFront, s.box);
+    renderDots(dotsBack, s.box);
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "block";
+    counterEl.textContent = "Carte " + (qIndex+1) + " / " + queue.length + (practiceMode ? " · révision libre" : "");
+    stageEl.style.display = "block";
+    donePanel.style.display = "none";
+    var pct = queue.length ? Math.round((qIndex/queue.length)*100) : 0;
+    progressFill.style.width = pct + "%";
+    almostLabel.style.opacity = (pct >= 70 && pct < 100) ? 1 : 0;
+    cardEl.style.transform = "";
+    cardEl.classList.remove("fly-left","fly-right","dragging","drag-yes","drag-no");
+  }
+
+  function showDone(){
+    stageEl.style.display = "none";
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "none";
+    counterEl.textContent = "";
+    donePanel.style.display = "block";
+    progressFill.style.width = "100%";
+    almostLabel.style.opacity = 0;
+    doneTitle.textContent = "BRAVOOO ! 🎉";
+    if(practiceMode){
+      doneText.textContent = "T'as tout repassé en révision libre, Lolo — t'assures ! 💙";
+    }else{
+      doneText.textContent = "T'as fini toutes les cartes du jour. On est trop fiers de toi ! 💙";
+    }
+    updateStats();
+  }
+
+  function flip(){
+    if(!current) return;
+    var willShowBack = !cardEl.classList.contains("flipped");
+    cardEl.classList.toggle("flipped");
+    if(willShowBack){
+      answerButtons.hidden = false;
+      flipHintRow.style.display = "none";
+    }else{
+      answerButtons.hidden = true;
+      flipHintRow.style.display = "block";
+    }
+  }
+
+  var popupOverlay = document.getElementById("popupOverlay");
+
+  function spawnPopup(text, color){
+    var el = document.createElement("div");
+    el.className = "popup-text";
+    el.textContent = text;
+    el.style.color = color;
+    popupOverlay.innerHTML = "";
+    popupOverlay.appendChild(el);
+    setTimeout(function(){
+      if(el.parentNode) el.parentNode.removeChild(el);
+    }, 900);
+  }
+
+  function answer(kind){
+    if(!current) return;
+    var s = stateFor(current.id);
+    if(kind === "yes"){
+      s.box = Math.min(5, s.box + 1);
+      s.due = addDays(today, INTERVALS[s.box - 1]);
+      spawnPopup("VAMOSSS 🔥", "#4FAE7B");
+    }else if(kind === "mid"){
+      s.due = addDays(today, 1);
+    }else{
+      s.box = 1;
+      s.due = addDays(today, INTERVALS[0]);
+      spawnPopup("Next time :)", "#EE9280");
+    }
+    progress[current.id] = s;
+    saveProgress(progress);
+    qIndex++;
+    updateStats();
+    showCard();
+  }
+
+  var dragState = null;
+  var DRAG_THRESHOLD = 90;
+
+  function onPointerDown(e){
+    if(answerButtons.hidden) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState = { startX: point.clientX, dx: 0, moved:false, pointerId: e.pointerId };
+    cardEl.classList.add("dragging");
+    try{ if(e.pointerId !== undefined) cardEl.setPointerCapture(e.pointerId); }catch(err){}
+  }
+  function onPointerMove(e){
+    if(!dragState) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState.dx = point.clientX - dragState.startX;
+    if(Math.abs(dragState.dx) > 4) dragState.moved = true;
+    var rot = dragState.dx / 18;
+    cardEl.style.transform = "rotateY(180deg) translateX(" + dragState.dx + "px) rotate(" + (-rot) + "deg)";
+    cardEl.classList.toggle("drag-yes", dragState.dx > 30);
+    cardEl.classList.toggle("drag-no", dragState.dx < -30);
+    flagYes.style.opacity = dragState.dx > 30 ? Math.min(1,(dragState.dx-30)/60) : 0;
+    flagNo.style.opacity = dragState.dx < -30 ? Math.min(1,(-dragState.dx-30)/60) : 0;
+    if(e.cancelable) e.preventDefault();
+  }
+  function onPointerUp(){
+    if(!dragState) return;
+    cardEl.classList.remove("dragging");
+    var dx = dragState.dx;
+    var wasDrag = dragState.moved;
+    dragState = null;
+    flagYes.style.opacity = 0;
+    flagNo.style.opacity = 0;
+    if(Math.abs(dx) > DRAG_THRESHOLD){
+      var flyRight = dx > 0;
+      cardEl.classList.add(flyRight ? "fly-right" : "fly-left");
+      cardEl.style.transform = "rotateY(180deg) translateX(" + (flyRight ? 900 : -900) + "px) rotate(" + (flyRight ? 20 : -20) + "deg)";
+      setTimeout(function(){ answer(flyRight ? "yes" : "no"); }, 320);
+    }else{
+      cardEl.classList.remove("drag-yes","drag-no");
+      cardEl.style.transform = "";
+    }
+    if(wasDrag){
+      cardEl.addEventListener("click", function swallow(ev){ ev.stopPropagation(); cardEl.removeEventListener("click", swallow, true); }, {capture:true, once:true});
+    }
+  }
+
+  cardEl.addEventListener("pointerdown", onPointerDown);
+  cardEl.addEventListener("pointermove", onPointerMove);
+  cardEl.addEventListener("pointerup", onPointerUp);
+  cardEl.addEventListener("pointercancel", onPointerUp);
+  cardEl.addEventListener("pointerleave", function(){ if(dragState) onPointerUp(); });
+
+  cardEl.addEventListener("click", flip);
+  cardEl.addEventListener("keydown", function(e){
+    if(e.code === "Space" || e.key === "Enter"){ e.preventDefault(); flip(); }
+  });
+  document.addEventListener("keydown", function(e){
+    var backVisible = !answerButtons.hidden;
+    if(!backVisible) return;
+    if(e.key === "ArrowRight"){ e.preventDefault(); answer("yes"); }
+    if(e.key === "ArrowLeft"){ e.preventDefault(); answer("no"); }
+    if(e.key === "ArrowUp"){ e.preventDefault(); answer("mid"); }
+  });
+  btnNo.addEventListener("click", function(){ answer("no"); });
+  btnMid.addEventListener("click", function(){ answer("mid"); });
+  btnYes.addEventListener("click", function(){ answer("yes"); });
+
+  blocFilter.addEventListener("change", function(){
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  shuffleBtn.addEventListener("click", function(){
+    var remaining = queue.slice(qIndex);
+    shuffleArray(remaining);
+    queue = queue.slice(0, qIndex).concat(remaining);
+    showCard();
+  });
+
+  btnPractice.addEventListener("click", function(){
+    buildQueue(true);
+    showCard();
+  });
+  btnAllBlocs.addEventListener("click", function(){
+    blocFilter.value = "all";
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  resetBtn.addEventListener("click", function(){
+    if(confirm("Réinitialiser toute ta progression sur ces 86 cartes ?")){
+      progress = {};
+      saveProgress(progress);
+      today = todayStr();
+      buildQueue(false);
+      updateStats();
+      showCard();
+    }
+  });
+
+  buildQueue(false);
+  updateStats();
+  showCard();
+})();
+</script>
+</body>
+</html>
