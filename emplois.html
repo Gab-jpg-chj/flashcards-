@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Emplois & Stages</title>
+<style>
+:root{--bg:#0f1226;--fg:#f4f5ff;--accent:#7c5cff;--accent2:#38bdf8;--card:#ffffff12;--line:#ffffff22}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;font-family:system-ui,sans-serif;color:var(--fg);
+ background:radial-gradient(circle at 20% 0,color-mix(in srgb,var(--accent) 35%,transparent),transparent 55%),var(--bg)}
+header{text-align:center;padding:2rem 1rem .5rem}
+h1{margin:0 0 .4rem;font-size:2.2rem;background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+header p{margin:0;opacity:.7}
+a.back{position:absolute;top:1rem;left:1rem;color:var(--fg);text-decoration:none;opacity:.7}
+main{max-width:960px;margin:0 auto;padding:1rem 1rem 3rem}
+h2{font-size:1.2rem;margin:2rem 0 .8rem}
+.box{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:1.2rem}
+.row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+input,select,button{font:inherit;color:var(--fg);background:#ffffff14;border:1px solid var(--line);border-radius:12px;padding:.55rem .8rem}
+select option{color:#000}
+input{flex:1;min-width:160px}
+button{cursor:pointer}
+button.primary{background:linear-gradient(90deg,var(--accent),var(--accent2));border:0;font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.8rem}
+.chip{border-radius:999px;padding:.3rem .9rem;font-size:.88rem}
+.chip.on{background:var(--accent);border-color:var(--accent)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:.9rem}
+a.src{display:block;text-decoration:none;color:inherit;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:1rem;transition:transform .2s,box-shadow .2s}
+a.src:hover{transform:translateY(-3px);box-shadow:0 10px 30px -10px var(--accent)}
+a.src b{display:block;margin-bottom:.2rem}
+a.src small{opacity:.65}
+.tag{float:right;font-size:.72rem;background:#ffffff1f;border-radius:999px;padding:.1rem .5rem}
+table{width:100%;border-collapse:collapse;margin-top:.8rem;font-size:.92rem}
+th,td{text-align:left;padding:.5rem;border-bottom:1px solid var(--line);vertical-align:middle}
+th{opacity:.6;font-weight:500}
+td a{color:var(--accent2)}
+td button{padding:.2rem .6rem}
+.empty{opacity:.6;padding:1rem 0;text-align:center}
+.note{font-size:.85rem;opacity:.65;margin-top:.6rem}
+@media(max-width:640px){table,thead,tbody,tr,td{display:block}thead{display:none}tr{border-bottom:1px solid var(--line);padding:.5rem 0}td{border:0;padding:.2rem 0}}
+</style>
+</head>
+<body>
+<a class="back" href="index.html">← Accueil</a>
+<header>
+  <h1>Emplois & Stages</h1>
+  <p>Postes à pourvoir en 2027 et offres de stage : recherche multi-sites et suivi de candidatures</p>
+</header>
+<main>
+
+<h2>1. Lancer une recherche</h2>
+<div class="box">
+  <div class="chips" id="types"></div>
+  <div class="row" style="margin-top:.8rem">
+    <input id="kw" placeholder="Métier / mots-clés (ex. M&A, private equity, audit…)" value="M&A">
+    <input id="loc" placeholder="Lieu (ex. Paris, Londres…)" value="Paris">
+    <select id="start">
+      <option value="">Début : indifférent</option>
+      <option value="2027" selected>Début : 2027</option>
+      <option value="janvier 2027">Janvier 2027</option>
+      <option value="septembre 2027">Septembre 2027</option>
+    </select>
+  </div>
+  <p class="note">Les liens ci-dessous ouvrent chaque site avec ta recherche déjà remplie, donc toujours des offres à jour.</p>
+</div>
+
+<h2>2. Job boards</h2>
+<div class="grid" id="boards"></div>
+
+<h2>3. Sites carrières des employeurs</h2>
+<div class="grid" id="firms"></div>
+
+<h2>4. Mon suivi de candidatures</h2>
+<div class="box">
+  <div class="row">
+    <input id="f-co" placeholder="Entreprise">
+    <input id="f-role" placeholder="Poste">
+    <input id="f-url" placeholder="Lien de l'offre (optionnel)">
+    <select id="f-type"></select>
+    <input id="f-date" type="date" style="flex:0 0 auto">
+    <button class="primary" id="add">Ajouter</button>
+  </div>
+  <div id="list"></div>
+  <p class="note">Les données sont enregistrées dans ton navigateur uniquement.</p>
+</div>
+
+</main>
+<script>
+const TYPES={
+  stage:{label:"Stage",q:"stage"},
+  emploi:{label:"Emploi / CDI",q:"analyste junior"},
+  alternance:{label:"Alternance",q:"alternance"},
+  vie:{label:"VIE",q:"V.I.E"},
+  grad:{label:"Graduate program",q:"graduate program"}
+};
+let cur=new Set(["stage","emploi"]);
+const $=id=>document.getElementById(id);
+const enc=encodeURIComponent;
+
+const BOARDS=[
+ {n:"LinkedIn Jobs",d:"Le plus complet",u:(q,l)=>`https://www.linkedin.com/jobs/search/?keywords=${enc(q)}&location=${enc(l)}`},
+ {n:"Indeed",d:"Agrégateur généraliste",u:(q,l)=>`https://fr.indeed.com/jobs?q=${enc(q)}&l=${enc(l)}`},
+ {n:"Welcome to the Jungle",d:"Startups & scale-ups",u:(q,l)=>`https://www.welcometothejungle.com/fr/jobs?query=${enc(q)}&aroundQuery=${enc(l)}`},
+ {n:"Glassdoor",d:"Offres + avis salariés",u:(q,l)=>`https://www.glassdoor.fr/Emploi/emplois.htm?sc.keyword=${enc(q)}&locKeyword=${enc(l)}`},
+ {n:"Google Emplois",d:"Recherche transversale",u:(q,l)=>`https://www.google.com/search?q=${enc(q+" "+l+" emploi")}&ibp=htl;jobs`},
+ {n:"Jobteaser",d:"Réservé aux étudiants (connexion école)",u:()=>`https://www.jobteaser.com/fr/job-offers`},
+ {n:"Business France V.I.E",d:"Volontariat à l'international",u:()=>`https://mon-vie-via.businessfrance.fr/`},
+ {n:"Place de l'emploi public",d:"Fonction publique",u:()=>`https://choisirleservicepublic.gouv.fr/nos-offres/`}
+];
+const FIRMS=[
+ {n:"Rothschild & Co",t:"Banque d'affaires",u:"https://www.rothschildandco.com/en/careers/"},
+ {n:"Lazard",t:"Banque d'affaires",u:"https://www.lazard.com/careers/"},
+ {n:"Goldman Sachs",t:"Banque d'investissement",u:"https://www.goldmansachs.com/careers/"},
+ {n:"J.P. Morgan",t:"Banque d'investissement",u:"https://careers.jpmorgan.com/"},
+ {n:"Morgan Stanley",t:"Banque d'investissement",u:"https://www.morganstanley.com/careers"},
+ {n:"Evercore",t:"Banque d'affaires",u:"https://www.evercore.com/careers/"},
+ {n:"Houlihan Lokey",t:"Banque d'affaires",u:"https://hl.com/careers/"},
+ {n:"BNP Paribas",t:"Banque",u:"https://group.bnpparibas/emploi-carriere"},
+ {n:"Société Générale",t:"Banque",u:"https://careers.societegenerale.com/"},
+ {n:"Natixis / BPCE",t:"Banque",u:"https://recrutement.natixis.com/"},
+ {n:"Crédit Agricole CIB",t:"Banque",u:"https://www.ca-cib.com/careers"},
+ {n:"KPMG France",t:"Audit & conseil",u:"https://www.kpmg.fr/fr/carrieres.html"},
+ {n:"Deloitte",t:"Audit & conseil",u:"https://www.deloitte.com/fr/fr/careers.html"},
+ {n:"EY",t:"Audit & conseil",u:"https://www.ey.com/fr_fr/careers"},
+ {n:"PwC France",t:"Audit & conseil",u:"https://www.pwc.fr/fr/carrieres.html"},
+ {n:"McKinsey",t:"Conseil en stratégie",u:"https://www.mckinsey.com/careers"},
+ {n:"Bain & Company",t:"Conseil en stratégie",u:"https://www.bain.com/careers/"},
+ {n:"BCG",t:"Conseil en stratégie",u:"https://careers.bcg.com/"},
+ {n:"Eurazeo",t:"Private equity",u:"https://www.eurazeo.com/fr/carrieres"},
+ {n:"Ardian",t:"Private equity",u:"https://www.ardian.com/careers"}
+];
+
+function query(){
+  const base=$("kw").value.trim();
+  const tq=[...cur].map(k=>TYPES[k].q);
+  const parts=[base,tq.length?"("+tq.join(" OR ")+")":"",$("start").value].filter(Boolean);
+  return parts.join(" ");
+}
+function render(){
+  const q=query(),l=$("loc").value.trim();
+  $("boards").innerHTML=BOARDS.map(b=>`<a class="src" target="_blank" rel="noopener" href="${b.u(q,l)}"><b>${b.n}</b><small>${b.d}</small></a>`).join("");
+  $("firms").innerHTML=FIRMS.map(f=>`<a class="src" target="_blank" rel="noopener" href="${f.u}"><span class="tag">${f.t}</span><b>${f.n}</b><small>Offres &amp; programmes</small></a>`).join("");
+}
+function renderTypes(){
+  $("types").innerHTML=Object.entries(TYPES).map(([k,t])=>`<button class="chip ${cur.has(k)?"on":""}" data-k="${k}">${t.label}</button>`).join("");
+  $("types").querySelectorAll("button").forEach(b=>b.onclick=()=>{cur.has(b.dataset.k)?cur.delete(b.dataset.k):cur.add(b.dataset.k);renderTypes();render()});
+}
+["kw","loc","start"].forEach(i=>$(i).addEventListener("input",render));
+$("f-type").innerHTML=Object.values(TYPES).map(t=>`<option>${t.label}</option>`).join("");
+
+// Suivi de candidatures
+const KEY="emplois-suivi";
+const STATUS=["À postuler","Postulé","Entretien","Offre","Refus"];
+let items=[];
+try{items=JSON.parse(localStorage.getItem(KEY))||[]}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(items))}catch(e){}};
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function safeUrl(u){try{const x=new URL(u);return /^https?:$/.test(x.protocol)?x.href:""}catch(e){return ""}}
+function renderList(){
+  if(!items.length){$("list").innerHTML='<div class="empty">Aucune candidature suivie pour l\'instant.</div>';return}
+  $("list").innerHTML=`<table><thead><tr><th>Entreprise</th><th>Poste</th><th>Type</th><th>Date limite</th><th>Statut</th><th></th></tr></thead><tbody>`+
+  items.map((it,i)=>{const u=safeUrl(it.url);return `<tr><td>${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(it.co)}</a>`:esc(it.co)}</td><td>${esc(it.role)}</td><td>${esc(it.type)}</td><td>${esc(it.date||"—")}</td>
+  <td><select data-i="${i}">${STATUS.map(s=>`<option ${s===it.status?"selected":""}>${s}</option>`).join("")}</select></td>
+  <td><button data-del="${i}" aria-label="Supprimer">✕</button></td></tr>`}).join("")+"</tbody></table>";
+  $("list").querySelectorAll("select").forEach(s=>s.onchange=()=>{items[s.dataset.i].status=s.value;save()});
+  $("list").querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{items.splice(b.dataset.del,1);save();renderList()});
+}
+$("add").onclick=()=>{
+  const co=$("f-co").value.trim(),role=$("f-role").value.trim();
+  if(!co||!role)return;
+  items.push({co,role,url:$("f-url").value.trim(),type:$("f-type").value,date:$("f-date").value,status:STATUS[0]});
+  save();renderList();
+  ["f-co","f-role","f-url","f-date"].forEach(i=>$(i).value="");
+};
+renderTypes();render();renderList();
+</script>
+</body>
+</html>
