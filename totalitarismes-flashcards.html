@@ -1,0 +1,900 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Régimes totalitaires — Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#132845;
+    --bg-2:#1C3760;
+    --paper:#FFFFFF;
+    --paper-2:#F0F5FC;
+    --ink:#EAF1FB;
+    --ink-muted:#9FB4D4;
+    --blue:#4EA8DE;
+    --blue-light:#8AC8ED;
+    --blue-deep:#15335C;
+    --success:#2E8C5B;
+    --success-light:#4FAE7B;
+    --success-deep:#1C5C3B;
+    --coral:#E0654F;
+    --coral-light:#EE9280;
+    --rule:#2A4570;
+    --text-onpaper:#182B4A;
+    --text-onpaper-muted:#5C6F8C;
+  }
+  :root:not([data-theme="light"]){ }
+  :root[data-theme="dark"]{ }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ } }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Nunito', sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background-image:
+      radial-gradient(circle at 12% 6%, rgba(78,168,222,0.18), transparent 45%),
+      radial-gradient(circle at 88% 94%, rgba(46,140,91,0.14), transparent 45%);
+  }
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:28px 20px 56px;
+  }
+
+  .banner-love{
+    text-align:center;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    color:var(--blue-light);
+    background:rgba(78,168,222,0.14);
+    border:1px solid rgba(78,168,222,0.3);
+    border-radius:999px;
+    padding:9px 18px;
+    margin-bottom:20px;
+    display:inline-block;
+  }
+  .banner-love-row{ text-align:center; }
+
+  header.top{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .title-block h1{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.55rem;
+    margin:0 0 4px;
+    color:var(--blue-light);
+    letter-spacing:0.2px;
+  }
+  .title-block p{
+    margin:0;
+    color:var(--ink-muted);
+    font-size:0.88rem;
+  }
+  .stats{
+    display:flex;
+    gap:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink-muted);
+    white-space:nowrap;
+  }
+  .stats b{ color:var(--blue-light); font-weight:600; }
+
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  select{
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .shuffle-btn{
+    background:var(--paper);
+    color:var(--blue-deep);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .shuffle-btn:hover{ border-color:var(--blue); }
+  .counter{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    color:var(--ink-muted);
+  }
+
+  .progress-wrap{
+    position:relative;
+    margin-bottom:6px;
+  }
+  .progress-track{
+    height:4px;
+    background:var(--bg-2);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--blue);
+    width:0%;
+    transition:width 0.3s ease;
+  }
+  .almost-label{
+    text-align:right;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.8rem;
+    color:var(--blue-light);
+    opacity:0;
+    transition:opacity 0.3s ease;
+    height:20px;
+    margin:5px 0 12px;
+  }
+
+  .stage{
+    perspective:1600px;
+    margin-bottom:22px;
+  }
+  .card{
+    position:relative;
+    min-height:340px;
+    transform-style:preserve-3d;
+    transition:transform 0.5s cubic-bezier(.4,.2,.2,1);
+    cursor:pointer;
+    touch-action:pan-y;
+    user-select:none;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .card.dragging{ transition:none; }
+  .card.fly-left{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+  .card.fly-right{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+
+  .face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--blue-light);
+    border-top:4px solid var(--blue);
+    border-radius:14px;
+    box-shadow:0 18px 40px -16px rgba(46,84,128,0.28), 0 2px 0 rgba(74,127,181,0.10);
+    padding:26px 26px 20px;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    transition:box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .face.back{ transform:rotateY(180deg); background:var(--paper-2); }
+  .card.drag-yes .face{ border-color:var(--success); box-shadow:0 18px 40px -16px rgba(76,154,117,0.4); }
+  .card.drag-no .face{ border-color:var(--coral); box-shadow:0 18px 40px -16px rgba(224,121,106,0.4); }
+
+  .swipe-flag{
+    position:absolute;
+    top:18px;
+    padding:5px 12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    font-weight:600;
+    border-radius:6px;
+    opacity:0;
+    transition:opacity 0.15s ease;
+    pointer-events:none;
+    z-index:2;
+  }
+  .swipe-flag.yes{ right:18px; background:var(--success); color:#F3FBF6; transform:rotate(6deg); }
+  .swipe-flag.no{ left:18px; background:var(--coral); color:#FFF6F4; transform:rotate(-6deg); }
+
+  .face-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .tag{
+    font-size:0.76rem;
+    font-weight:600;
+    color:var(--blue-deep);
+    background:var(--bg-2);
+    background:#E4EEF9;
+    padding:3px 10px;
+    border-radius:20px;
+  }
+  .box-dots{ display:flex; gap:5px; }
+  .box-dots span{
+    width:7px; height:7px; border-radius:50%;
+    background:rgba(31,58,92,0.13);
+  }
+  .box-dots span.filled{ background:var(--blue); }
+
+  .face-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.03em;
+    color:var(--text-onpaper-muted);
+    margin-bottom:8px;
+  }
+  .q-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.4;
+    margin:0;
+    color:var(--blue-deep);
+  }
+  .a-text{
+    font-family:'Nunito', sans-serif;
+    font-weight:500;
+    font-size:1.05rem;
+    line-height:1.55;
+    margin:0;
+  }
+  .hint{
+    margin-top:auto;
+    padding-top:14px;
+    font-size:0.8rem;
+    color:var(--text-onpaper-muted);
+    text-align:center;
+  }
+
+  .answer-buttons{
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .answer-buttons button{
+    flex:1;
+    padding:12px 6px;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.78rem;
+    line-height:1.2;
+    white-space:normal;
+    border-radius:10px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:filter 0.15s ease, transform 0.1s ease;
+  }
+  .answer-buttons button:hover{ filter:brightness(1.06); }
+  .answer-buttons button:active{ transform:scale(0.97); }
+  .btn-no{ background:var(--coral); color:#FFF6F4; }
+  .btn-mid{ background:var(--bg-2); color:var(--blue-light); border:1px solid var(--blue-light); }
+  .btn-yes{ background:var(--success); color:#F3FBF6; }
+  .answer-buttons[hidden]{ display:none; }
+
+  .popup-overlay{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:60;
+  }
+  .popup-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:2.6rem;
+    letter-spacing:0.02em;
+    opacity:0;
+    text-shadow:0 4px 18px rgba(0,0,0,0.35);
+    animation:popSpawn 900ms cubic-bezier(.2,.9,.3,1.2) forwards;
+    white-space:nowrap;
+  }
+  @keyframes popSpawn{
+    0%{ opacity:0; transform:scale(0.4) rotate(-6deg) translateY(10px); }
+    35%{ opacity:1; transform:scale(1.15) rotate(3deg) translateY(-6px); }
+    55%{ opacity:1; transform:scale(1) rotate(0deg) translateY(0); }
+    85%{ opacity:1; }
+    100%{ opacity:0; transform:scale(1) translateY(-30px); }
+  }
+
+  .flip-hint-row{
+    text-align:center;
+    font-family:'Nunito', sans-serif;
+    color:var(--ink-muted);
+    font-size:0.8rem;
+    margin-bottom:26px;
+  }
+
+  .done-panel{
+    border:1px solid var(--rule);
+    background:var(--paper);
+    padding:32px 26px;
+    text-align:center;
+    border-radius:14px;
+  }
+  .done-panel h2{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:1.9rem;
+    margin:0 0 10px;
+    color:var(--success-deep);
+  }
+  .done-panel p{ font-family:'Nunito', sans-serif; color:var(--ink-muted); margin:0 0 20px; }
+  .done-panel .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .done-panel button{
+    padding:11px 18px;
+    background:var(--blue);
+    color:#fff;
+    border:none;
+    font-weight:600;
+    font-family:'Nunito', sans-serif;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .done-panel button.ghost{
+    background:transparent;
+    color:var(--blue-deep);
+    border:1px solid var(--blue-light);
+  }
+
+  footer.bottom{
+    margin-top:30px;
+    text-align:center;
+  }
+  footer.bottom button{
+    color:var(--ink-muted);
+    font-size:0.78rem;
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-family:'Nunito', sans-serif;
+  }
+
+  @media (max-width:480px){
+    .card{ min-height:400px; }
+    .q-text{ font-size:1.14rem; }
+    header.top{ align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+<script src="stats.js" data-deck="tot"></script>
+<div class="popup-overlay" id="popupOverlay"></div>
+
+<div class="wrap">
+
+  <div class="banner-love-row"><span class="banner-love">Courage ma Lolo d'amour ! 💙</span></div>
+  <div style="text-align:center; margin-bottom:14px;"><a href="index.html" style="color:var(--blue-light); font-family:'Nunito', sans-serif; font-size:0.85rem; text-decoration:none;">← Tous les decks</a></div>
+
+  <header class="top">
+    <div class="title-block">
+      <h1>Régimes totalitaires — Flashcards</h1>
+      <p>Italie, Allemagne nazie, URSS — 78 cartes</p>
+    </div>
+    <div class="stats">
+      <span>À réviser <b id="statDue">0</b></span>
+      <span>Maîtrisées <b id="statMastered">0</b>/<span id="statTotal">78</span></span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="filter-row">
+      <select id="blocFilter" aria-label="Filtrer par thème"></select>
+      <button class="shuffle-btn" id="shuffleBtn" title="Mélanger l'ordre des cartes">🔀 Mélanger</button>
+    </div>
+    <div class="counter" id="counter">—</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <div class="almost-label" id="almostLabel">Tu y es presque ! 💙</div>
+
+  <div id="stage" class="stage">
+    <div class="card" id="card" tabindex="0">
+      <span class="swipe-flag no" id="flagNo">Demain !</span>
+      <span class="swipe-flag yes" id="flagYes">Trop facile !</span>
+      <div class="face front">
+        <div class="face-head">
+          <span class="tag" id="tagFront">—</span>
+          <div class="box-dots" id="dotsFront"></div>
+        </div>
+        <div class="face-label">Question</div>
+        <p class="q-text" id="qText"></p>
+        <div class="hint">Clique ou tape la carte pour voir la réponse</div>
+      </div>
+      <div class="face back">
+        <div class="face-head">
+          <span class="tag" id="tagBack">—</span>
+          <div class="box-dots" id="dotsBack"></div>
+        </div>
+        <div class="face-label">Réponse</div>
+        <p class="a-text" id="aText"></p>
+        <div class="hint">Glisse la carte ← → ou utilise les boutons</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="answer-buttons" id="answerButtons" hidden>
+    <button class="btn-no" id="btnNo">Pas aujourd'hui, mais demain !</button>
+    <button class="btn-mid" id="btnMid">À revoir</button>
+    <button class="btn-yes" id="btnYes">TROP FACILE pour LOLOCHE</button>
+  </div>
+  <div class="flip-hint-row" id="flipHintRow">Espace ou clic = retourner la carte</div>
+
+  <div id="donePanel" class="done-panel" style="display:none;">
+    <h2 id="doneTitle">Session terminée</h2>
+    <p id="doneText">Toutes les cartes dues ont été révisées.</p>
+    <div class="row">
+      <button id="btnPractice">Réviser quand même</button>
+      <button class="ghost" id="btnAllBlocs">Voir tous les thèmes</button>
+    </div>
+  </div>
+
+  <footer class="bottom">
+    <button id="resetProgress">Réinitialiser ma progression</button>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CARDS = [
+    {id:1,bloc:1,front:"Pourquoi la 1re GM est-elle un traumatisme et une frustration pour l'Italie, pourtant vainqueur ?",back:"Entrée en guerre en 1915 aux côtés de la France et de l'Angleterre, l'Italie siège à la table des vainqueurs en 1918-1919. Mais les pertes humaines et l'expérience des champs de bataille la traumatisent, et au lendemain des traités les promesses territoriales faites par les alliés ne sont pas tenues : elle continue à réclamer les « terres irrédentes »."},
+    {id:2,bloc:1,front:"Qu'est-ce que la « victoire mutilée » ?",back:"L'idée, répandue en Italie (Gabriele D'Annunzio), que l'Italie n'a obtenu qu'une victoire amputée : les promesses territoriales faites par les alliés n'ont pas été tenues après la guerre."},
+    {id:3,bloc:1,front:"Quels troubles économiques et sociaux frappent l'Italie après la guerre ?",back:"La fragile démocratie italienne (sous le roi Victor-Emmanuel III) fait face à des revendications paysannes dans le sud et dans la plaine du Pô, et à des mouvements de chômeurs (600 000 en 1921). Au même moment, les idées communistes gagnent du terrain."},
+    {id:4,bloc:1,front:"Qui sont les squadristes et que font-ils ?",back:"Des groupes paramilitaires fascistes qui combattent l'agitation sociale et les idées communistes en maniant la matraque et l'huile de ricin, dans un contexte de « brutalisation des sociétés européennes » (G. Mosse)."},
+    {id:5,bloc:1,front:"Pourquoi l'Allemagne sort-elle traumatisée de la 1re GM ?",back:"L'Empire allemand s'effondre le 9 novembre 1918 et est remplacé par la République de Weimar, qui signe l'armistice alors que l'armée n'a pas été vaincue sur le champ de bataille : la défaite est perçue comme un « coup de poignard dans le dos »."},
+    {id:6,bloc:1,front:"Pourquoi le traité de Versailles (juin 1919) est-il vécu comme un diktat par les Allemands ?",back:"Il est considéré comme une humiliation : l'Allemagne est désignée comme seule responsable de la guerre, et doit payer des réparations."},
+    {id:7,bloc:1,front:"Pourquoi la République de Weimar est-elle fragile dans les années 1920 ?",back:"Elle est affaiblie par le climat de violences entretenu par des groupes paramilitaires (les corps francs), qui rejettent le traité de Versailles, et par de sévères difficultés économiques liées notamment aux réparations."},
+    {id:8,bloc:1,front:"Quel rôle joue la crise de 1929 en Allemagne ?",back:"Elle achève de déstabiliser une société et une République de Weimar déjà affaiblies."},
+    {id:9,bloc:1,front:"Que se passe-t-il en Russie en février 1917 ?",back:"Affaiblie par la guerre (offensives meurtrières, soldats affamés et mal équipés, lassitude, pénuries alimentaires, grèves), la Russie connaît une révolution qui mène à l'abdication du tsar Nicolas II, mettant fin à un régime de plusieurs siècles. Des soviets (conseils d'ouvriers et de soldats) se forment dans tout le pays."},
+    {id:10,bloc:1,front:"Que se passe-t-il en octobre 1917 en Russie ?",back:"Une seconde révolution renverse le gouvernement provisoire et porte au pouvoir les bolcheviks (« majoritaires », faction du Parti ouvrier social-démocrate de Russie, d'inspiration marxiste révolutionnaire), menés par Lénine."},
+    {id:11,bloc:1,front:"Qu'est-ce que le « communisme de guerre » ?",back:"Le cadre dans lequel, pendant la guerre civile entre « rouges » communistes et « blancs » tsaristes, l'État contrôle l'économie et réprime les oppositions (soulèvements paysans, mouvements d'indépendance), avec une police politique (la Tchéka puis la Guépéou)."},
+    {id:12,bloc:1,front:"Quel régime Lénine instaure-t-il, et quand naît l'URSS ?",back:"Un régime autoritaire d'inspiration communiste avec un parti unique, le PCUS. Selon les historiens, il présente déjà des tendances totalitaires. L'URSS est fondée en 1922 : une fédération qui rassemblera jusqu'à quinze républiques sous l'autorité de la Russie."},
+    {id:13,bloc:2,front:"Quel est le parcours de Benito Mussolini (1883-1945) avant 1919 ?",back:"Originaire de Romagne, il se présente comme un « fils du peuple » mais vient d'une famille d'artisans et de boutiquiers (mère petite bourgeoise). Instituteur puis professeur de français, journaliste et responsable du Parti socialiste italien (tendance syndicaliste et révolutionnaire d'extrême-gauche), il fonde le journal Il Popolo d'Italia. Mobilisé en 1915 dans un régiment de bersagliers, il est grièvement blessé en 1917."},
+    {id:14,bloc:2,front:"Qu'est-ce que les Fasci italiani di combattimento (1919) ?",back:"Les Faisceaux italiens de combat, fondés par Mussolini en 1919 : un mouvement qui associe des idées révolutionnaires à la ferveur patriotique des anciens combattants."},
+    {id:15,bloc:2,front:"Comment les Faisceaux deviennent-ils un parti, et comment reconnaît-on les fascistes ?",back:"En 1921, ils deviennent le Parti national fasciste, tremplin pour la conquête du pouvoir. Les fascistes sont reconnaissables à leur chemise noire."},
+    {id:16,bloc:2,front:"Quel est le parcours d'Adolf Hitler (1889-1947) avant la politique ?",back:"Né en Autriche dans un milieu modeste, il échoue deux fois au concours de l'Académie des Beaux-Arts et vivote de petits travaux et de la vente d'aquarelles. Plein de haine pour l'Empire des Habsbourg, il s'engage comme caporal dans l'armée allemande pendant la 1re GM : cette expérience est décisive pour lui, et la défaite l'enrage."},
+    {id:17,bloc:2,front:"Comment Hitler entre-t-il en politique et prend-il la tête du NSDAP ?",back:"À la fin de la guerre, il s'engage en politique et prend la direction d'un parti nationaliste, antisémite et antilibéral qui prend le nom de NSDAP (Parti national-socialiste des travailleurs allemands). Le parti a une formation paramilitaire, la SA."},
+    {id:18,bloc:2,front:"Qu'est-ce que le putsch de la Brasserie (novembre 1923) ?",back:"Une tentative de putsch d'Hitler contre le gouvernement bavarois : un échec. En prison, Hitler rédige Mein Kampf (« Mon combat »), où il expose sa doctrine."},
+    {id:19,bloc:2,front:"Quelle stratégie Hitler adopte-t-il à sa sortie de prison, et avec quel résultat ?",back:"Il décide de conquérir le pouvoir par les urnes, par l'intermédiaire du NSDAP. Les résultats sont d'abord médiocres (2,6 % des voix en 1928) ; la percée s'opère au début des années 1930 dans le contexte de la crise économique."},
+    {id:20,bloc:2,front:"D'où vient Staline et comment s'engage-t-il en politique ?",back:"Originaire de Géorgie, Joseph Djougachvili grandit dans une famille très modeste d'anciens serfs et d'artisans. Au séminaire, il fréquente des étudiants marxistes, ce qui lui vaut d'être plusieurs fois arrêté, condamné et déporté. En 1904, il rejoint les cercles bolcheviques sous le surnom de « Koba » (« l'Indomptable »)."},
+    {id:21,bloc:2,front:"Que signifie le nom « Staline » et à partir de quand Staline le porte-t-il ?",back:"« L'homme d'acier ». Il se fait appeler ainsi à partir de 1908, après avoir été repéré par Lénine dont il devient un proche."},
+    {id:22,bloc:2,front:"Que fait Staline pendant la 1re GM et la révolution ?",back:"Exilé, il ne combat pas pendant la guerre et ne revient à Petrograd qu'après la révolution de février 1917. Après octobre, Lénine lui confie des missions délicates dans le contexte de la guerre civile."},
+    {id:23,bloc:2,front:"Comment Staline s'assure-t-il une position de force en 1922 ?",back:"Il est promu secrétaire général du Comité central du PCUS, ce qui lui permet d'agir sur le recrutement des hauts fonctionnaires du Parti. Ses liens avec Lénine se distendent : Lénine préconise de l'écarter du pouvoir, mais Staline parvient à s'imposer après sa mort en 1924."},
+    {id:24,bloc:3,front:"Comment Mussolini tente-t-il d'abord d'arriver au pouvoir, avec quel résultat ?",back:"Par la voie électorale, en vain : seulement 32 fascistes sont élus à la Chambre des députés aux élections de mai 1921. Il décide alors de s'emparer du pouvoir par la force."},
+    {id:25,bloc:3,front:"Comment se déroule la marche sur Rome (octobre 1922) ?",back:"Le coup d'État débute le 27 octobre : les squadristi occupent commissariats, centrales téléphoniques, postes, préfectures et télégraphes. En parallèle, 26 000 hommes marchent sur Rome où ils arrivent le 28."},
+    {id:26,bloc:3,front:"Quel effet a la marche sur Rome ?",back:"Elle intimide le roi Victor-Emmanuel III, qui nomme Mussolini président du Conseil. C'est le signal du ralliement des élites au fascisme, considéré comme un rempart indispensable contre le péril rouge."},
+    {id:27,bloc:3,front:"Comment Mussolini installe-t-il sa dictature après 1922 ?",back:"Il sort progressivement de la légalité : dès novembre 1922, il obtient les pleins pouvoirs législatifs pour mener la « révolution des chemises noires ». La dictature n'hésite pas à recourir à la violence politique (assassinat du député socialiste Matteotti)."},
+    {id:28,bloc:3,front:"Comment le NSDAP arrive-t-il au pouvoir (voie suivie) ?",back:"Par la voie électorale, dans le cadre démocratique de la République de Weimar. Il profite de la crise économique, qui multiplie les mécontents."},
+    {id:29,bloc:3,front:"Quels sont les scores électoraux du NSDAP en 1930 et en 1932 ?",back:"18,7 % des suffrages aux élections législatives de 1930, puis 37 % aux élections de 1932."},
+    {id:30,bloc:3,front:"Que se passe-t-il le 30 janvier 1933 ?",back:"Hitler est nommé chancelier par le président Hindenburg : il parvient donc légalement au pouvoir."},
+    {id:31,bloc:3,front:"Comment Hitler démantèle-t-il l'opposition en 1933 ?",back:"Le Reichstag est dissous le 1er février. Le 27 février 1933, le palais du Reichstag est incendié ; les nazis accusent les communistes afin de les chasser et d'interdire leur parti. Le 24 mars, Hitler obtient les pleins pouvoirs. En juillet 1933, le NSDAP est le seul parti officiel."},
+    {id:32,bloc:3,front:"Que se passe-t-il le 1er août 1934 en Allemagne ?",back:"À la mort du président Hindenburg, Hitler cumule le poste de chancelier avec celui de président du Reich."},
+    {id:33,bloc:3,front:"Comment Staline s'impose-t-il après la mort de Lénine (21 janvier 1924) ?",back:"Il se débarrasse de ses opposants (Trotski exilé en 1929 puis assassiné en 1940, puis Boukharine) et mène des « purges » en s'appuyant sur la Guépéou, police politique de l'URSS entre 1922 et 1934."},
+    {id:34,bloc:3,front:"Que signifie Vojd, et quand Staline le devient-il ?",back:"« Guide » : à partir de 1928, Staline devient le seul Vojd et achève de transformer l'URSS en État totalitaire où le PCUS est tout-puissant."},
+    {id:35,bloc:3,front:"Qu'est-ce que le « socialisme dans un seul pays » ?",back:"Le projet de Staline de construire le socialisme en URSS seule, sans attendre la révolution mondiale : c'est le « Grand tournant »."},
+    {id:36,bloc:4,front:"Donne la chronologie du fascisme italien de 1919 à 1926.",back:"1919 : Faisceaux de combat. 1921 : Parti national fasciste. Octobre 1922 : marche sur Rome. 1924 : assassinat du député socialiste Matteotti. 1925-1926 : lois fascistissimes (parti unique, censure, suppression des syndicats, police politique)."},
+    {id:37,bloc:4,front:"Que se passe-t-il en Italie en 1935-1936 ?",back:"La conquête de l'Éthiopie."},
+    {id:38,bloc:4,front:"Quels sont les jalons du NSDAP de 1919 à 1925 ?",back:"1919-1933 : République de Weimar. 1920 : création du NSDAP. 1925 : publication de Mein Kampf."},
+    {id:39,bloc:4,front:"Quels sont les événements de 1933 en Allemagne ?",back:"30 janvier : Hitler chancelier. 27 février : incendie du Reichstag et limitation des libertés individuelles. Le NSDAP devient parti unique. L'Allemagne quitte la SDN (octobre). Ouverture du camp de Dachau pour les opposants politiques."},
+    {id:40,bloc:4,front:"Quels sont les événements de 1934 à 1936 en Allemagne nazie ?",back:"1934 : à la mort d'Hindenburg, Hitler se proclame Reichsführer et cumule les fonctions de Président et de Chancelier. 1935 : rétablissement du service militaire (mars) ; lois antisémites de Nuremberg (sept.). 1936 : remilitarisation de la Rhénanie (mars)."},
+    {id:41,bloc:4,front:"Que se passe-t-il en novembre 1938 en Allemagne ?",back:"La Nuit de cristal."},
+    {id:42,bloc:4,front:"Quels sont les jalons de l'URSS de 1917 à 1924 ?",back:"1917 (octobre) : révolution bolchevique. 1922 : création de l'URSS. 1924 : mort de Lénine, Staline au pouvoir."},
+    {id:43,bloc:4,front:"Quels sont les jalons de l'URSS stalinienne entre 1929 et 1938 ?",back:"1929 : début du « Grand tournant ». 1930 : création du Goulag. 1932-1933 : grande famine en Ukraine. Août 1937-novembre 1938 : Grande Terreur."},
+    {id:44,bloc:5,front:"D'où le fascisme tire-t-il son nom, et à quelle référence renvoie-t-il ?",back:"Des faisceaux des licteurs, un insigne de pouvoir de la république romaine (baguettes de bois reliées autour d'une hache). Le fascisme se réfère à l'Antiquité romaine comme à une époque glorieuse de l'histoire italienne qu'il s'agirait de restaurer."},
+    {id:45,bloc:5,front:"Quel est l'objectif de Mussolini après la « victoire mutilée » ?",back:"Redonner sa grandeur à l'Italie, c'est-à-dire à la fois régénérer l'individu pour en faire un « homme nouveau » (accent sur la volonté, l'action et la force physique) et régénérer le peuple, envisagé comme une communauté dont il s'agit de rétablir l'unité."},
+    {id:46,bloc:5,front:"Quel est l'instrument de la régénération dans le fascisme ?",back:"L'État totalitaire, dans lequel les individus doivent se fondre."},
+    {id:47,bloc:5,front:"À quoi le fascisme s'oppose-t-il ?",back:"À l'individualisme, au communisme (la lutte des classes est contraire à la communauté du peuple) et à la démocratie (la communauté du peuple est supérieure à la somme des individus, l'État totalitaire prime sur l'avis de la majorité, l'égalité est abandonnée au profit de la valorisation des éléments jugés les meilleurs — les combattants)."},
+    {id:48,bloc:5,front:"Quel type de révolution le fascisme prétend-il mener ?",back:"Une révolution nationale qui associe tous les éléments du peuple, en valorisant l'expérience combattante."},
+    {id:49,bloc:5,front:"Où Hitler expose-t-il l'idéologie nazie et quelle vision de l'histoire propose-t-il ?",back:"Dans Mein Kampf. Il fait de l'histoire de l'humanité une lutte des races : la domination doit revenir à la plus douée, les Aryens blonds, dont les Allemands sont les seuls représentants purs."},
+    {id:50,bloc:5,front:"Qu'est-ce que le Volk ?",back:"La communauté raciale allemande, fondée sur « le sang et le sol », la langue et la culture, jugée supérieure à toutes les autres."},
+    {id:51,bloc:5,front:"Que symbolise la croix gammée ?",back:"Emblème du parti nazi, adaptée d'un vieux symbole indo-européen qui évoque la supériorité de la race aryenne, tout en reprenant les couleurs du drapeau de l'ancien Empire allemand."},
+    {id:52,bloc:5,front:"Quelle politique extérieure découle de l'idéologie nazie ?",back:"Une politique belliqueuse et expansionniste : intégrer dans le Reich tous les peuples de « culture allemande », puis conquérir un « espace vital » pour dominer durablement le monde."},
+    {id:53,bloc:5,front:"Que signifie la « protection de la race » pour les nazis ?",back:"Préserver la race des forces « dissolvantes » (au premier chef les juifs) : encouragement à la natalité des « vrais aryens », eugénisme (stérilisation, élimination physique), législation raciale."},
+    {id:54,bloc:5,front:"Quelle place la violence a-t-elle dans l'idéologie nazie ?",back:"Elle fait partie de l'expansion de la « race des seigneurs » et est même présentée comme régénératrice. Le national-socialisme est en outre anticommuniste et anti-démocratique."},
+    {id:55,bloc:5,front:"Sur quelle idéologie repose le régime bolchevique ?",back:"Le marxisme-léninisme : une idéologie communiste inspirée de Marx, que Lénine reprend, fondée sur la lutte des classes."},
+    {id:56,bloc:5,front:"Quelle vision de l'histoire Marx propose-t-il ?",back:"Une histoire fondée sur la lutte des classes, qui débouche au XIXe siècle sur la domination de la bourgeoisie capitaliste (qui possède les machines et exploite le prolétariat, travailleurs qui ne possèdent que leur force de travail)."},
+    {id:57,bloc:5,front:"Quel est l'objectif final du communisme selon Marx, et par quel chemin ?",back:"L'institution d'une société sans classes et sans État, égalitariste (une utopie). La transition passe par la révolution et la dictature du prolétariat, destinées à éliminer la bourgeoisie capitaliste et les distinctions entre classes."},
+    {id:58,bloc:5,front:"Que symbolise le drapeau de l'URSS ?",back:"La faucille et le marteau : l'alliance des ouvriers et des petits paysans ; une étoile renvoie au PCUS ; la couleur rouge renvoie au sang versé par le peuple lors des révolutions."},
+    {id:59,bloc:5,front:"Qu'est-ce que la NEP ?",back:"Après la révolution d'Octobre, la propriété privée est abolie mais l'économie est profondément désorganisée : Lénine doit consentir à une forme de libéralisation, la NEP."},
+    {id:60,bloc:5,front:"Comment Staline applique-t-il le marxisme-léninisme ?",back:"Il se veut l'héritier du marxisme-léninisme et souhaite accélérer la mise en œuvre du communisme par la collectivisation des terres et la nationalisation des industries et des banques (propriété collective des moyens de production), tout en mobilisant la population autour du « socialisme dans un seul pays »."},
+    {id:61,bloc:6,front:"Comment le pouvoir est-il concentré dans les trois régimes ?",back:"Entre les mains d'un seul homme : c'est une caractéristique commune aux trois régimes (Mussolini dit le Duce, Staline le Vojd)."},
+    {id:62,bloc:6,front:"Quel est le parti unique dans chaque régime ?",back:"Italie : le PNF. Allemagne : le NSDAP. URSS : le PCUS."},
+    {id:63,bloc:6,front:"Quel est l'« homme nouveau » dans chaque régime ?",back:"Italie : l'homme viril, idéal de l'Empire romain. Allemagne : l'Aryen. URSS : le modèle de l'ouvrier Stakhanov."},
+    {id:64,bloc:6,front:"Comment l'Italie fasciste contrôle-t-elle la société ?",back:"Propagande, cinéma (studios de Cinecittà), mouvements de jeunesse (Fils de la Louve, Balillas)."},
+    {id:65,bloc:6,front:"Comment l'Allemagne nazie contrôle-t-elle la société ?",back:"Mouvements de jeunesse (Jeunesses hitlériennes), propagande, censure, contrôle de l'art (exposition contre « l'art dégénéré » en 1937, condamnation du jazz, de la musique « juive », tsigane…)."},
+    {id:66,bloc:6,front:"Comment l'URSS stalinienne contrôle-t-elle la société ?",back:"Mouvements de jeunesse (Komsomol), contrôle de la culture (imposition du « réalisme socialiste ») et mise à l'index d'artistes."},
+    {id:67,bloc:6,front:"Comment l'économie est-elle dirigée dans l'Italie fasciste ?",back:"L'IRI prend le contrôle des banques et des principales branches industrielles. Mussolini lance de grandes batailles économiques (bataille du blé en 1925) pour atteindre l'autosuffisance céréalière ; produits de substitution ; interdiction des grèves ; grands travaux (assèchement des marais pontins) ; réarmement."},
+    {id:68,bloc:6,front:"Comment l'économie est-elle dirigée dans l'Allemagne nazie ?",back:"Cartellisation obligatoire, Führerprinzip dans l'entreprise. Le Front du travail remplace les syndicats, interdit la grève, fixe les salaires et organise les loisirs. Priorité à l'industrie d'armement, recherche d'une économie autarcique."},
+    {id:69,bloc:6,front:"Comment l'économie est-elle dirigée en URSS stalinienne ?",back:"Par l'État : planification quinquennale, industrialisation (priorité à l'industrie lourde), collectivisation."},
+    {id:70,bloc:6,front:"Quels sont les instruments de la terreur de masse en Italie ?",back:"L'OVRA, la police politique."},
+    {id:71,bloc:6,front:"Quels sont les instruments de la terreur de masse en Allemagne nazie ?",back:"SS, camps de concentration dès 1933 (Dachau), lois de Nuremberg (1935), Nuit de cristal (1938), camps d'extermination (conférence de Wannsee, 1942), Gestapo."},
+    {id:72,bloc:6,front:"Quels sont les instruments et le bilan de la terreur de masse en URSS ?",back:"Dékoulakisation (5 millions de victimes), Goulag, Guépéou puis NKVD (1934), Grande Terreur (1937-1938) qui fait environ 750 000 morts."},
+    {id:73,bloc:7,front:"Quels sont les points communs entre les trois régimes totalitaires ?",back:"Concentration des pouvoirs entre les mains d'un seul homme ; parti unique ; idéologie de l'« homme nouveau » ; sociétés étroitement contrôlées (propagande, jeunesse, culture) ; économies entièrement dirigées ; terreur de masse."},
+    {id:74,bloc:7,front:"Associe chaque chef à son titre : Mussolini, Hitler, Staline.",back:"Mussolini : le Duce. Hitler : le Führer (Reichsführer en 1934, chancelier et président du Reich). Staline : le Vojd (« guide »)."},
+    {id:75,bloc:7,front:"Quelles sont les trois polices politiques ou organes de terreur à citer pour l'Italie, l'Allemagne et l'URSS ?",back:"Italie : OVRA. Allemagne : Gestapo (et SS). URSS : Guépéou puis NKVD (après la Tchéka)."},
+    {id:76,bloc:7,front:"Comparaison : quelle voie vers le pouvoir pour Mussolini, Hitler et Staline ?",back:"Mussolini : coup de force (marche sur Rome 1922) puis légalisation par le roi. Hitler : voie électorale légale (chancelier le 30 janvier 1933) puis démantèlement de l'opposition. Staline : prise de contrôle de l'appareil du PCUS (secrétaire général en 1922), élimination des rivaux après la mort de Lénine (1924)."},
+    {id:77,bloc:7,front:"Comparaison : quelle est la base idéologique de chaque régime ?",back:"Italie : nation et État totalitaire, référence à la Rome antique. Allemagne : race aryenne, antisémitisme et espace vital. URSS : marxisme-léninisme, lutte des classes, collectivisation."},
+    {id:78,bloc:7,front:"Comparaison : quel est le principal ennemi désigné par chaque régime ?",back:"Italie : l'individualisme, le communisme et la démocratie. Allemagne : les juifs et les communistes (anticommunisme et antidémocratie). URSS : la bourgeoisie capitaliste et les opposants (koulaks, rivaux du Parti)."}
+  ];
+
+  var BLOCS = {
+    1:"Contexte d'arrivée au pouvoir",
+    2:"Les chefs",
+    3:"Conquête du pouvoir",
+    4:"Chronologie",
+    5:"Idéologie",
+    6:"Exercice du pouvoir & terreur",
+    7:"Comparaison des trois régimes"
+  };
+
+  var STORAGE_KEY = "totalitarismes_progress_v1";
+  var INTERVALS = [0,1,3,7,16]; // days, index = box-1 (box 1..5)
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function addDays(dateStr, n){
+    var d = new Date(dateStr+"T00:00:00");
+    d.setDate(d.getDate()+n);
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+
+  function loadProgress(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {};
+      var parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === "object") ? parsed : {};
+    }catch(e){ return {}; }
+  }
+  function saveProgress(p){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+    catch(e){ /* storage unavailable — session continues without persistence */ }
+  }
+
+  var progress = loadProgress();
+  var today = todayStr();
+
+  function stateFor(cardId){
+    var s = progress[cardId];
+    if(!s){ s = {box:1, due:today}; }
+    return s;
+  }
+
+  var blocFilter = document.getElementById("blocFilter");
+  var counterEl = document.getElementById("counter");
+  var stageEl = document.getElementById("stage");
+  var cardEl = document.getElementById("card");
+  var qText = document.getElementById("qText");
+  var aText = document.getElementById("aText");
+  var tagFront = document.getElementById("tagFront");
+  var tagBack = document.getElementById("tagBack");
+  var dotsFront = document.getElementById("dotsFront");
+  var dotsBack = document.getElementById("dotsBack");
+  var answerButtons = document.getElementById("answerButtons");
+  var flipHintRow = document.getElementById("flipHintRow");
+  var btnNo = document.getElementById("btnNo");
+  var btnMid = document.getElementById("btnMid");
+  var btnYes = document.getElementById("btnYes");
+  var donePanel = document.getElementById("donePanel");
+  var doneTitle = document.getElementById("doneTitle");
+  var doneText = document.getElementById("doneText");
+  var btnPractice = document.getElementById("btnPractice");
+  var btnAllBlocs = document.getElementById("btnAllBlocs");
+  var statDue = document.getElementById("statDue");
+  var statMastered = document.getElementById("statMastered");
+  var statTotal = document.getElementById("statTotal");
+  var resetBtn = document.getElementById("resetProgress");
+  var progressFill = document.getElementById("progressFill");
+  var almostLabel = document.getElementById("almostLabel");
+  var shuffleBtn = document.getElementById("shuffleBtn");
+  var flagYes = document.getElementById("flagYes");
+  var flagNo = document.getElementById("flagNo");
+
+  statTotal.textContent = CARDS.length;
+
+  var opt = document.createElement("option");
+  opt.value = "all"; opt.textContent = "Tous les thèmes (" + CARDS.length + " cartes)";
+  blocFilter.appendChild(opt);
+  Object.keys(BLOCS).forEach(function(k){
+    var count = CARDS.filter(function(c){ return c.bloc == k; }).length;
+    var o = document.createElement("option");
+    o.value = k;
+    o.textContent = BLOCS[k] + " (" + count + ")";
+    blocFilter.appendChild(o);
+  });
+
+  var queue = [];
+  var qIndex = 0;
+  var current = null;
+  var practiceMode = false;
+
+  function shuffleArray(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function cardsForFilter(){
+    var f = blocFilter.value;
+    if(f === "all") return CARDS.slice();
+    return CARDS.filter(function(c){ return String(c.bloc) === f; });
+  }
+
+  function buildQueue(forcePractice){
+    var pool = cardsForFilter();
+    var list;
+    if(forcePractice){
+      list = pool.slice();
+    }else{
+      list = pool.filter(function(c){
+        var s = stateFor(c.id);
+        return s.due <= today;
+      });
+    }
+    shuffleArray(list);
+    queue = list;
+    qIndex = 0;
+    practiceMode = !!forcePractice;
+  }
+
+  function updateStats(){
+    var pool = cardsForFilter();
+    var dueCount = pool.filter(function(c){ return stateFor(c.id).due <= today; }).length;
+    var masteredCount = pool.filter(function(c){ return stateFor(c.id).box >= 5; }).length;
+    statDue.textContent = dueCount;
+    statMastered.textContent = masteredCount;
+    statTotal.textContent = pool.length;
+  }
+
+  function renderDots(container, box){
+    container.innerHTML = "";
+    for(var i=1;i<=5;i++){
+      var s = document.createElement("span");
+      if(i <= box) s.className = "filled";
+      container.appendChild(s);
+    }
+  }
+
+  function showCard(){
+    if(qIndex >= queue.length){
+      showDone();
+      return;
+    }
+    current = queue[qIndex];
+    var s = stateFor(current.id);
+    cardEl.classList.remove("flipped");
+    qText.textContent = current.front;
+    aText.textContent = current.back;
+    var label = BLOCS[current.bloc];
+    tagFront.textContent = label;
+    tagBack.textContent = label;
+    renderDots(dotsFront, s.box);
+    renderDots(dotsBack, s.box);
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "block";
+    counterEl.textContent = "Carte " + (qIndex+1) + " / " + queue.length + (practiceMode ? " · révision libre" : "");
+    stageEl.style.display = "block";
+    donePanel.style.display = "none";
+    var pct = queue.length ? Math.round((qIndex/queue.length)*100) : 0;
+    progressFill.style.width = pct + "%";
+    almostLabel.style.opacity = (pct >= 70 && pct < 100) ? 1 : 0;
+    cardEl.style.transform = "";
+    cardEl.classList.remove("fly-left","fly-right","dragging","drag-yes","drag-no");
+  }
+
+  function showDone(){
+    stageEl.style.display = "none";
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "none";
+    counterEl.textContent = "";
+    donePanel.style.display = "block";
+    progressFill.style.width = "100%";
+    almostLabel.style.opacity = 0;
+    doneTitle.textContent = "BRAVOOO ! 🎉";
+    if(practiceMode){
+      doneText.textContent = "T'as tout repassé en révision libre, Lolo — t'assures ! 💙";
+    }else{
+      doneText.textContent = "T'as fini toutes les cartes du jour. On est trop fiers de toi ! 💙";
+    }
+    updateStats();
+  }
+
+  function flip(){
+    if(!current) return;
+    var willShowBack = !cardEl.classList.contains("flipped");
+    cardEl.classList.toggle("flipped");
+    if(willShowBack){
+      answerButtons.hidden = false;
+      flipHintRow.style.display = "none";
+    }else{
+      answerButtons.hidden = true;
+      flipHintRow.style.display = "block";
+    }
+  }
+
+  var popupOverlay = document.getElementById("popupOverlay");
+
+  function spawnPopup(text, color){
+    var el = document.createElement("div");
+    el.className = "popup-text";
+    el.textContent = text;
+    el.style.color = color;
+    popupOverlay.innerHTML = "";
+    popupOverlay.appendChild(el);
+    setTimeout(function(){
+      if(el.parentNode) el.parentNode.removeChild(el);
+    }, 900);
+  }
+
+  function answer(kind){
+    if(!current) return;
+    if(window.FCStats) FCStats.log("tot", current, arguments[0], BLOCS[current.bloc]);
+    var s = stateFor(current.id);
+    if(kind === "yes"){
+      s.box = Math.min(5, s.box + 1);
+      s.due = addDays(today, INTERVALS[s.box - 1]);
+      spawnPopup("VAMOSSS 🔥", "#4FAE7B");
+    }else if(kind === "mid"){
+      s.due = addDays(today, 1);
+    }else{
+      s.box = 1;
+      s.due = addDays(today, INTERVALS[0]);
+      spawnPopup("Next time :)", "#EE9280");
+    }
+    progress[current.id] = s;
+    saveProgress(progress);
+    qIndex++;
+    updateStats();
+    showCard();
+  }
+
+  var dragState = null;
+  var DRAG_THRESHOLD = 90;
+
+  function onPointerDown(e){
+    if(answerButtons.hidden) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState = { startX: point.clientX, dx: 0, moved:false, pointerId: e.pointerId };
+    cardEl.classList.add("dragging");
+    try{ if(e.pointerId !== undefined) cardEl.setPointerCapture(e.pointerId); }catch(err){}
+  }
+  function onPointerMove(e){
+    if(!dragState) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState.dx = point.clientX - dragState.startX;
+    if(Math.abs(dragState.dx) > 4) dragState.moved = true;
+    var rot = dragState.dx / 18;
+    cardEl.style.transform = "rotateY(180deg) translateX(" + dragState.dx + "px) rotate(" + (-rot) + "deg)";
+    cardEl.classList.toggle("drag-yes", dragState.dx > 30);
+    cardEl.classList.toggle("drag-no", dragState.dx < -30);
+    flagYes.style.opacity = dragState.dx > 30 ? Math.min(1,(dragState.dx-30)/60) : 0;
+    flagNo.style.opacity = dragState.dx < -30 ? Math.min(1,(-dragState.dx-30)/60) : 0;
+    if(e.cancelable) e.preventDefault();
+  }
+  function onPointerUp(){
+    if(!dragState) return;
+    cardEl.classList.remove("dragging");
+    var dx = dragState.dx;
+    var wasDrag = dragState.moved;
+    dragState = null;
+    flagYes.style.opacity = 0;
+    flagNo.style.opacity = 0;
+    if(Math.abs(dx) > DRAG_THRESHOLD){
+      var flyRight = dx > 0;
+      cardEl.classList.add(flyRight ? "fly-right" : "fly-left");
+      cardEl.style.transform = "rotateY(180deg) translateX(" + (flyRight ? 900 : -900) + "px) rotate(" + (flyRight ? 20 : -20) + "deg)";
+      setTimeout(function(){ answer(flyRight ? "yes" : "no"); }, 320);
+    }else{
+      cardEl.classList.remove("drag-yes","drag-no");
+      cardEl.style.transform = "";
+    }
+    if(wasDrag){
+      cardEl.addEventListener("click", function swallow(ev){ ev.stopPropagation(); cardEl.removeEventListener("click", swallow, true); }, {capture:true, once:true});
+    }
+  }
+
+  cardEl.addEventListener("pointerdown", onPointerDown);
+  cardEl.addEventListener("pointermove", onPointerMove);
+  cardEl.addEventListener("pointerup", onPointerUp);
+  cardEl.addEventListener("pointercancel", onPointerUp);
+  cardEl.addEventListener("pointerleave", function(){ if(dragState) onPointerUp(); });
+
+  cardEl.addEventListener("click", flip);
+  cardEl.addEventListener("keydown", function(e){
+    if(e.code === "Space" || e.key === "Enter"){ e.preventDefault(); flip(); }
+  });
+  document.addEventListener("keydown", function(e){
+    var backVisible = !answerButtons.hidden;
+    if(!backVisible) return;
+    if(e.key === "ArrowRight"){ e.preventDefault(); answer("yes"); }
+    if(e.key === "ArrowLeft"){ e.preventDefault(); answer("no"); }
+    if(e.key === "ArrowUp"){ e.preventDefault(); answer("mid"); }
+  });
+  btnNo.addEventListener("click", function(){ answer("no"); });
+  btnMid.addEventListener("click", function(){ answer("mid"); });
+  btnYes.addEventListener("click", function(){ answer("yes"); });
+
+  blocFilter.addEventListener("change", function(){
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  shuffleBtn.addEventListener("click", function(){
+    var remaining = queue.slice(qIndex);
+    shuffleArray(remaining);
+    queue = queue.slice(0, qIndex).concat(remaining);
+    showCard();
+  });
+
+  btnPractice.addEventListener("click", function(){
+    buildQueue(true);
+    showCard();
+  });
+  btnAllBlocs.addEventListener("click", function(){
+    blocFilter.value = "all";
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  resetBtn.addEventListener("click", function(){
+    if(confirm("Réinitialiser toute ta progression sur ces 78 cartes ?")){
+      progress = {};
+      saveProgress(progress);
+      today = todayStr();
+      buildQueue(false);
+      updateStats();
+      showCard();
+    }
+  });
+
+  buildQueue(false);
+  updateStats();
+  showCard();
+})();
+</script>
+</body>
+</html>

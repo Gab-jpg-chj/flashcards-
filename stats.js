@@ -7,7 +7,9 @@
     synthese: { user: "gab",  title: "Fiche de synthèse",           file: "synthese-flashcards.html",        key: "ma_synthese_progress_v1",       total: 71, mid: false },
     histoire: { user: "lolo", title: "Impérialisme & Nationalisme", file: "histoire-flashcards.html",        key: "histoire_deck_progress_v1",     total: 44, mid: true  },
     geo:      { user: "lolo", title: "Géopolitique 1913",           file: "geopolitique-1913-flashcards.html", key: "geopolitique_1913_progress_v1", total: 86, mid: true  },
-    ch2:      { user: "lolo", title: "Chapitre 2", file: "chapitre2-flashcards.html", key: "chapitre2_progress_v1", total: 103, mid: true  }
+    ch2:      { user: "lolo", title: "Chapitre 2", file: "chapitre2-flashcards.html", key: "chapitre2_progress_v1", total: 103, mid: true  },
+    tot: { user: "lolo", title: "Régimes totalitaires", file: "totalitarismes-flashcards.html", key: "totalitarismes_progress_v1", total: 78, mid: true },
+    meiji: { user: "lolo", title: "Japon à l'époque Meiji", file: "japon-meiji-flashcards.html", key: "japon_meiji_progress_v1", total: 45, mid: true }
   };
 
   function pad(n) { return String(n).padStart(2, "0"); }
