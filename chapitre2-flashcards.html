@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chapitre 2 — Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#132845;
+    --bg-2:#1C3760;
+    --paper:#FFFFFF;
+    --paper-2:#F0F5FC;
+    --ink:#EAF1FB;
+    --ink-muted:#9FB4D4;
+    --blue:#4EA8DE;
+    --blue-light:#8AC8ED;
+    --blue-deep:#15335C;
+    --success:#2E8C5B;
+    --success-light:#4FAE7B;
+    --success-deep:#1C5C3B;
+    --coral:#E0654F;
+    --coral-light:#EE9280;
+    --rule:#2A4570;
+    --text-onpaper:#182B4A;
+    --text-onpaper-muted:#5C6F8C;
+  }
+  :root:not([data-theme="light"]){ }
+  :root[data-theme="dark"]{ }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ } }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Nunito', sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background-image:
+      radial-gradient(circle at 12% 6%, rgba(78,168,222,0.18), transparent 45%),
+      radial-gradient(circle at 88% 94%, rgba(46,140,91,0.14), transparent 45%);
+  }
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:28px 20px 56px;
+  }
+
+  .banner-love{
+    text-align:center;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    color:var(--blue-light);
+    background:rgba(78,168,222,0.14);
+    border:1px solid rgba(78,168,222,0.3);
+    border-radius:999px;
+    padding:9px 18px;
+    margin-bottom:20px;
+    display:inline-block;
+  }
+  .banner-love-row{ text-align:center; }
+
+  header.top{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .title-block h1{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.55rem;
+    margin:0 0 4px;
+    color:var(--blue-light);
+    letter-spacing:0.2px;
+  }
+  .title-block p{
+    margin:0;
+    color:var(--ink-muted);
+    font-size:0.88rem;
+  }
+  .stats{
+    display:flex;
+    gap:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink-muted);
+    white-space:nowrap;
+  }
+  .stats b{ color:var(--blue-light); font-weight:600; }
+
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  select{
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .shuffle-btn{
+    background:var(--paper);
+    color:var(--blue-deep);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .shuffle-btn:hover{ border-color:var(--blue); }
+  .counter{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    color:var(--ink-muted);
+  }
+
+  .progress-wrap{
+    position:relative;
+    margin-bottom:6px;
+  }
+  .progress-track{
+    height:4px;
+    background:var(--bg-2);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--blue);
+    width:0%;
+    transition:width 0.3s ease;
+  }
+  .almost-label{
+    text-align:right;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.8rem;
+    color:var(--blue-light);
+    opacity:0;
+    transition:opacity 0.3s ease;
+    height:20px;
+    margin:5px 0 12px;
+  }
+
+  .stage{
+    perspective:1600px;
+    margin-bottom:22px;
+  }
+  .card{
+    position:relative;
+    min-height:340px;
+    transform-style:preserve-3d;
+    transition:transform 0.5s cubic-bezier(.4,.2,.2,1);
+    cursor:pointer;
+    touch-action:pan-y;
+    user-select:none;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .card.dragging{ transition:none; }
+  .card.fly-left{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+  .card.fly-right{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+
+  .face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--blue-light);
+    border-top:4px solid var(--blue);
+    border-radius:14px;
+    box-shadow:0 18px 40px -16px rgba(46,84,128,0.28), 0 2px 0 rgba(74,127,181,0.10);
+    padding:26px 26px 20px;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    transition:box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .face.back{ transform:rotateY(180deg); background:var(--paper-2); }
+  .card.drag-yes .face{ border-color:var(--success); box-shadow:0 18px 40px -16px rgba(76,154,117,0.4); }
+  .card.drag-no .face{ border-color:var(--coral); box-shadow:0 18px 40px -16px rgba(224,121,106,0.4); }
+
+  .swipe-flag{
+    position:absolute;
+    top:18px;
+    padding:5px 12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    font-weight:600;
+    border-radius:6px;
+    opacity:0;
+    transition:opacity 0.15s ease;
+    pointer-events:none;
+    z-index:2;
+  }
+  .swipe-flag.yes{ right:18px; background:var(--success); color:#F3FBF6; transform:rotate(6deg); }
+  .swipe-flag.no{ left:18px; background:var(--coral); color:#FFF6F4; transform:rotate(-6deg); }
+
+  .face-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .tag{
+    font-size:0.76rem;
+    font-weight:600;
+    color:var(--blue-deep);
+    background:var(--bg-2);
+    background:#E4EEF9;
+    padding:3px 10px;
+    border-radius:20px;
+  }
+  .box-dots{ display:flex; gap:5px; }
+  .box-dots span{
+    width:7px; height:7px; border-radius:50%;
+    background:rgba(31,58,92,0.13);
+  }
+  .box-dots span.filled{ background:var(--blue); }
+
+  .face-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.03em;
+    color:var(--text-onpaper-muted);
+    margin-bottom:8px;
+  }
+  .q-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.4;
+    margin:0;
+    color:var(--blue-deep);
+  }
+  .a-text{
+    font-family:'Nunito', sans-serif;
+    font-weight:500;
+    font-size:1.05rem;
+    line-height:1.55;
+    margin:0;
+  }
+  .hint{
+    margin-top:auto;
+    padding-top:14px;
+    font-size:0.8rem;
+    color:var(--text-onpaper-muted);
+    text-align:center;
+  }
+
+  .answer-buttons{
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .answer-buttons button{
+    flex:1;
+    padding:12px 6px;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.78rem;
+    line-height:1.2;
+    white-space:normal;
+    border-radius:10px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:filter 0.15s ease, transform 0.1s ease;
+  }
+  .answer-buttons button:hover{ filter:brightness(1.06); }
+  .answer-buttons button:active{ transform:scale(0.97); }
+  .btn-no{ background:var(--coral); color:#FFF6F4; }
+  .btn-mid{ background:var(--bg-2); color:var(--blue-light); border:1px solid var(--blue-light); }
+  .btn-yes{ background:var(--success); color:#F3FBF6; }
+  .answer-buttons[hidden]{ display:none; }
+
+  .popup-overlay{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:60;
+  }
+  .popup-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:2.6rem;
+    letter-spacing:0.02em;
+    opacity:0;
+    text-shadow:0 4px 18px rgba(0,0,0,0.35);
+    animation:popSpawn 900ms cubic-bezier(.2,.9,.3,1.2) forwards;
+    white-space:nowrap;
+  }
+  @keyframes popSpawn{
+    0%{ opacity:0; transform:scale(0.4) rotate(-6deg) translateY(10px); }
+    35%{ opacity:1; transform:scale(1.15) rotate(3deg) translateY(-6px); }
+    55%{ opacity:1; transform:scale(1) rotate(0deg) translateY(0); }
+    85%{ opacity:1; }
+    100%{ opacity:0; transform:scale(1) translateY(-30px); }
+  }
+
+  .flip-hint-row{
+    text-align:center;
+    font-family:'Nunito', sans-serif;
+    color:var(--ink-muted);
+    font-size:0.8rem;
+    margin-bottom:26px;
+  }
+
+  .done-panel{
+    border:1px solid var(--rule);
+    background:var(--paper);
+    padding:32px 26px;
+    text-align:center;
+    border-radius:14px;
+  }
+  .done-panel h2{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:1.9rem;
+    margin:0 0 10px;
+    color:var(--success-deep);
+  }
+  .done-panel p{ font-family:'Nunito', sans-serif; color:var(--ink-muted); margin:0 0 20px; }
+  .done-panel .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .done-panel button{
+    padding:11px 18px;
+    background:var(--blue);
+    color:#fff;
+    border:none;
+    font-weight:600;
+    font-family:'Nunito', sans-serif;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .done-panel button.ghost{
+    background:transparent;
+    color:var(--blue-deep);
+    border:1px solid var(--blue-light);
+  }
+
+  footer.bottom{
+    margin-top:30px;
+    text-align:center;
+  }
+  footer.bottom button{
+    color:var(--ink-muted);
+    font-size:0.78rem;
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-family:'Nunito', sans-serif;
+  }
+
+  @media (max-width:480px){
+    .card{ min-height:400px; }
+    .q-text{ font-size:1.14rem; }
+    header.top{ align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+<script src="stats.js" data-deck="ch2"></script>
+<div class="popup-overlay" id="popupOverlay"></div>
+
+<div class="wrap">
+
+  <div class="banner-love-row"><span class="banner-love">Courage ma Lolo d'amour ! 💙</span></div>
+  <div style="text-align:center; margin-bottom:14px;"><a href="index.html" style="color:var(--blue-light); font-family:'Nunito', sans-serif; font-size:0.85rem; text-decoration:none;">← Tous les decks</a></div>
+
+  <header class="top">
+    <div class="title-block">
+      <h1>Chapitre 2 — Flashcards</h1>
+      <p>Tableau géopolitique du monde en 1939 — 103 cartes</p>
+    </div>
+    <div class="stats">
+      <span>À réviser <b id="statDue">0</b></span>
+      <span>Maîtrisées <b id="statMastered">0</b>/<span id="statTotal">103</span></span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="filter-row">
+      <select id="blocFilter" aria-label="Filtrer par thème"></select>
+      <button class="shuffle-btn" id="shuffleBtn" title="Mélanger l'ordre des cartes">🔀 Mélanger</button>
+    </div>
+    <div class="counter" id="counter">—</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <div class="almost-label" id="almostLabel">Tu y es presque ! 💙</div>
+
+  <div id="stage" class="stage">
+    <div class="card" id="card" tabindex="0">
+      <span class="swipe-flag no" id="flagNo">Demain !</span>
+      <span class="swipe-flag yes" id="flagYes">Trop facile !</span>
+      <div class="face front">
+        <div class="face-head">
+          <span class="tag" id="tagFront">—</span>
+          <div class="box-dots" id="dotsFront"></div>
+        </div>
+        <div class="face-label">Question</div>
+        <p class="q-text" id="qText"></p>
+        <div class="hint">Clique ou tape la carte pour voir la réponse</div>
+      </div>
+      <div class="face back">
+        <div class="face-head">
+          <span class="tag" id="tagBack">—</span>
+          <div class="box-dots" id="dotsBack"></div>
+        </div>
+        <div class="face-label">Réponse</div>
+        <p class="a-text" id="aText"></p>
+        <div class="hint">Glisse la carte ← → ou utilise les boutons</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="answer-buttons" id="answerButtons" hidden>
+    <button class="btn-no" id="btnNo">Pas aujourd'hui, mais demain !</button>
+    <button class="btn-mid" id="btnMid">À revoir</button>
+    <button class="btn-yes" id="btnYes">TROP FACILE pour LOLOCHE</button>
+  </div>
+  <div class="flip-hint-row" id="flipHintRow">Espace ou clic = retourner la carte</div>
+
+  <div id="donePanel" class="done-panel" style="display:none;">
+    <h2 id="doneTitle">Session terminée</h2>
+    <p id="doneText">Toutes les cartes dues ont été révisées.</p>
+    <div class="row">
+      <button id="btnPractice">Réviser quand même</button>
+      <button class="ghost" id="btnAllBlocs">Voir tous les thèmes</button>
+    </div>
+  </div>
+
+  <footer class="bottom">
+    <button id="resetProgress">Réinitialiser ma progression</button>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CARDS = [
+    {id:1,bloc:1,front:"Quelle est l'accroche du chapitre (deux événements de 1933) ?",back:"30 janvier 1933 : Hitler est nommé chancelier par Hindenburg → un régime totalitaire, l'inverse de la démocratie libérale voulue par les vainqueurs de 1918. Juin-juillet 1933 : la conférence de Londres (66 pays) échoue à trouver une solution concertée à la crise → un monde cloisonné et protectionniste, l'inverse du libéralisme."},
+    {id:2,bloc:1,front:"Quelle est la problématique du chapitre 2 ?",back:"Pourquoi le nouvel ordre politique, économique et diplomatique libéral fondé à la fin de la 1re GM entre-t-il en crise dans les années 1930, alors qu'on le croyait solidement établi ?"},
+    {id:3,bloc:1,front:"Définis l'ordre international.",back:"L'état du système international lorsqu'il est momentanément à l'abri d'une guerre générale : il est stable."},
+    {id:4,bloc:1,front:"Définis la crise.",back:"Un événement brutal, radical, qui remet en question un dogme ou une situation antérieure que l'on croyait solidement établie."},
+    {id:5,bloc:1,front:"Quelles sont les deux conceptions de l'ordre international (1815 et après 1918) ?",back:"1815 (congrès de Vienne, Metternich) : l'ordre vient de l'équilibre des puissances et de la diplomatie des congrès. Après 1918 : l'ordre vient de l'égalité de droit des États — vision plus idéaliste, incarnée par W. Wilson (légitimité, droit, libéralisme, paix, sécurité collective, démocratie, ouverture)."},
+    {id:6,bloc:1,front:"Comment caractériser le monde de 1939 par opposition à l'ordre wilsonien ?",back:"Autoritarisme, totalitarisme, cloisonnement, fermeture voire autarcie, bellicisme, expansionnisme, nationalisme, révisionnisme, force : les États ne sont plus à l'abri d'une guerre totale."},
+    {id:7,bloc:2,front:"Quel système monétaire la conférence de Gênes (1922) met-elle en place ?",back:"Le Gold Exchange Standard : parités fixes, mais seules certaines monnaies centrales sont convertibles en or ($, Reichsmark 1924, £ 1925, franc Poincaré 1928). Système plus souple ; le $ devient dominant (la Fed détient plus de la moitié du stock d'or mondial)."},
+    {id:8,bloc:2,front:"Quelles difficultés rencontre le « retour à la normale » (back to normalcy) après la 1re GM ?",back:"Crises de reconversion (économie de guerre → économie de paix), inflation en Europe continentale (planche à billets, emprunts), réparations colossales à payer par l'Allemagne, dettes interalliées de la France et de la GB envers les États-Unis."},
+    {id:9,bloc:2,front:"Pourquoi la stabilisation des années 1920 n'est-elle qu'apparente ?",back:"Elle repose sur les « Roaring Twenties » (consommation de masse, Ford T, croissance de 4-5 %/an, concentrations et cartels) mais le commerce reprend faiblement et le protectionnisme américain persiste (tarif Fordney-McCumber, 1922)."},
+    {id:10,bloc:2,front:"Quelles sont les deux fragilités de la croissance qui préparent la crise de 1929 ?",back:"La surproduction (agricole et automobile : offre > demande) et une bulle spéculative : Dow Jones +250 %, 4/5 des actions achetées à crédit."},
+    {id:11,bloc:2,front:"Quels signaux précèdent le krach de 1929 ?",back:"Août 1929 : la Fed relève ses taux ; les actionnaires constatent que les dividendes sont très inférieurs à la valeur des titres ; faillites isolées (Hatry, Londres) → réaction moutonnière et ventes massives : le libéralisme dans ce qu'il a d'excessif et de non contrôlé."},
+    {id:12,bloc:2,front:"Que dit Paul Claudel de la crise, et dans quelle œuvre ?",back:"Ambassadeur à Washington, témoin direct de la bulle puis du krach, il écrit La Crise. Correspondance diplomatique, Amérique 1927-1937 et parle d'« une crise de papier »."},
+    {id:13,bloc:2,front:"Que s'est-il passé le jeudi 24 octobre 1929 ?",back:"Le « jeudi noir » : 12 millions d'actions vendues sans acheteurs → krach. De 1929 à 1932, le Dow Jones perd 90 % et 5 millions de spéculateurs sont ruinés."},
+    {id:14,bloc:2,front:"Décris l'enchaînement qui transforme le krach en crise économique et sociale.",back:"Krach → chute du capital des entreprises et faillites bancaires → restriction du crédit → baisse de la production et faillites industrielles → déflation (prix industriels −1/3, agricoles −1/2) → chômage de masse (3 % → 25 %) → baisse de la consommation… : spirale financière, économique puis sociale."},
+    {id:15,bloc:2,front:"Comment la crise se diffuse-t-elle au monde par le circuit financier ?",back:"Les États-Unis, 1ers créanciers du monde, rapatrient leurs capitaux : le circuit US → Allemagne (prêts) → réparations → Entente → dettes de guerre → US se rompt. Mai 1931 : faillite du Kredit Anstalt (Vienne) ; juillet 1931 : crise bancaire allemande ; septembre 1931 : la GB suspend la convertibilité de la £ → crise du système de Gênes."},
+    {id:16,bloc:2,front:"Comment la crise se diffuse-t-elle par le commerce ?",back:"Par le protectionnisme en cascade : tarif Hawley-Smoot (juin 1930), France et Italie (1931), GB (Import Duties Act puis accords d'Ottawa 1932, préférence impériale). Clearing, dumping, dévaluations : guerres commerciales et commerce mondial −60 % en valeur (1929-1935)."},
+    {id:17,bloc:2,front:"Dévaluation ou dépréciation : quelle différence ?",back:"La dévaluation est une baisse volontaire de la valeur de la monnaie nationale (pour relancer les exportations et freiner les importations). La dépréciation est une baisse subie sur le marché."},
+    {id:18,bloc:2,front:"Qu'est-ce que le clearing ?",back:"Des échanges bilatéraux compensés sans mouvement de devises, une sorte de troc organisé (ex. charbon et pommes de terre polonais contre machines à coudre allemandes)."},
+    {id:19,bloc:2,front:"En quoi le monde est-il fragmenté dès 1933 ?",back:"Cloisonnement monétaire (blocs sterling, or, $, yen, mark). Choc inégal : les empires coloniaux l'amortissent, l'Europe centrale est très touchée, l'Amérique latine durement frappée, l'URSS (hors du marché mondial) est « miraculée »."},
+    {id:20,bloc:2,front:"Quels chiffres illustrent la gravité de la crise en Allemagne ?",back:"Production −40 % et 6 millions de chômeurs en 1932, soit environ 1/3 des actifs."},
+    {id:21,bloc:3,front:"Quelles sont les trois lectures de la crise de 1929 ?",back:"Libéraux classiques (Hayek) : l'action de l'État est néfaste, rigueur et autorégulation. Marxistes : crise finale du capitalisme. Keynésiens : la rigueur comprime la demande, il faut la relancer et renoncer à l'intangibilité de la monnaie et à l'équilibre budgétaire."},
+    {id:22,bloc:3,front:"Quelle lecture domine au début de la crise, et avec quels effets ?",back:"La lecture libérale : politiques de déflation (Hoover — « la prospérité est au coin de la rue », Laval en France, Brüning en Allemagne) → baisse de la consommation, hausse du chômage : la crise s'aggrave."},
+    {id:23,bloc:3,front:"Politique de déflation ou politique de relance : quelle différence ?",back:"Déflation : rigueur budgétaire et baisse des prix et salaires pour restaurer la compétitivité. Relance (keynésianisme) : soutien public à la demande (grands travaux, dépenses, crédit)."},
+    {id:24,bloc:3,front:"Pourquoi la conférence de Londres de 1933 échoue-t-elle, et quelles en sont les suites ?",back:"Chacun fait « cavalier seul » (les US refusent la stabilisation). 1933-1934 : bloc or autour de la France, dévaluation du $ (1934), blocs mark et yen."},
+    {id:25,bloc:3,front:"Quelles sont les grandes mesures du New Deal de Roosevelt (1933) ?",back:"Mesures monétaires d'urgence, Glass-Steagall Act (séparation banques de dépôt / d'investissement), AAA (soutien des prix agricoles), NIRA, grands travaux (TVA)."},
+    {id:26,bloc:3,front:"Qu'est-ce que le « second New Deal » (1935) ?",back:"Un volet social : Wagner Act et Social Security Act. Ailleurs, des politiques interventionnistes similaires : Front populaire en France (1936), gouvernement MacDonald en GB."},
+    {id:27,bloc:3,front:"Quel bilan tirer du New Deal ?",back:"Résultats mitigés : hausse des prix et de la production, chômage en recul (1937 : 2 fois moins de chômeurs qu'en 1932, mais encore 17 %), investissement privé faible, rechute en 1937-1938. Une convalescence plus qu'une sortie de crise, qu'on n'atteindra qu'avec la guerre : on sauve le libéralisme en le réadaptant."},
+    {id:28,bloc:3,front:"Définis le New Deal et l'État-providence.",back:"New Deal : politique d'intervention de l'État fédéral américain pour sortir de la crise, sans rompre avec le libéralisme. État-providence : État qui prend en charge la protection sociale des individus."},
+    {id:29,bloc:3,front:"Comment réagissent l'Italie, l'Allemagne et le Japon à la crise sur le plan économique ?",back:"Par le dirigisme, un protectionnisme renforcé et l'autarcie (autosuffisance) dans la perspective d'une guerre."},
+    {id:30,bloc:3,front:"Qu'est-ce que le plan de 4 ans (1936) en Allemagne nazie ?",back:"Un plan de Göring : une économie de guerre en temps de paix, avec recherche d'ersatz (produits de substitution) — dont le corollaire est l'expansion territoriale."},
+    {id:31,bloc:3,front:"Qu'est-ce que l'IRI en Italie ?",back:"L'IRI (1933) : instrument de l'économie dirigée du régime fasciste, accompagné de grands travaux."},
+    {id:32,bloc:3,front:"Quel bilan économique pour les régimes autoritaires et totalitaires ?",back:"Reprise industrielle limitée au réarmement, chômage en baisse mais niveau de vie stagnant → la guerre apparaît comme sortie de crise."},
+    {id:33,bloc:3,front:"Quel lien essentiel établit la fiche entre libéralisme économique et démocratie ?",back:"En 1939, le libéralisme a volé en éclats : la crise du libéralisme économique entraîne la crise de la démocratie libérale."},
+    {id:34,bloc:4,front:"Que dit Serge Berstein de la crise économique ?",back:"Elle est un « acte d'accusation du libéralisme » : excès des années 1920, inefficacité de la rigueur — puis mise en cause de la démocratie libérale elle-même."},
+    {id:35,bloc:4,front:"Comment le modèle démocratique s'étend-il en Europe après 1918 ?",back:"Par la chute des empires et la création de nouveaux États fondés sur le droit des peuples à disposer d'eux-mêmes : Allemagne de Weimar (séparation des pouvoirs, parlementarisme), Autriche et Hongrie républicaines, Tchécoslovaquie."},
+    {id:36,bloc:4,front:"Que deviennent les territoires de l'Empire ottoman démembré ?",back:"Des mandats confiés par la SDN à la France (Syrie, Liban) et à la GB (Palestine, Transjordanie, Irak), censés y instaurer des démocraties libérales."},
+    {id:37,bloc:4,front:"Comment la démocratie sociale progresse-t-elle dans les vieilles démocraties ?",back:"Journée de 8 h (GB et France, 1919), loi Loucheur (1928, HBM, ancêtres des HLM) : un libéralisme politique présent en 1918 mais fragilement refondé."},
+    {id:38,bloc:4,front:"Quelles sont les grandes étapes de la révolution russe et de la naissance de l'URSS ?",back:"Février 1917 : abdication de Nicolas II. Octobre 1917 : les bolcheviks de Lénine au pouvoir. Puis guerre civile Rouges / Blancs, parti unique, communisme de guerre, police politique. 1922 : création de l'URSS."},
+    {id:39,bloc:4,front:"Qu'est-ce que le Komintern ?",back:"La IIIe Internationale, fondée par Lénine en mars 1919 pour propager la révolution."},
+    {id:40,bloc:4,front:"Quels sont les échos de la révolution russe en Europe ?",back:"Allemagne : révolution spartakiste (Liebknecht, Luxemburg) écrasée en janvier 1919. Hongrie : république des conseils de Béla Kun (1919) renversée par Horthy. Italie : grèves et occupations d'usines. France : congrès de Tours (déc. 1920), scission SFIO / PCF."},
+    {id:41,bloc:4,front:"Comment naît le fascisme italien ?",back:"L'Italie, pourtant vainqueur, se sent frustrée des terres irrédentes (Trentin, Trieste, Fiume). Agitation, squadristi, Faisceaux de combat (1919), création du PNF (1921)."},
+    {id:42,bloc:4,front:"Comment Mussolini arrive-t-il au pouvoir ?",back:"Marche sur Rome (28 octobre 1922) : le roi Victor-Emmanuel III l'appelle à la présidence du Conseil (peur du communisme, faiblesse de l'État, complicité de l'armée) → accès légal au pouvoir."},
+    {id:43,bloc:4,front:"Comment passe-t-on du pouvoir légal de Mussolini à la dictature ?",back:"Assassinat du député socialiste Matteotti (1924), puis lois fascistissimes (1925-1926) : parti unique, censure, police politique OVRA."},
+    {id:44,bloc:4,front:"Quel est le « péché originel » de la République de Weimar ?",back:"L'armistice (« coup de poignard dans le dos ») et le Diktat de Versailles, qui la rendent illégitime aux yeux d'une partie de l'opinion."},
+    {id:45,bloc:4,front:"Quelles violences fragilisent Weimar dans les années 1920 ?",back:"Putsch de Kapp (1920), naissance du NSDAP (1920), hyperinflation de 1923 (occupation de la Ruhr), putsch de la Brasserie à Munich (1923) → Hitler écrit Mein Kampf."},
+    {id:46,bloc:4,front:"Quels régimes autoritaires s'installent en Europe centrale et orientale dans les années 1920 ?",back:"Hongrie (Horthy, 1920), Bulgarie (1923), Pologne (Pilsudski, 1926) : régimes militaires, anticommunistes, antiparlementaires."},
+    {id:47,bloc:4,front:"Définis le totalitarisme.",back:"Un régime qui prétend contrôler toute la société et les individus : parti unique, idéologie officielle, culte du chef, police politique, terreur et propagande."},
+    {id:48,bloc:5,front:"Que montre George Mosse dans De la Grande Guerre au totalitarisme ?",back:"La « brutalisation des sociétés européennes » : la mort de masse de la 1re GM a banalisé la violence → mouvements politiques violents, ligues, corps francs."},
+    {id:49,bloc:5,front:"Que dit Paul Valéry dans Regards sur le monde actuel (1931) ?",back:"Il pointe la faillite intellectuelle des gouvernements et le doute sur les intellectuels."},
+    {id:50,bloc:5,front:"Quel climat intellectuel accompagne la radicalisation en Allemagne et en France ?",back:"Allemagne : Kulturkrise, rejet de la modernité et de la « décadence », culte du peuple, de l'instinct, de la virilité, de l'autorité, de la force, de la race. France : crise de civilisation, défiance envers la démocratie et la modernité."},
+    {id:51,bloc:5,front:"Qu'est-ce que l'autoritarisme « de concurrence » ?",back:"Un durcissement autoritaire par peur d'un basculement fasciste, par exemple en Lettonie (1934) et en Grèce (Metaxas, 1936)."},
+    {id:52,bloc:5,front:"Quels régimes basculent dans le totalitarisme dans les années 1930 ?",back:"Allemagne nazie ; Italie, dont le totalitarisme s'affirme avec la guerre d'Éthiopie ; URSS, où le totalitarisme stalinien se forme en 1929-1933 (« grand tournant »), puis grands procès (1937-1938)."},
+    {id:53,bloc:5,front:"Que montre Nicolas Werth dans Histoire de l'URSS de Lénine à Staline ?",back:"La mise en place du totalitarisme soviétique en 1929-1933."},
+    {id:54,bloc:5,front:"Comment se manifeste la radicalisation hors d'Europe ?",back:"Japon : ultranationalisme, emprise de l'armée sur l'économie et la politique à partir de 1931, refus de l'occidentalisation (Tojo cumulera les fonctions de chef militaire et de Premier ministre en 1941). Amérique latine : 13 coups d'État en 1930-1934 (Argentine, Brésil de Vargas)."},
+    {id:55,bloc:5,front:"Comment la contestation politique est-elle surmontée en Grande-Bretagne ?",back:"Les extrêmes restent marginaux : PC (15 000 adhérents en 1939) et British Union of Fascists d'Oswald Mosley (1932, 23 000 adhérents en 1939), qui recrute dans les quartiers populaires puis décline avec la reprise de 1935. Marches de la faim en 1936."},
+    {id:56,bloc:5,front:"Quelle est la situation en France autour du 6 février 1934 ?",back:"Des ligues d'extrême droite (Action française, Croix-de-Feu du colonel de La Rocque), xénophobes et antiparlementaires. Après l'affaire Stavisky, le 6 février 1934 (investiture de Daladier), la légitimité de la rue s'oppose à celle du gouvernement → la gauche dénonce un « péril fasciste » et s'unit : Front populaire."},
+    {id:57,bloc:5,front:"Qu'est-ce qu'une ligue ?",back:"Une organisation politique qui n'est pas un parti : un mouvement, souvent paramilitaire, qui agit dans la rue."},
+    {id:58,bloc:5,front:"Quel bilan tirer de la crise de la démocratie libérale dans les années 1930 ?",back:"Les vieilles démocraties sont secouées mais subsistent ; ailleurs, la démocratie libérale cède devant l'autoritarisme et le totalitarisme — avec des incidences directes sur le système international."},
+    {id:59,bloc:6,front:"Définis la sécurité collective.",back:"Principe selon lequel toute attaque contre un État est une attaque contre tous : la paix est assurée par le droit, la diplomatie ouverte (contre les alliances secrètes) et la négociation plutôt que par la force ; mieux vaut insérer l'adversaire potentiel que le marginaliser."},
+    {id:60,bloc:6,front:"Définis le multilatéralisme.",back:"La coopération entre acteurs selon des règles communes (une ébauche dès 1815)."},
+    {id:61,bloc:6,front:"D'où naît la SDN et comment est-elle organisée ?",back:"Elle naît des 14 points de Wilson (janvier 1918) et de l'opinion publique européenne (League of Nations Union). Une Assemblée à Genève (égalité de droit des États), un Conseil (permanents : FR, GB, ITA, JAP — mais pas les US), un secrétariat, des organisations spécialisées."},
+    {id:62,bloc:6,front:"Quel est le rôle de Briand et de Stresemann ?",back:"Aristide Briand (France), réaliste face à l'Allemagne mais idéaliste sur la SDN, et Gustav Stresemann (Allemagne), hostile à Versailles mais qui veut le réviser par la concertation : ère Briand-Stresemann de rapprochement franco-allemand."},
+    {id:63,bloc:6,front:"Que disent Soutou et Tixier de la SDN ?",back:"Georges-Henri Soutou analyse l'échec de la sécurité collective (La Grande Illusion, 2015). Caroline Tixier : de 1919 à 1933 la SDN structure le multilatéralisme, de 1933 à 1939 il est entravé ; la SDN « n'a pas démérité »."},
+    {id:64,bloc:6,front:"Quelles réalisations techniques la SDN a-t-elle à son actif ?",back:"L'OIT (droit du travail, justice sociale), le Haut-commissariat aux réfugiés (passeport Nansen pour Russes, Arméniens…), le Comité d'hygiène."},
+    {id:65,bloc:6,front:"Quelle différence entre le plan Dawes et le plan Young ?",back:"Dawes (1924) : plus de temps, moins d'argent, avec un prêt américain de 800 millions. Young (1929) : réparations réduites et étalées sur 59 ans, évacuation de la Rhénanie."},
+    {id:66,bloc:6,front:"Que prévoient les accords de Locarno (1925) ?",back:"L'Allemagne reconnaît ses frontières occidentales (pas orientales) : « esprit de Locarno ». Elle entre à la SDN en 1926."},
+    {id:67,bloc:6,front:"Qu'est-ce que le pacte Briand-Kellogg (1928) et quelles sont ses limites ?",back:"63 pays mettent la guerre « hors la loi » et ancrent les US dans la sécurité européenne. Mais il n'y a pas de sanctions, avec la faille de la légitime défense et des guerres non déclarées."},
+    {id:68,bloc:6,front:"Comment le droit des peuples est-il appliqué (ou non) après 1918 ?",back:"La théorie diffère de la pratique : Yougoslavie hétérogène, Kurdes sans État, indépendances reportées. Traités imposés : Sèvres (1920) rejeté par Mustafa Kemal → Lausanne (1923) ; Saint-Germain (Autriche réduite à un « timbre ») ; Trianon (Hongrie)."},
+    {id:69,bloc:6,front:"Pourquoi le traité de Versailles est-il perçu comme un Diktat ?",back:"Alsace-Moselle rendue, corridor de Dantzig à la Pologne, armée limitée à 100 000 hommes, 132 milliards de marks-or de réparations, perte de l'essentiel du minerai de fer lorrain."},
+    {id:70,bloc:6,front:"Que dit Keynes des réparations dans Les Conséquences économiques de la paix (1919) ?",back:"Que ce sont « un instrument d'oppression et de rapine »."},
+    {id:71,bloc:6,front:"Quelles sont les divergences entre vainqueurs après 1919 ?",back:"Irrédentisme italien (d'Annunzio, « victoire mutilée », Fiume) ; la GB ne veut pas trop affaiblir l'Allemagne (partenaire, rempart contre l'URSS) alors que la France veut l'affaiblir au maximum."},
+    {id:72,bloc:6,front:"Comment l'isolationnisme américain fragilise-t-il le nouvel ordre ?",back:"Le Sénat ne ratifie pas le traité ; quotas d'immigration (1921-1924), tarif Fordney-McCumber (1922) — mais les flux financiers perdurent."},
+    {id:73,bloc:6,front:"Pourquoi la SDN manque-t-elle de légitimité et de moyens ?",back:"Eurocentrée, dominée par les vainqueurs (Allemagne présente 1926-1933, URSS 1934-1939), sans moyens militaires ni sanctions automatiques ; mandats contestés (Irak, 1920) ; Chine humiliée (mouvement du 4 mai 1919)."},
+    {id:74,bloc:7,front:"Quelle idéologie guide l'expansionnisme d'Hitler ?",back:"Il radicalise le pangermanisme : race supérieure, « Reich de mille ans », levée des entraves militaires, révision de Versailles, conquête du Lebensraum → la force prime le droit, antithèse de l'ordre wilsonien. Stratégie : rassurer d'abord les autres puissances."},
+    {id:75,bloc:7,front:"Que s'est-il passé à Moukden en 1931 ?",back:"Une explosion sur la voie ferrée, provoquée par les Japonais eux-mêmes, sert de prétexte à l'intervention militaire en Mandchourie. En 1932, création de l'État fantoche du Mandchoukouo confié à l'ex-empereur Puyi."},
+    {id:76,bloc:7,front:"Quelle est la réaction de la SDN à l'agression japonaise ?",back:"La commission Lytton conclut à une agression japonaise (pas de légitime défense) mais aucune sanction n'est prise."},
+    {id:77,bloc:7,front:"Que soutient Pierre Grosser dans L'histoire du monde se fait en Asie (2017) ?",back:"Que la 2de GM commence avec l'incident de Moukden (1931) : un exemple de décentrement du regard (histoire globale)."},
+    {id:78,bloc:7,front:"Quelles sont les étapes de la politique d'Hitler entre 1933 et 1935 ?",back:"Octobre 1933 : sortie de la SDN (approuvée par plébiscite). 1934 : soutien au putsch nazi en Autriche (assassinat du chancelier Dollfuss). Mars 1935 : rétablissement du service militaire. 1935 : accord naval anglo-allemand (flotte égale à 35 % du tonnage britannique)."},
+    {id:79,bloc:7,front:"Que se passe-t-il en mars 1936 ?",back:"Remilitarisation de la Rhénanie : le président du Conseil Albert Sarraut proteste mollement, tout comme la SDN. 1936 marque le passage d'un révisionnisme passif à un révisionnisme offensif."},
+    {id:80,bloc:7,front:"Pourquoi Mussolini attaque-t-il l'Éthiopie (1935-1936) ?",back:"Totalitarisme renforcé, bellicisme, autarcie, politique raciale : il rêve d'empire et veut venger la défaite d'Adoua (1896) contre l'un des seuls pays africains non colonisés. Il croit le contexte favorable (Laval, italophile, est président du Conseil)."},
+    {id:81,bloc:7,front:"Quelles sont les conséquences de la guerre d'Éthiopie sur le système d'alliances ?",back:"La SDN condamne mais ses sanctions économiques sont insignifiantes ; l'Éthiopie est annexée. Le front de Stresa (GB, FR, ITA) se disloque, Mussolini se rapproche de Hitler (l'Italie quitte la SDN en 1937)."},
+    {id:82,bloc:7,front:"Révisionnisme ou expansionnisme : quelle différence ?",back:"Révisionnisme : volonté de réviser les traités de paix. Expansionnisme : politique de conquête territoriale."},
+    {id:83,bloc:7,front:"Que disent Valéry, Barbusse et Genevoix du pacifisme d'après-guerre ?",back:"Valéry (La Crise de l'esprit, 1919) : « Nous autres, civilisations, nous savons maintenant que nous sommes mortelles. » Barbusse (Le Feu) et Genevoix (Ceux de 14) témoignent de l'horreur de la guerre, comme les anciens combattants (Union nationale des combattants)."},
+    {id:84,bloc:7,front:"Pourquoi le pacifisme devient-il « coupable » dans les années 1930 ?",back:"Constructif dans les années 1920, il laisse faire les dictatures dans les années 1930. En France : non-intervention à gauche ; à droite, admiration pour les régimes totalitaires (surtout l'Italie) ou germanophobie résignée."},
+    {id:85,bloc:7,front:"Définis l'appeasement et cite ses acteurs et jalons.",back:"Politique de concessions aux puissances révisionnistes pour préserver la paix. Appeasement britannique de Neville Chamberlain (ne pas écraser l'Allemagne, priorité à l'économie, consensus ; Peace Ballot 1935). Aboutissement : accords de Munich (sept. 1938), approuvés par 57 % des Français."},
+    {id:86,bloc:8,front:"Quelles tentatives de réaction face à l'Allemagne existent en 1935 ?",back:"Le front de Stresa (avril 1935 : GB, FR, ITA) et le pacte franco-soviétique (1935) d'assistance mutuelle, bilatéral et très contesté en France. Mais Stresa se disloque avec l'Éthiopie."},
+    {id:87,bloc:8,front:"Quels sont les camps de la guerre d'Espagne (1936-1939) ?",back:"Les républicains (Front populaire) contre les franquistes (armée, Église, droite). Victoire de Franco en 1939."},
+    {id:88,bloc:8,front:"Quel rôle jouent les puissances étrangères dans la guerre d'Espagne ?",back:"Allemagne et Italie envoient troupes et matériel à Franco (terrain d'essai de la Blitzkrieg ; Guernica 1937). L'URSS soutient les républicains (Brigades internationales, ≈ 35 000 volontaires). GB et FR choisissent la non-intervention ; le Front populaire français aide officieusement les républicains."},
+    {id:89,bloc:8,front:"Comment s'organise le bloc des dictatures entre 1936 et 1939 ?",back:"Axe Rome-Berlin (1er novembre 1936), pacte anti-Komintern (Allemagne-Japon 1936, Italie 1937), Pacte d'Acier (mai 1939), alliance militaire germano-italienne. L'expansion italienne se tourne vers le sud et la Méditerranée, d'où moins de tensions avec l'Allemagne."},
+    {id:90,bloc:8,front:"Que se passe-t-il au Japon et en Chine en 1937 ?",back:"L'incident du pont Marco-Polo (juillet) sert de prétexte à une 2e phase d'expansion vers le sud et les littoraux chinois ; dépenses militaires = la moitié du budget. Violence extrême : massacre de Nankin (déc. 1937). Pour certains historiens, la 2de GM commence là."},
+    {id:91,bloc:8,front:"Qu'est-ce que l'Anschluss ?",back:"L'annexion de l'Autriche par l'Allemagne en mars 1938, validée par plébiscite."},
+    {id:92,bloc:8,front:"Que se passe-t-il à la conférence de Munich (septembre 1938) ?",back:"Après l'Anschluss, Hitler réclame les Sudètes ; GB et FR, obsédées par l'apaisement, négocient avec l'Allemagne et l'Italie : c'est la conférence de Munich."},
+    {id:93,bloc:8,front:"Quelles sont les réactions de Blum et de Churchill à Munich ?",back:"Léon Blum : un sentiment partagé « entre un lâche soulagement et la honte ». Winston Churchill : « Vous aviez le choix entre la guerre et le déshonneur. Vous avez choisi le déshonneur et vous aurez la guerre. »"},
+    {id:94,bloc:8,front:"Que se passe-t-il en mars-avril 1939 ?",back:"Mars 1939 : Hitler s'empare de la Bohême-Moravie, en violation des accords de Munich. Avril 1939 : l'Italie annexe l'Albanie."},
+    {id:95,bloc:8,front:"Qu'est-ce que le pacte germano-soviétique ?",back:"Signé le 23 août 1939 (Ribbentrop-Molotov) : non-agression et partage secret de la Pologne. Hitler le signe pour ne pas être pris en tenaille."},
+    {id:96,bloc:8,front:"Comment la guerre éclate-t-elle en septembre 1939 ?",back:"1er septembre : invasion de la Pologne par l'Allemagne. 3 septembre : la GB et la FR déclarent la guerre à l'Allemagne."},
+    {id:97,bloc:8,front:"Que dit C. Tixier du sort de la SDN face aux coups de force ?",back:"Le « multilatéralisme entravé » laisse place à l'unilatéralisme : la SDN est impuissante."},
+    {id:98,bloc:8,front:"Quelle conclusion historiographique sur le libéralisme économique ?",back:"Critiqué pour ses excès, remis en question pour son inefficacité, il est remplacé par des politiques plus interventionnistes, dans un cadre parfois libéral (Keynes) ou non (dirigisme) ; la crise stimule le communisme."},
+    {id:99,bloc:8,front:"Quelle conclusion historiographique sur le libéralisme politique ?",back:"La démocratie libérale, jugée affaiblie, inefficace, corrompue, illégitime, est remplacée par des régimes autoritaires ou totalitaires."},
+    {id:100,bloc:8,front:"Que conclut G.-H. Soutou sur l'ordre de 1918 ?",back:"Il reposait sur un libéralisme économique et politique que la crise de 1929 sape entièrement ; sur le plan diplomatique, ses normes sont sapées : pacifisme et sécurité collective deviennent un « mythe paralysant »."},
+    {id:101,bloc:8,front:"Vers quoi les États se tournent-ils après 1945 (ouverture) ?",back:"Ils prennent conscience qu'il faut dépasser la politique traditionnelle de concert des puissances → création de l'ONU."},
+    {id:102,bloc:8,front:"Remets en ordre : Anschluss, Munich, remilitarisation de la Rhénanie, Prague, pacte germano-soviétique.",back:"Rhénanie (mars 1936) → Anschluss (mars 1938) → Munich (sept. 1938) → Prague / Bohême-Moravie (mars 1939) → pacte germano-soviétique (23 août 1939)."},
+    {id:103,bloc:8,front:"Résume en quelques mots les coups de force et événements clés de 1931 à 1939.",back:"1931 Moukden ; 1933 Hitler chancelier et sortie de la SDN ; 1935-1936 Éthiopie et Rhénanie ; 1936-1939 guerre d'Espagne ; 1937 Marco-Polo et Nankin ; 1938 Anschluss et Munich ; 1939 Prague, Albanie, Pacte d'Acier, pacte germano-soviétique, Pologne."}
+  ];
+
+  var BLOCS = {
+    1:"Notions & problématique",
+    2:"Crise de 1929 & fragmentation économique",
+    3:"Réponses à la crise & fin du libéralisme éco",
+    4:"Démocratie libérale & nouvelles idéologies",
+    5:"Radicalisation & contestations",
+    6:"Ordre wilsonien, SDN & limites de la paix",
+    7:"Expansionnisme & reculades (1931-1936)",
+    8:"Bloc des dictatures & marche à la guerre"
+  };
+
+  var STORAGE_KEY = "chapitre2_progress_v1";
+  var INTERVALS = [0,1,3,7,16]; // days, index = box-1 (box 1..5)
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function addDays(dateStr, n){
+    var d = new Date(dateStr+"T00:00:00");
+    d.setDate(d.getDate()+n);
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+
+  function loadProgress(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {};
+      var parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === "object") ? parsed : {};
+    }catch(e){ return {}; }
+  }
+  function saveProgress(p){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+    catch(e){ /* storage unavailable — session continues without persistence */ }
+  }
+
+  var progress = loadProgress();
+  var today = todayStr();
+
+  function stateFor(cardId){
+    var s = progress[cardId];
+    if(!s){ s = {box:1, due:today}; }
+    return s;
+  }
+
+  var blocFilter = document.getElementById("blocFilter");
+  var counterEl = document.getElementById("counter");
+  var stageEl = document.getElementById("stage");
+  var cardEl = document.getElementById("card");
+  var qText = document.getElementById("qText");
+  var aText = document.getElementById("aText");
+  var tagFront = document.getElementById("tagFront");
+  var tagBack = document.getElementById("tagBack");
+  var dotsFront = document.getElementById("dotsFront");
+  var dotsBack = document.getElementById("dotsBack");
+  var answerButtons = document.getElementById("answerButtons");
+  var flipHintRow = document.getElementById("flipHintRow");
+  var btnNo = document.getElementById("btnNo");
+  var btnMid = document.getElementById("btnMid");
+  var btnYes = document.getElementById("btnYes");
+  var donePanel = document.getElementById("donePanel");
+  var doneTitle = document.getElementById("doneTitle");
+  var doneText = document.getElementById("doneText");
+  var btnPractice = document.getElementById("btnPractice");
+  var btnAllBlocs = document.getElementById("btnAllBlocs");
+  var statDue = document.getElementById("statDue");
+  var statMastered = document.getElementById("statMastered");
+  var statTotal = document.getElementById("statTotal");
+  var resetBtn = document.getElementById("resetProgress");
+  var progressFill = document.getElementById("progressFill");
+  var almostLabel = document.getElementById("almostLabel");
+  var shuffleBtn = document.getElementById("shuffleBtn");
+  var flagYes = document.getElementById("flagYes");
+  var flagNo = document.getElementById("flagNo");
+
+  statTotal.textContent = CARDS.length;
+
+  var opt = document.createElement("option");
+  opt.value = "all"; opt.textContent = "Tous les thèmes (" + CARDS.length + " cartes)";
+  blocFilter.appendChild(opt);
+  Object.keys(BLOCS).forEach(function(k){
+    var count = CARDS.filter(function(c){ return c.bloc == k; }).length;
+    var o = document.createElement("option");
+    o.value = k;
+    o.textContent = BLOCS[k] + " (" + count + ")";
+    blocFilter.appendChild(o);
+  });
+
+  var queue = [];
+  var qIndex = 0;
+  var current = null;
+  var practiceMode = false;
+
+  function shuffleArray(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function cardsForFilter(){
+    var f = blocFilter.value;
+    if(f === "all") return CARDS.slice();
+    return CARDS.filter(function(c){ return String(c.bloc) === f; });
+  }
+
+  function buildQueue(forcePractice){
+    var pool = cardsForFilter();
+    var list;
+    if(forcePractice){
+      list = pool.slice();
+    }else{
+      list = pool.filter(function(c){
+        var s = stateFor(c.id);
+        return s.due <= today;
+      });
+    }
+    shuffleArray(list);
+    queue = list;
+    qIndex = 0;
+    practiceMode = !!forcePractice;
+  }
+
+  function updateStats(){
+    var pool = cardsForFilter();
+    var dueCount = pool.filter(function(c){ return stateFor(c.id).due <= today; }).length;
+    var masteredCount = pool.filter(function(c){ return stateFor(c.id).box >= 5; }).length;
+    statDue.textContent = dueCount;
+    statMastered.textContent = masteredCount;
+    statTotal.textContent = pool.length;
+  }
+
+  function renderDots(container, box){
+    container.innerHTML = "";
+    for(var i=1;i<=5;i++){
+      var s = document.createElement("span");
+      if(i <= box) s.className = "filled";
+      container.appendChild(s);
+    }
+  }
+
+  function showCard(){
+    if(qIndex >= queue.length){
+      showDone();
+      return;
+    }
+    current = queue[qIndex];
+    var s = stateFor(current.id);
+    cardEl.classList.remove("flipped");
+    qText.textContent = current.front;
+    aText.textContent = current.back;
+    var label = BLOCS[current.bloc];
+    tagFront.textContent = label;
+    tagBack.textContent = label;
+    renderDots(dotsFront, s.box);
+    renderDots(dotsBack, s.box);
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "block";
+    counterEl.textContent = "Carte " + (qIndex+1) + " / " + queue.length + (practiceMode ? " · révision libre" : "");
+    stageEl.style.display = "block";
+    donePanel.style.display = "none";
+    var pct = queue.length ? Math.round((qIndex/queue.length)*100) : 0;
+    progressFill.style.width = pct + "%";
+    almostLabel.style.opacity = (pct >= 70 && pct < 100) ? 1 : 0;
+    cardEl.style.transform = "";
+    cardEl.classList.remove("fly-left","fly-right","dragging","drag-yes","drag-no");
+  }
+
+  function showDone(){
+    stageEl.style.display = "none";
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "none";
+    counterEl.textContent = "";
+    donePanel.style.display = "block";
+    progressFill.style.width = "100%";
+    almostLabel.style.opacity = 0;
+    doneTitle.textContent = "BRAVOOO ! 🎉";
+    if(practiceMode){
+      doneText.textContent = "T'as tout repassé en révision libre, Lolo — t'assures ! 💙";
+    }else{
+      doneText.textContent = "T'as fini toutes les cartes du jour. On est trop fiers de toi ! 💙";
+    }
+    updateStats();
+  }
+
+  function flip(){
+    if(!current) return;
+    var willShowBack = !cardEl.classList.contains("flipped");
+    cardEl.classList.toggle("flipped");
+    if(willShowBack){
+      answerButtons.hidden = false;
+      flipHintRow.style.display = "none";
+    }else{
+      answerButtons.hidden = true;
+      flipHintRow.style.display = "block";
+    }
+  }
+
+  var popupOverlay = document.getElementById("popupOverlay");
+
+  function spawnPopup(text, color){
+    var el = document.createElement("div");
+    el.className = "popup-text";
+    el.textContent = text;
+    el.style.color = color;
+    popupOverlay.innerHTML = "";
+    popupOverlay.appendChild(el);
+    setTimeout(function(){
+      if(el.parentNode) el.parentNode.removeChild(el);
+    }, 900);
+  }
+
+  function answer(kind){
+    if(!current) return;
+    if(window.FCStats) FCStats.log("ch2", current, arguments[0], BLOCS[current.bloc]);
+    var s = stateFor(current.id);
+    if(kind === "yes"){
+      s.box = Math.min(5, s.box + 1);
+      s.due = addDays(today, INTERVALS[s.box - 1]);
+      spawnPopup("VAMOSSS 🔥", "#4FAE7B");
+    }else if(kind === "mid"){
+      s.due = addDays(today, 1);
+    }else{
+      s.box = 1;
+      s.due = addDays(today, INTERVALS[0]);
+      spawnPopup("Next time :)", "#EE9280");
+    }
+    progress[current.id] = s;
+    saveProgress(progress);
+    qIndex++;
+    updateStats();
+    showCard();
+  }
+
+  var dragState = null;
+  var DRAG_THRESHOLD = 90;
+
+  function onPointerDown(e){
+    if(answerButtons.hidden) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState = { startX: point.clientX, dx: 0, moved:false, pointerId: e.pointerId };
+    cardEl.classList.add("dragging");
+    try{ if(e.pointerId !== undefined) cardEl.setPointerCapture(e.pointerId); }catch(err){}
+  }
+  function onPointerMove(e){
+    if(!dragState) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState.dx = point.clientX - dragState.startX;
+    if(Math.abs(dragState.dx) > 4) dragState.moved = true;
+    var rot = dragState.dx / 18;
+    cardEl.style.transform = "rotateY(180deg) translateX(" + dragState.dx + "px) rotate(" + (-rot) + "deg)";
+    cardEl.classList.toggle("drag-yes", dragState.dx > 30);
+    cardEl.classList.toggle("drag-no", dragState.dx < -30);
+    flagYes.style.opacity = dragState.dx > 30 ? Math.min(1,(dragState.dx-30)/60) : 0;
+    flagNo.style.opacity = dragState.dx < -30 ? Math.min(1,(-dragState.dx-30)/60) : 0;
+    if(e.cancelable) e.preventDefault();
+  }
+  function onPointerUp(){
+    if(!dragState) return;
+    cardEl.classList.remove("dragging");
+    var dx = dragState.dx;
+    var wasDrag = dragState.moved;
+    dragState = null;
+    flagYes.style.opacity = 0;
+    flagNo.style.opacity = 0;
+    if(Math.abs(dx) > DRAG_THRESHOLD){
+      var flyRight = dx > 0;
+      cardEl.classList.add(flyRight ? "fly-right" : "fly-left");
+      cardEl.style.transform = "rotateY(180deg) translateX(" + (flyRight ? 900 : -900) + "px) rotate(" + (flyRight ? 20 : -20) + "deg)";
+      setTimeout(function(){ answer(flyRight ? "yes" : "no"); }, 320);
+    }else{
+      cardEl.classList.remove("drag-yes","drag-no");
+      cardEl.style.transform = "";
+    }
+    if(wasDrag){
+      cardEl.addEventListener("click", function swallow(ev){ ev.stopPropagation(); cardEl.removeEventListener("click", swallow, true); }, {capture:true, once:true});
+    }
+  }
+
+  cardEl.addEventListener("pointerdown", onPointerDown);
+  cardEl.addEventListener("pointermove", onPointerMove);
+  cardEl.addEventListener("pointerup", onPointerUp);
+  cardEl.addEventListener("pointercancel", onPointerUp);
+  cardEl.addEventListener("pointerleave", function(){ if(dragState) onPointerUp(); });
+
+  cardEl.addEventListener("click", flip);
+  cardEl.addEventListener("keydown", function(e){
+    if(e.code === "Space" || e.key === "Enter"){ e.preventDefault(); flip(); }
+  });
+  document.addEventListener("keydown", function(e){
+    var backVisible = !answerButtons.hidden;
+    if(!backVisible) return;
+    if(e.key === "ArrowRight"){ e.preventDefault(); answer("yes"); }
+    if(e.key === "ArrowLeft"){ e.preventDefault(); answer("no"); }
+    if(e.key === "ArrowUp"){ e.preventDefault(); answer("mid"); }
+  });
+  btnNo.addEventListener("click", function(){ answer("no"); });
+  btnMid.addEventListener("click", function(){ answer("mid"); });
+  btnYes.addEventListener("click", function(){ answer("yes"); });
+
+  blocFilter.addEventListener("change", function(){
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  shuffleBtn.addEventListener("click", function(){
+    var remaining = queue.slice(qIndex);
+    shuffleArray(remaining);
+    queue = queue.slice(0, qIndex).concat(remaining);
+    showCard();
+  });
+
+  btnPractice.addEventListener("click", function(){
+    buildQueue(true);
+    showCard();
+  });
+  btnAllBlocs.addEventListener("click", function(){
+    blocFilter.value = "all";
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  resetBtn.addEventListener("click", function(){
+    if(confirm("Réinitialiser toute ta progression sur ces 103 cartes ?")){
+      progress = {};
+      saveProgress(progress);
+      today = todayStr();
+      buildQueue(false);
+      updateStats();
+      showCard();
+    }
+  });
+
+  buildQueue(false);
+  updateStats();
+  showCard();
+})();
+</script>
+</body>
+</html>
