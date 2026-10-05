@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Espagnol : vocabulaire — Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#132845;
+    --bg-2:#1C3760;
+    --paper:#FFFFFF;
+    --paper-2:#F0F5FC;
+    --ink:#EAF1FB;
+    --ink-muted:#9FB4D4;
+    --blue:#4EA8DE;
+    --blue-light:#8AC8ED;
+    --blue-deep:#15335C;
+    --success:#2E8C5B;
+    --success-light:#4FAE7B;
+    --success-deep:#1C5C3B;
+    --coral:#E0654F;
+    --coral-light:#EE9280;
+    --rule:#2A4570;
+    --text-onpaper:#182B4A;
+    --text-onpaper-muted:#5C6F8C;
+  }
+  :root:not([data-theme="light"]){ }
+  :root[data-theme="dark"]{ }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ } }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Nunito', sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background-image:
+      radial-gradient(circle at 12% 6%, rgba(78,168,222,0.18), transparent 45%),
+      radial-gradient(circle at 88% 94%, rgba(46,140,91,0.14), transparent 45%);
+  }
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:28px 20px 56px;
+  }
+
+  .banner-love{
+    text-align:center;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    color:var(--blue-light);
+    background:rgba(78,168,222,0.14);
+    border:1px solid rgba(78,168,222,0.3);
+    border-radius:999px;
+    padding:9px 18px;
+    margin-bottom:20px;
+    display:inline-block;
+  }
+  .banner-love-row{ text-align:center; }
+
+  header.top{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .title-block h1{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.55rem;
+    margin:0 0 4px;
+    color:var(--blue-light);
+    letter-spacing:0.2px;
+  }
+  .title-block p{
+    margin:0;
+    color:var(--ink-muted);
+    font-size:0.88rem;
+  }
+  .stats{
+    display:flex;
+    gap:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink-muted);
+    white-space:nowrap;
+  }
+  .stats b{ color:var(--blue-light); font-weight:600; }
+
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  select{
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .shuffle-btn{
+    background:var(--paper);
+    color:var(--blue-deep);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .shuffle-btn:hover{ border-color:var(--blue); }
+  .counter{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    color:var(--ink-muted);
+  }
+
+  .progress-wrap{
+    position:relative;
+    margin-bottom:6px;
+  }
+  .progress-track{
+    height:4px;
+    background:var(--bg-2);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--blue);
+    width:0%;
+    transition:width 0.3s ease;
+  }
+  .almost-label{
+    text-align:right;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.8rem;
+    color:var(--blue-light);
+    opacity:0;
+    transition:opacity 0.3s ease;
+    height:20px;
+    margin:5px 0 12px;
+  }
+
+  .stage{
+    perspective:1600px;
+    margin-bottom:22px;
+  }
+  .card{
+    position:relative;
+    min-height:340px;
+    transform-style:preserve-3d;
+    transition:transform 0.5s cubic-bezier(.4,.2,.2,1);
+    cursor:pointer;
+    touch-action:pan-y;
+    user-select:none;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .card.dragging{ transition:none; }
+  .card.fly-left{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+  .card.fly-right{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+
+  .face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--blue-light);
+    border-top:4px solid var(--blue);
+    border-radius:14px;
+    box-shadow:0 18px 40px -16px rgba(46,84,128,0.28), 0 2px 0 rgba(74,127,181,0.10);
+    padding:26px 26px 20px;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    transition:box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .face.back{ transform:rotateY(180deg); background:var(--paper-2); }
+  .card.drag-yes .face{ border-color:var(--success); box-shadow:0 18px 40px -16px rgba(76,154,117,0.4); }
+  .card.drag-no .face{ border-color:var(--coral); box-shadow:0 18px 40px -16px rgba(224,121,106,0.4); }
+
+  .swipe-flag{
+    position:absolute;
+    top:18px;
+    padding:5px 12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    font-weight:600;
+    border-radius:6px;
+    opacity:0;
+    transition:opacity 0.15s ease;
+    pointer-events:none;
+    z-index:2;
+  }
+  .swipe-flag.yes{ right:18px; background:var(--success); color:#F3FBF6; transform:rotate(6deg); }
+  .swipe-flag.no{ left:18px; background:var(--coral); color:#FFF6F4; transform:rotate(-6deg); }
+
+  .face-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .tag{
+    font-size:0.76rem;
+    font-weight:600;
+    color:var(--blue-deep);
+    background:var(--bg-2);
+    background:#E4EEF9;
+    padding:3px 10px;
+    border-radius:20px;
+  }
+  .box-dots{ display:flex; gap:5px; }
+  .box-dots span{
+    width:7px; height:7px; border-radius:50%;
+    background:rgba(31,58,92,0.13);
+  }
+  .box-dots span.filled{ background:var(--blue); }
+
+  .face-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.03em;
+    color:var(--text-onpaper-muted);
+    margin-bottom:8px;
+  }
+  .q-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.4;
+    margin:0;
+    color:var(--blue-deep);
+  }
+  .a-text{
+    font-family:'Nunito', sans-serif;
+    font-weight:500;
+    font-size:1.05rem;
+    line-height:1.55;
+    margin:0;
+  }
+  .hint{
+    margin-top:auto;
+    padding-top:14px;
+    font-size:0.8rem;
+    color:var(--text-onpaper-muted);
+    text-align:center;
+  }
+
+  .answer-buttons{
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .answer-buttons button{
+    flex:1;
+    padding:12px 6px;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.78rem;
+    line-height:1.2;
+    white-space:normal;
+    border-radius:10px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:filter 0.15s ease, transform 0.1s ease;
+  }
+  .answer-buttons button:hover{ filter:brightness(1.06); }
+  .answer-buttons button:active{ transform:scale(0.97); }
+  .btn-no{ background:var(--coral); color:#FFF6F4; }
+  .btn-mid{ background:var(--bg-2); color:var(--blue-light); border:1px solid var(--blue-light); }
+  .btn-yes{ background:var(--success); color:#F3FBF6; }
+  .answer-buttons[hidden]{ display:none; }
+
+  .popup-overlay{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:60;
+  }
+  .popup-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:2.6rem;
+    letter-spacing:0.02em;
+    opacity:0;
+    text-shadow:0 4px 18px rgba(0,0,0,0.35);
+    animation:popSpawn 900ms cubic-bezier(.2,.9,.3,1.2) forwards;
+    white-space:nowrap;
+  }
+  @keyframes popSpawn{
+    0%{ opacity:0; transform:scale(0.4) rotate(-6deg) translateY(10px); }
+    35%{ opacity:1; transform:scale(1.15) rotate(3deg) translateY(-6px); }
+    55%{ opacity:1; transform:scale(1) rotate(0deg) translateY(0); }
+    85%{ opacity:1; }
+    100%{ opacity:0; transform:scale(1) translateY(-30px); }
+  }
+
+  .flip-hint-row{
+    text-align:center;
+    font-family:'Nunito', sans-serif;
+    color:var(--ink-muted);
+    font-size:0.8rem;
+    margin-bottom:26px;
+  }
+
+  .done-panel{
+    border:1px solid var(--rule);
+    background:var(--paper);
+    padding:32px 26px;
+    text-align:center;
+    border-radius:14px;
+  }
+  .done-panel h2{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:1.9rem;
+    margin:0 0 10px;
+    color:var(--success-deep);
+  }
+  .done-panel p{ font-family:'Nunito', sans-serif; color:var(--ink-muted); margin:0 0 20px; }
+  .done-panel .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .done-panel button{
+    padding:11px 18px;
+    background:var(--blue);
+    color:#fff;
+    border:none;
+    font-weight:600;
+    font-family:'Nunito', sans-serif;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .done-panel button.ghost{
+    background:transparent;
+    color:var(--blue-deep);
+    border:1px solid var(--blue-light);
+  }
+
+  footer.bottom{
+    margin-top:30px;
+    text-align:center;
+  }
+  footer.bottom button{
+    color:var(--ink-muted);
+    font-size:0.78rem;
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-family:'Nunito', sans-serif;
+  }
+
+  @media (max-width:480px){
+    .card{ min-height:400px; }
+    .q-text{ font-size:1.14rem; }
+    header.top{ align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+<script src="stats.js" data-deck="es"></script>
+<div class="popup-overlay" id="popupOverlay"></div>
+
+<div class="wrap">
+
+  <div class="banner-love-row"><span class="banner-love">Courage ma Lolo d'amour ! 💙</span></div>
+  <div style="text-align:center; margin-bottom:14px;"><a href="index.html" style="color:var(--blue-light); font-family:'Nunito', sans-serif; font-size:0.85rem; text-decoration:none;">← Tous les decks</a></div>
+
+  <header class="top">
+    <div class="title-block">
+      <h1>Espagnol : vocabulaire — Flashcards</h1>
+      <p>Politique espagnole & tourisme — 156 cartes</p>
+    </div>
+    <div class="stats">
+      <span>À réviser <b id="statDue">0</b></span>
+      <span>Maîtrisées <b id="statMastered">0</b>/<span id="statTotal">156</span></span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="filter-row">
+      <select id="blocFilter" aria-label="Filtrer par thème"></select>
+      <button class="shuffle-btn" id="shuffleBtn" title="Mélanger l'ordre des cartes">🔀 Mélanger</button>
+    </div>
+    <div class="counter" id="counter">—</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <div class="almost-label" id="almostLabel">Tu y es presque ! 💙</div>
+
+  <div id="stage" class="stage">
+    <div class="card" id="card" tabindex="0">
+      <span class="swipe-flag no" id="flagNo">Demain !</span>
+      <span class="swipe-flag yes" id="flagYes">Trop facile !</span>
+      <div class="face front">
+        <div class="face-head">
+          <span class="tag" id="tagFront">—</span>
+          <div class="box-dots" id="dotsFront"></div>
+        </div>
+        <div class="face-label">Question</div>
+        <p class="q-text" id="qText"></p>
+        <div class="hint">Clique ou tape la carte pour voir la réponse</div>
+      </div>
+      <div class="face back">
+        <div class="face-head">
+          <span class="tag" id="tagBack">—</span>
+          <div class="box-dots" id="dotsBack"></div>
+        </div>
+        <div class="face-label">Réponse</div>
+        <p class="a-text" id="aText"></p>
+        <div class="hint">Glisse la carte ← → ou utilise les boutons</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="answer-buttons" id="answerButtons" hidden>
+    <button class="btn-no" id="btnNo">Pas aujourd'hui, mais demain !</button>
+    <button class="btn-mid" id="btnMid">À revoir</button>
+    <button class="btn-yes" id="btnYes">TROP FACILE pour LOLOCHE</button>
+  </div>
+  <div class="flip-hint-row" id="flipHintRow">Espace ou clic = retourner la carte</div>
+
+  <div id="donePanel" class="done-panel" style="display:none;">
+    <h2 id="doneTitle">Session terminée</h2>
+    <p id="doneText">Toutes les cartes dues ont été révisées.</p>
+    <div class="row">
+      <button id="btnPractice">Réviser quand même</button>
+      <button class="ghost" id="btnAllBlocs">Voir tous les thèmes</button>
+    </div>
+  </div>
+
+  <footer class="bottom">
+    <button id="resetProgress">Réinitialiser ma progression</button>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CARDS = [
+    {id:1,bloc:1,front:"El gobierno, gobernar",back:"Le gouvernement, gouverner"},
+    {id:2,bloc:1,front:"Gubernamental",back:"Gouvernemental(e)"},
+    {id:3,bloc:1,front:"El Estado federal",back:"L'État fédéral"},
+    {id:4,bloc:1,front:"El territorio, la bandera",back:"Le territoire, le drapeau"},
+    {id:5,bloc:1,front:"Los ciudadanos",back:"Les citoyens"},
+    {id:6,bloc:1,front:"El derecho de ciudadanía",back:"Le droit de cité"},
+    {id:7,bloc:1,front:"El pueblo, la nación, la patria",back:"Le peuple, la nation, la patrie"},
+    {id:8,bloc:1,front:"El país natal",back:"Le pays natal"},
+    {id:9,bloc:1,front:"El extranjero, la extranjera",back:"L'étranger, l'étrangère"},
+    {id:10,bloc:1,front:"La bandera, el compatriota",back:"Le drapeau, le compatriote"},
+    {id:11,bloc:1,front:"El forastero, el foráneo",back:"L'étranger (d'une ville / région)"},
+    {id:12,bloc:1,front:"Fuera de su país, añora más su patria chica que su madre patria.",back:"À l'étranger, il a plus la nostalgie de sa ville natale que de la mère patrie."},
+    {id:13,bloc:1,front:"Me encontré con un paisano mío.",back:"J'ai rencontré un de mes compatriotes. (Terme familier)"},
+    {id:14,bloc:1,front:"Formar gobierno.",back:"Former un gouvernement."},
+    {id:15,bloc:1,front:"Los bandos republicano y nacional",back:"Les camps républicain et national"},
+    {id:16,bloc:1,front:"La violación de la Constitución",back:"La violation de la Constitution"},
+    {id:17,bloc:1,front:"Inconstitucional / anticonstitucional",back:"Inconstitutionnel / anticonstitutionnel"},
+    {id:18,bloc:1,front:"El rey, la reina, el soberano",back:"Le roi, la reine, le souverain"},
+    {id:19,bloc:1,front:"Los Borbones",back:"Les Bourbons"},
+    {id:20,bloc:1,front:"El imperio, el emperador, la emperatriz",back:"L'empire, l'empereur, l'impératrice"},
+    {id:21,bloc:1,front:"La monarquía parlamentaria",back:"La monarchie parlementaire"},
+    {id:22,bloc:1,front:"La república, la dictadura",back:"La république, la dictature"},
+    {id:23,bloc:1,front:"Un régimen dictatorial",back:"Le régime dictatorial"},
+    {id:24,bloc:1,front:"El fascismo, el totalitarismo",back:"Le fascisme, le totalitarisme"},
+    {id:25,bloc:1,front:"Sube al trono.",back:"Il monte sur le trône."},
+    {id:26,bloc:1,front:"Heredar la Corona.",back:"Hériter de la Couronne."},
+    {id:27,bloc:1,front:"En España el rey reina, pero no gobierna.",back:"En Espagne, le roi règne mais ne gouverne pas."},
+    {id:28,bloc:1,front:"Una paliza soberana.",back:"Une raclée magistrale."},
+    {id:29,bloc:1,front:"El himno nacional español no tiene letras.",back:"L'hymne national espagnol n'a pas de paroles."},
+    {id:30,bloc:2,front:"El jefe de Estado",back:"Le chef de l'État"},
+    {id:31,bloc:2,front:"El/la estadista, el/la mandatario(a)",back:"L'homme d'État, politique"},
+    {id:32,bloc:2,front:"El presidente de gobierno",back:"Le président du gouvernement"},
+    {id:33,bloc:2,front:"Los cargos políticos",back:"Les fonctions politiques"},
+    {id:34,bloc:2,front:"El canciller, la cancillera",back:"Le chancelier, la chancelière"},
+    {id:35,bloc:2,front:"España forma parte de las democracias occidentales.",back:"L'Espagne fait partie des démocraties occidentales."},
+    {id:36,bloc:2,front:"La papeleta en blanco",back:"Le bulletin blanc"},
+    {id:37,bloc:2,front:"La cartera",back:"Le portefeuille ministériel"},
+    {id:38,bloc:2,front:"El portavoz del gobierno",back:"Le porte-parole du gouvernement"},
+    {id:39,bloc:2,front:"La cámara alta, baja",back:"Le sénat, la chambre des députés"},
+    {id:40,bloc:2,front:"El Congreso de los Diputados",back:"La Chambre des députés"},
+    {id:41,bloc:2,front:"La sesión parlamentaria",back:"La session parlementaire"},
+    {id:42,bloc:2,front:"La moción de censura",back:"La motion de censure"},
+    {id:43,bloc:2,front:"El senado, el/la senador(a)",back:"Le sénateur, la sénatrice"},
+    {id:44,bloc:2,front:"Fue ayer cuando tuvo lugar la entrega de poderes entre los dos ministros.",back:"C'est hier qu'eut lieu la passation des pouvoirs entre deux ministres."},
+    {id:45,bloc:2,front:"Aquí está en su centro.",back:"Il est ici dans son élément."},
+    {id:46,bloc:2,front:"La camarilla, el lobby",back:"Le groupe de pression"},
+    {id:47,bloc:2,front:"El poder judicial, ejecutivo, legislativo",back:"Le pouvoir judiciaire, exécutif, législatif"},
+    {id:48,bloc:2,front:"El embajador, la embajada",back:"L'ambassadeur, l'ambassade"},
+    {id:49,bloc:2,front:"El jefe de las FF AA es Felipe VI en España.",back:"Le chef de l'Armée est Felipe VI en Espagne."},
+    {id:50,bloc:3,front:"El partido bisagra",back:"Le parti charnière"},
+    {id:51,bloc:3,front:"El líder, el miembro",back:"Le leader, le membre"},
+    {id:52,bloc:3,front:"Militante, partidista",back:"Militant(e), partisan(e)"},
+    {id:53,bloc:3,front:"El opositor ≠ el partidario",back:"L'opposant ≠ le partisan"},
+    {id:54,bloc:3,front:"La mayoría ≠ la minoría",back:"La majorité ≠ la minorité"},
+    {id:55,bloc:3,front:"Mayoritario ≠ minoritario",back:"Majoritaire ≠ minoritaire"},
+    {id:56,bloc:3,front:"El voto por poder",back:"Le vote par procuration"},
+    {id:57,bloc:3,front:"Pronunciarse a favor / en contra",back:"Se prononcer pour / contre"},
+    {id:58,bloc:3,front:"Estar a favor / en contra",back:"Être pour / contre"},
+    {id:59,bloc:3,front:"Ser partidario / ser opositor",back:"Être partisan / opposant"},
+    {id:60,bloc:3,front:"Ser de izquierda(s)",back:"Être de gauche"},
+    {id:61,bloc:3,front:"No hace nada a derechas.",back:"Il fait tout de travers."},
+    {id:62,bloc:3,front:"La ley, las leyes",back:"La loi, les lois"},
+    {id:63,bloc:3,front:"El impuesto, el tributo",back:"L'impôt"},
+    {id:64,bloc:3,front:"El fraude electoral, fiscal",back:"La fraude électorale, fiscale"},
+    {id:65,bloc:3,front:"El erario público",back:"Le Trésor public"},
+    {id:66,bloc:3,front:"La fiscalidad",back:"La fiscalité"},
+    {id:67,bloc:3,front:"El IVA (el impuesto sobre el valor añadido)",back:"La TVA"},
+    {id:68,bloc:3,front:"El ala ultraderechista",back:"L'aile d'extrême droite"},
+    {id:69,bloc:3,front:"Hacer el recuento de votos",back:"Dépouiller le scrutin"},
+    {id:70,bloc:3,front:"Ir a las urnas",back:"Se rendre aux urnes, voter"},
+    {id:71,bloc:3,front:"Legal ≠ ilegal",back:"Légal ≠ illégal"},
+    {id:72,bloc:3,front:"Ratificar, aprobar una ley",back:"Ratifier, approuver une loi"},
+    {id:73,bloc:3,front:"Enmendar, deliberar",back:"Amender, délibérer"},
+    {id:74,bloc:3,front:"Implementar medidas",back:"Mettre en œuvre des mesures"},
+    {id:75,bloc:3,front:"Se elige a los senadores por 4 años.",back:"Les sénateurs sont élus pour 4 ans."},
+    {id:76,bloc:4,front:"Ir de / estar de vacaciones",back:"Aller / être en vacances"},
+    {id:77,bloc:4,front:"Pasar las vacaciones",back:"Passer ses vacances"},
+    {id:78,bloc:4,front:"Ir al extranjero",back:"Aller à l'étranger"},
+    {id:79,bloc:4,front:"Irse de viaje, de excursión",back:"Partir en voyage, en excursion"},
+    {id:80,bloc:4,front:"Viajar en grupo por el mundo",back:"Voyager en groupe à travers le monde"},
+    {id:81,bloc:4,front:"Veranear, los veraneantes",back:"Passer ses vacances d'été, les estivants"},
+    {id:82,bloc:4,front:"Acampar, ir de acampada, hacer camping",back:"Camper, faire du camping"},
+    {id:83,bloc:4,front:"Hospedarse",back:"Se loger"},
+    {id:84,bloc:4,front:"La temporada veraniega (media / alta / baja)",back:"La saison d'été, la saison estivale (moyenne / haute / basse)"},
+    {id:85,bloc:4,front:"El carné de identidad, el DNI",back:"Les papiers d'identité"},
+    {id:86,bloc:4,front:"La maleta, el bulto",back:"La valise, le paquet"},
+    {id:87,bloc:4,front:"El bolso, la mochila",back:"Le sac, le sac à dos"},
+    {id:88,bloc:4,front:"El alojamiento, alojarse",back:"Le logement, se loger"},
+    {id:89,bloc:4,front:"El albergue de juventud",back:"L'auberge de jeunesse"},
+    {id:90,bloc:4,front:"La cadena de hoteles",back:"La chaîne d'hôtels"},
+    {id:91,bloc:4,front:"La pensión, el hostal",back:"La pension, le petit hôtel"},
+    {id:92,bloc:4,front:"El refugio",back:"Le refuge"},
+    {id:93,bloc:5,front:"La protección de los espacios naturales",back:"La protection des espaces naturels"},
+    {id:94,bloc:5,front:"Una voluntad política",back:"Une volonté politique"},
+    {id:95,bloc:5,front:"Plantear un reto",back:"Poser un défi"},
+    {id:96,bloc:5,front:"El turismo de sol y playa / playero",back:"Le tourisme de la plage"},
+    {id:97,bloc:5,front:"El turismo de masas",back:"Le tourisme de masse"},
+    {id:98,bloc:5,front:"El turismo verde, colaborativo",back:"Le tourisme vert, collaboratif"},
+    {id:99,bloc:5,front:"El turismo responsable",back:"Le tourisme responsable"},
+    {id:100,bloc:5,front:"El turismo cultural, ético",back:"Le tourisme culturel, éthique"},
+    {id:101,bloc:5,front:"El turista",back:"Le touriste"},
+    {id:102,bloc:5,front:"La industria turística",back:"L'industrie touristique"},
+    {id:103,bloc:5,front:"El impacto económico del turismo",back:"L'impact économique du tourisme"},
+    {id:104,bloc:5,front:"El desarrollo sostenible",back:"Le développement durable"},
+    {id:105,bloc:5,front:"La estacionalidad",back:"La saisonnalité"},
+    {id:106,bloc:5,front:"La gentrificación",back:"La gentrification"},
+    {id:107,bloc:5,front:"Los pisos de alquiler",back:"Les appartements en location"},
+    {id:108,bloc:5,front:"Beneficios incuestionables",back:"Des bénéfices indéniables"},
+    {id:109,bloc:5,front:"Atraer a visitantes",back:"Attirer des visiteurs"},
+    {id:110,bloc:5,front:"El desarrollo turístico",back:"Le développement touristique"},
+    {id:111,bloc:5,front:"El poder adquisitivo",back:"Le pouvoir d'achat"},
+    {id:112,bloc:5,front:"Consecuencias irreversibles",back:"Des conséquences irréversibles"},
+    {id:113,bloc:5,front:"Exacerbar las tensiones",back:"Exacerber les tensions"},
+    {id:114,bloc:5,front:"Minimizar el impacto",back:"Minimiser l'impact"},
+    {id:115,bloc:5,front:"Fomentar ≠ desincentivar",back:"Promouvoir / encourager ≠ décourager"},
+    {id:116,bloc:5,front:"Abogar por un cambio de paradigma",back:"Plaider pour un changement de paradigme"},
+    {id:117,bloc:5,front:"Perjudicar",back:"Nuire à"},
+    {id:118,bloc:5,front:"Tensar la cuerda",back:"Mettre sous pression / exacerber les tensions"},
+    {id:119,bloc:5,front:"La sobreexplotación",back:"La surexploitation"},
+    {id:120,bloc:5,front:"El descontento",back:"Le mécontentement"},
+    {id:121,bloc:5,front:"Hacer frente a / enfrentarse a",back:"Faire face à"},
+    {id:122,bloc:5,front:"La necesidad imperiosa",back:"Le besoin impérieux"},
+    {id:123,bloc:5,front:"El encarecimiento",back:"Le renchérissement / la hausse des prix"},
+    {id:124,bloc:5,front:"El hartazgo",back:"Le ras-le-bol / l'exaspération"},
+    {id:125,bloc:5,front:"Una vivienda asequible",back:"Un logement abordable"},
+    {id:126,bloc:5,front:"La desazón",back:"Le malaise / l'inquiétude"},
+    {id:127,bloc:6,front:"Poner en marcha iniciativas, proyectos",back:"Mettre en œuvre des initiatives, des projets"},
+    {id:128,bloc:6,front:"Dar lugar a",back:"Donner lieu à"},
+    {id:129,bloc:6,front:"Hacer hincapié en",back:"Mettre l'accent sur"},
+    {id:130,bloc:6,front:"Contar con infraestructuras modernas",back:"Disposer d'infrastructures modernes"},
+    {id:131,bloc:6,front:"Ser un motor económico",back:"Être un moteur économique"},
+    {id:132,bloc:6,front:"Desempeñar un papel clave",back:"Jouer un rôle clé"},
+    {id:133,bloc:6,front:"Poner en valor los recursos naturales",back:"Valoriser les ressources naturelles"},
+    {id:134,bloc:6,front:"Afrontar nuevos desafíos / retos",back:"Relever de nouveaux défis"},
+    {id:135,bloc:6,front:"Estar en el punto de mira de",back:"Être dans le collimateur de"},
+    {id:136,bloc:6,front:"La oferta y demanda turística",back:"L'offre et la demande touristiques"},
+    {id:137,bloc:6,front:"Dinamizar la economía local",back:"Dynamiser l'économie locale"},
+    {id:138,bloc:6,front:"La globalización del turismo",back:"La mondialisation du tourisme"},
+    {id:139,bloc:6,front:"La huella ecológica",back:"L'empreinte écologique"},
+    {id:140,bloc:6,front:"La reconversión del modelo turístico",back:"La reconversion du modèle touristique"},
+    {id:141,bloc:6,front:"La complejidad del fenómeno",back:"La complexité du phénomène"},
+    {id:142,bloc:6,front:"Poner de relieve una contradicción",back:"Mettre en évidence une contradiction"},
+    {id:143,bloc:6,front:"Ir más allá de la visión tradicional",back:"Aller au-delà de la vision traditionnelle"},
+    {id:144,bloc:6,front:"Ser víctima de su propio éxito",back:"Être victime de son propre succès"},
+    {id:145,bloc:6,front:"Vender humo",back:"Vendre du vent / faire des promesses non tenues"},
+    {id:146,bloc:6,front:"Poner en tela de juicio",back:"Remettre en cause"},
+    {id:147,bloc:6,front:"Cuestionar el modelo",back:"Remettre en question le modèle"},
+    {id:148,bloc:6,front:"Nadar entre dos aguas",back:"Ménager la chèvre et le chou"},
+    {id:149,bloc:6,front:"Conjugar rentabilidad con responsabilidad social",back:"Conjuguer rentabilité et responsabilité sociale"},
+    {id:150,bloc:6,front:"Replantear el modelo vigente",back:"Repenser le modèle actuel"},
+    {id:151,bloc:6,front:"Un desarrollo turístico mal gestionado",back:"Un développement touristique mal géré"},
+    {id:152,bloc:6,front:"Atajar la masificación turística",back:"Enrayer / endiguer le surtourisme"},
+    {id:153,bloc:6,front:"Pisar el freno al turismo de masas",back:"Mettre un frein au surtourisme"},
+    {id:154,bloc:6,front:"Contra viento y marea",back:"Contre vents et marées"},
+    {id:155,bloc:6,front:"Había la mar de gente.",back:"Il y avait un monde fou."},
+    {id:156,bloc:6,front:"En telón de fondo",back:"En toile de fond"}
+  ];
+
+  var BLOCS = {
+    1:"Politique : État, nation & régimes",
+    2:"Politique : gouvernement & parlement",
+    3:"Politique : partis, vote & lois",
+    4:"Voyages, vacances & hébergement",
+    5:"Tourisme : types, modèle & enjeux",
+    6:"Tourisme : expressions utiles"
+  };
+
+  var STORAGE_KEY = "espagnol_vocabulaire_progress_v1";
+  var INTERVALS = [0,1,3,7,16]; // days, index = box-1 (box 1..5)
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function addDays(dateStr, n){
+    var d = new Date(dateStr+"T00:00:00");
+    d.setDate(d.getDate()+n);
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+
+  function loadProgress(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {};
+      var parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === "object") ? parsed : {};
+    }catch(e){ return {}; }
+  }
+  function saveProgress(p){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+    catch(e){ /* storage unavailable — session continues without persistence */ }
+  }
+
+  var progress = loadProgress();
+  var today = todayStr();
+
+  function stateFor(cardId){
+    var s = progress[cardId];
+    if(!s){ s = {box:1, due:today}; }
+    return s;
+  }
+
+  var blocFilter = document.getElementById("blocFilter");
+  var counterEl = document.getElementById("counter");
+  var stageEl = document.getElementById("stage");
+  var cardEl = document.getElementById("card");
+  var qText = document.getElementById("qText");
+  var aText = document.getElementById("aText");
+  var tagFront = document.getElementById("tagFront");
+  var tagBack = document.getElementById("tagBack");
+  var dotsFront = document.getElementById("dotsFront");
+  var dotsBack = document.getElementById("dotsBack");
+  var answerButtons = document.getElementById("answerButtons");
+  var flipHintRow = document.getElementById("flipHintRow");
+  var btnNo = document.getElementById("btnNo");
+  var btnMid = document.getElementById("btnMid");
+  var btnYes = document.getElementById("btnYes");
+  var donePanel = document.getElementById("donePanel");
+  var doneTitle = document.getElementById("doneTitle");
+  var doneText = document.getElementById("doneText");
+  var btnPractice = document.getElementById("btnPractice");
+  var btnAllBlocs = document.getElementById("btnAllBlocs");
+  var statDue = document.getElementById("statDue");
+  var statMastered = document.getElementById("statMastered");
+  var statTotal = document.getElementById("statTotal");
+  var resetBtn = document.getElementById("resetProgress");
+  var progressFill = document.getElementById("progressFill");
+  var almostLabel = document.getElementById("almostLabel");
+  var shuffleBtn = document.getElementById("shuffleBtn");
+  var flagYes = document.getElementById("flagYes");
+  var flagNo = document.getElementById("flagNo");
+
+  statTotal.textContent = CARDS.length;
+
+  var opt = document.createElement("option");
+  opt.value = "all"; opt.textContent = "Tous les thèmes (" + CARDS.length + " cartes)";
+  blocFilter.appendChild(opt);
+  Object.keys(BLOCS).forEach(function(k){
+    var count = CARDS.filter(function(c){ return c.bloc == k; }).length;
+    var o = document.createElement("option");
+    o.value = k;
+    o.textContent = BLOCS[k] + " (" + count + ")";
+    blocFilter.appendChild(o);
+  });
+
+  var queue = [];
+  var qIndex = 0;
+  var current = null;
+  var practiceMode = false;
+
+  function shuffleArray(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function cardsForFilter(){
+    var f = blocFilter.value;
+    if(f === "all") return CARDS.slice();
+    return CARDS.filter(function(c){ return String(c.bloc) === f; });
+  }
+
+  function buildQueue(forcePractice){
+    var pool = cardsForFilter();
+    var list;
+    if(forcePractice){
+      list = pool.slice();
+    }else{
+      list = pool.filter(function(c){
+        var s = stateFor(c.id);
+        return s.due <= today;
+      });
+    }
+    shuffleArray(list);
+    queue = list;
+    qIndex = 0;
+    practiceMode = !!forcePractice;
+  }
+
+  function updateStats(){
+    var pool = cardsForFilter();
+    var dueCount = pool.filter(function(c){ return stateFor(c.id).due <= today; }).length;
+    var masteredCount = pool.filter(function(c){ return stateFor(c.id).box >= 5; }).length;
+    statDue.textContent = dueCount;
+    statMastered.textContent = masteredCount;
+    statTotal.textContent = pool.length;
+  }
+
+  function renderDots(container, box){
+    container.innerHTML = "";
+    for(var i=1;i<=5;i++){
+      var s = document.createElement("span");
+      if(i <= box) s.className = "filled";
+      container.appendChild(s);
+    }
+  }
+
+  function showCard(){
+    if(qIndex >= queue.length){
+      showDone();
+      return;
+    }
+    current = queue[qIndex];
+    var s = stateFor(current.id);
+    cardEl.classList.remove("flipped");
+    qText.textContent = current.front;
+    aText.textContent = current.back;
+    var label = BLOCS[current.bloc];
+    tagFront.textContent = label;
+    tagBack.textContent = label;
+    renderDots(dotsFront, s.box);
+    renderDots(dotsBack, s.box);
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "block";
+    counterEl.textContent = "Carte " + (qIndex+1) + " / " + queue.length + (practiceMode ? " · révision libre" : "");
+    stageEl.style.display = "block";
+    donePanel.style.display = "none";
+    var pct = queue.length ? Math.round((qIndex/queue.length)*100) : 0;
+    progressFill.style.width = pct + "%";
+    almostLabel.style.opacity = (pct >= 70 && pct < 100) ? 1 : 0;
+    cardEl.style.transform = "";
+    cardEl.classList.remove("fly-left","fly-right","dragging","drag-yes","drag-no");
+  }
+
+  function showDone(){
+    stageEl.style.display = "none";
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "none";
+    counterEl.textContent = "";
+    donePanel.style.display = "block";
+    progressFill.style.width = "100%";
+    almostLabel.style.opacity = 0;
+    doneTitle.textContent = "BRAVOOO ! 🎉";
+    if(practiceMode){
+      doneText.textContent = "T'as tout repassé en révision libre, Lolo — t'assures ! 💙";
+    }else{
+      doneText.textContent = "T'as fini toutes les cartes du jour. On est trop fiers de toi ! 💙";
+    }
+    updateStats();
+  }
+
+  function flip(){
+    if(!current) return;
+    var willShowBack = !cardEl.classList.contains("flipped");
+    cardEl.classList.toggle("flipped");
+    if(willShowBack){
+      answerButtons.hidden = false;
+      flipHintRow.style.display = "none";
+    }else{
+      answerButtons.hidden = true;
+      flipHintRow.style.display = "block";
+    }
+  }
+
+  var popupOverlay = document.getElementById("popupOverlay");
+
+  function spawnPopup(text, color){
+    var el = document.createElement("div");
+    el.className = "popup-text";
+    el.textContent = text;
+    el.style.color = color;
+    popupOverlay.innerHTML = "";
+    popupOverlay.appendChild(el);
+    setTimeout(function(){
+      if(el.parentNode) el.parentNode.removeChild(el);
+    }, 900);
+  }
+
+  function answer(kind){
+    if(!current) return;
+    if(window.FCStats) FCStats.log("es", current, arguments[0], BLOCS[current.bloc]);
+    var s = stateFor(current.id);
+    if(kind === "yes"){
+      s.box = Math.min(5, s.box + 1);
+      s.due = addDays(today, INTERVALS[s.box - 1]);
+      spawnPopup("VAMOSSS 🔥", "#4FAE7B");
+    }else if(kind === "mid"){
+      s.due = addDays(today, 1);
+    }else{
+      s.box = 1;
+      s.due = addDays(today, INTERVALS[0]);
+      spawnPopup("Next time :)", "#EE9280");
+    }
+    progress[current.id] = s;
+    saveProgress(progress);
+    qIndex++;
+    updateStats();
+    showCard();
+  }
+
+  var dragState = null;
+  var DRAG_THRESHOLD = 90;
+
+  function onPointerDown(e){
+    if(answerButtons.hidden) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState = { startX: point.clientX, dx: 0, moved:false, pointerId: e.pointerId };
+    cardEl.classList.add("dragging");
+    try{ if(e.pointerId !== undefined) cardEl.setPointerCapture(e.pointerId); }catch(err){}
+  }
+  function onPointerMove(e){
+    if(!dragState) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState.dx = point.clientX - dragState.startX;
+    if(Math.abs(dragState.dx) > 4) dragState.moved = true;
+    var rot = dragState.dx / 18;
+    cardEl.style.transform = "rotateY(180deg) translateX(" + dragState.dx + "px) rotate(" + (-rot) + "deg)";
+    cardEl.classList.toggle("drag-yes", dragState.dx > 30);
+    cardEl.classList.toggle("drag-no", dragState.dx < -30);
+    flagYes.style.opacity = dragState.dx > 30 ? Math.min(1,(dragState.dx-30)/60) : 0;
+    flagNo.style.opacity = dragState.dx < -30 ? Math.min(1,(-dragState.dx-30)/60) : 0;
+    if(e.cancelable) e.preventDefault();
+  }
+  function onPointerUp(){
+    if(!dragState) return;
+    cardEl.classList.remove("dragging");
+    var dx = dragState.dx;
+    var wasDrag = dragState.moved;
+    dragState = null;
+    flagYes.style.opacity = 0;
+    flagNo.style.opacity = 0;
+    if(Math.abs(dx) > DRAG_THRESHOLD){
+      var flyRight = dx > 0;
+      cardEl.classList.add(flyRight ? "fly-right" : "fly-left");
+      cardEl.style.transform = "rotateY(180deg) translateX(" + (flyRight ? 900 : -900) + "px) rotate(" + (flyRight ? 20 : -20) + "deg)";
+      setTimeout(function(){ answer(flyRight ? "yes" : "no"); }, 320);
+    }else{
+      cardEl.classList.remove("drag-yes","drag-no");
+      cardEl.style.transform = "";
+    }
+    if(wasDrag){
+      cardEl.addEventListener("click", function swallow(ev){ ev.stopPropagation(); cardEl.removeEventListener("click", swallow, true); }, {capture:true, once:true});
+    }
+  }
+
+  cardEl.addEventListener("pointerdown", onPointerDown);
+  cardEl.addEventListener("pointermove", onPointerMove);
+  cardEl.addEventListener("pointerup", onPointerUp);
+  cardEl.addEventListener("pointercancel", onPointerUp);
+  cardEl.addEventListener("pointerleave", function(){ if(dragState) onPointerUp(); });
+
+  cardEl.addEventListener("click", flip);
+  cardEl.addEventListener("keydown", function(e){
+    if(e.code === "Space" || e.key === "Enter"){ e.preventDefault(); flip(); }
+  });
+  document.addEventListener("keydown", function(e){
+    var backVisible = !answerButtons.hidden;
+    if(!backVisible) return;
+    if(e.key === "ArrowRight"){ e.preventDefault(); answer("yes"); }
+    if(e.key === "ArrowLeft"){ e.preventDefault(); answer("no"); }
+    if(e.key === "ArrowUp"){ e.preventDefault(); answer("mid"); }
+  });
+  btnNo.addEventListener("click", function(){ answer("no"); });
+  btnMid.addEventListener("click", function(){ answer("mid"); });
+  btnYes.addEventListener("click", function(){ answer("yes"); });
+
+  blocFilter.addEventListener("change", function(){
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  shuffleBtn.addEventListener("click", function(){
+    var remaining = queue.slice(qIndex);
+    shuffleArray(remaining);
+    queue = queue.slice(0, qIndex).concat(remaining);
+    showCard();
+  });
+
+  btnPractice.addEventListener("click", function(){
+    buildQueue(true);
+    showCard();
+  });
+  btnAllBlocs.addEventListener("click", function(){
+    blocFilter.value = "all";
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  resetBtn.addEventListener("click", function(){
+    if(confirm("Réinitialiser toute ta progression sur ces 156 cartes ?")){
+      progress = {};
+      saveProgress(progress);
+      today = todayStr();
+      buildQueue(false);
+      updateStats();
+      showCard();
+    }
+  });
+
+  buildQueue(false);
+  updateStats();
+  showCard();
+})();
+</script>
+</body>
+</html>
