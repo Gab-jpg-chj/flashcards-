@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>France de la Belle Époque — Flashcards</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#132845;
+    --bg-2:#1C3760;
+    --paper:#FFFFFF;
+    --paper-2:#F0F5FC;
+    --ink:#EAF1FB;
+    --ink-muted:#9FB4D4;
+    --blue:#4EA8DE;
+    --blue-light:#8AC8ED;
+    --blue-deep:#15335C;
+    --success:#2E8C5B;
+    --success-light:#4FAE7B;
+    --success-deep:#1C5C3B;
+    --coral:#E0654F;
+    --coral-light:#EE9280;
+    --rule:#2A4570;
+    --text-onpaper:#182B4A;
+    --text-onpaper-muted:#5C6F8C;
+  }
+  :root:not([data-theme="light"]){ }
+  :root[data-theme="dark"]{ }
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){ } }
+
+  *{ box-sizing:border-box; }
+  html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+  body{
+    margin:0;
+    min-height:100%;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Nunito', sans-serif;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+    background-image:
+      radial-gradient(circle at 12% 6%, rgba(78,168,222,0.18), transparent 45%),
+      radial-gradient(circle at 88% 94%, rgba(46,140,91,0.14), transparent 45%);
+  }
+
+  .wrap{
+    max-width:720px;
+    margin:0 auto;
+    padding:28px 20px 56px;
+  }
+
+  .banner-love{
+    text-align:center;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.95rem;
+    color:var(--blue-light);
+    background:rgba(78,168,222,0.14);
+    border:1px solid rgba(78,168,222,0.3);
+    border-radius:999px;
+    padding:9px 18px;
+    margin-bottom:20px;
+    display:inline-block;
+  }
+  .banner-love-row{ text-align:center; }
+
+  header.top{
+    display:flex;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:22px;
+    border-bottom:1px solid var(--rule);
+    padding-bottom:16px;
+    flex-wrap:wrap;
+  }
+  .title-block h1{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.55rem;
+    margin:0 0 4px;
+    color:var(--blue-light);
+    letter-spacing:0.2px;
+  }
+  .title-block p{
+    margin:0;
+    color:var(--ink-muted);
+    font-size:0.88rem;
+  }
+  .stats{
+    display:flex;
+    gap:18px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink-muted);
+    white-space:nowrap;
+  }
+  .stats b{ color:var(--blue-light); font-weight:600; }
+
+  .controls{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .filter-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+  }
+  select{
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  .shuffle-btn{
+    background:var(--paper);
+    color:var(--blue-deep);
+    border:1px solid var(--rule);
+    padding:8px 12px;
+    font-family:'Nunito', sans-serif;
+    font-weight:600;
+    font-size:0.9rem;
+    border-radius:8px;
+    cursor:pointer;
+    line-height:1;
+  }
+  .shuffle-btn:hover{ border-color:var(--blue); }
+  .counter{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.85rem;
+    color:var(--ink-muted);
+  }
+
+  .progress-wrap{
+    position:relative;
+    margin-bottom:6px;
+  }
+  .progress-track{
+    height:4px;
+    background:var(--bg-2);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .progress-fill{
+    height:100%;
+    background:var(--blue);
+    width:0%;
+    transition:width 0.3s ease;
+  }
+  .almost-label{
+    text-align:right;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.8rem;
+    color:var(--blue-light);
+    opacity:0;
+    transition:opacity 0.3s ease;
+    height:20px;
+    margin:5px 0 12px;
+  }
+
+  .stage{
+    perspective:1600px;
+    margin-bottom:22px;
+  }
+  .card{
+    position:relative;
+    min-height:340px;
+    transform-style:preserve-3d;
+    transition:transform 0.5s cubic-bezier(.4,.2,.2,1);
+    cursor:pointer;
+    touch-action:pan-y;
+    user-select:none;
+  }
+  .card.flipped{ transform:rotateY(180deg); }
+  .card.dragging{ transition:none; }
+  .card.fly-left{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+  .card.fly-right{ transition:transform 0.35s ease-in, opacity 0.35s ease-in; opacity:0; }
+
+  .face{
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    background:var(--paper);
+    color:var(--text-onpaper);
+    border:1px solid var(--blue-light);
+    border-top:4px solid var(--blue);
+    border-radius:14px;
+    box-shadow:0 18px 40px -16px rgba(46,84,128,0.28), 0 2px 0 rgba(74,127,181,0.10);
+    padding:26px 26px 20px;
+    display:flex;
+    flex-direction:column;
+    overflow-y:auto;
+    transition:box-shadow 0.2s ease, border-color 0.2s ease;
+  }
+  .face.back{ transform:rotateY(180deg); background:var(--paper-2); }
+  .card.drag-yes .face{ border-color:var(--success); box-shadow:0 18px 40px -16px rgba(76,154,117,0.4); }
+  .card.drag-no .face{ border-color:var(--coral); box-shadow:0 18px 40px -16px rgba(224,121,106,0.4); }
+
+  .swipe-flag{
+    position:absolute;
+    top:18px;
+    padding:5px 12px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    font-weight:600;
+    border-radius:6px;
+    opacity:0;
+    transition:opacity 0.15s ease;
+    pointer-events:none;
+    z-index:2;
+  }
+  .swipe-flag.yes{ right:18px; background:var(--success); color:#F3FBF6; transform:rotate(6deg); }
+  .swipe-flag.no{ left:18px; background:var(--coral); color:#FFF6F4; transform:rotate(-6deg); }
+
+  .face-head{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .tag{
+    font-size:0.76rem;
+    font-weight:600;
+    color:var(--blue-deep);
+    background:var(--bg-2);
+    background:#E4EEF9;
+    padding:3px 10px;
+    border-radius:20px;
+  }
+  .box-dots{ display:flex; gap:5px; }
+  .box-dots span{
+    width:7px; height:7px; border-radius:50%;
+    background:rgba(31,58,92,0.13);
+  }
+  .box-dots span.filled{ background:var(--blue); }
+
+  .face-label{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    letter-spacing:0.03em;
+    color:var(--text-onpaper-muted);
+    margin-bottom:8px;
+  }
+  .q-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:1.28rem;
+    line-height:1.4;
+    margin:0;
+    color:var(--blue-deep);
+  }
+  .a-text{
+    font-family:'Nunito', sans-serif;
+    font-weight:500;
+    font-size:1.05rem;
+    line-height:1.55;
+    margin:0;
+  }
+  .hint{
+    margin-top:auto;
+    padding-top:14px;
+    font-size:0.8rem;
+    color:var(--text-onpaper-muted);
+    text-align:center;
+  }
+
+  .answer-buttons{
+    display:flex;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .answer-buttons button{
+    flex:1;
+    padding:12px 6px;
+    font-family:'Fredoka', sans-serif;
+    font-weight:600;
+    font-size:0.78rem;
+    line-height:1.2;
+    white-space:normal;
+    border-radius:10px;
+    border:1px solid transparent;
+    cursor:pointer;
+    transition:filter 0.15s ease, transform 0.1s ease;
+  }
+  .answer-buttons button:hover{ filter:brightness(1.06); }
+  .answer-buttons button:active{ transform:scale(0.97); }
+  .btn-no{ background:var(--coral); color:#FFF6F4; }
+  .btn-mid{ background:var(--bg-2); color:var(--blue-light); border:1px solid var(--blue-light); }
+  .btn-yes{ background:var(--success); color:#F3FBF6; }
+  .answer-buttons[hidden]{ display:none; }
+
+  .popup-overlay{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index:60;
+  }
+  .popup-text{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:2.6rem;
+    letter-spacing:0.02em;
+    opacity:0;
+    text-shadow:0 4px 18px rgba(0,0,0,0.35);
+    animation:popSpawn 900ms cubic-bezier(.2,.9,.3,1.2) forwards;
+    white-space:nowrap;
+  }
+  @keyframes popSpawn{
+    0%{ opacity:0; transform:scale(0.4) rotate(-6deg) translateY(10px); }
+    35%{ opacity:1; transform:scale(1.15) rotate(3deg) translateY(-6px); }
+    55%{ opacity:1; transform:scale(1) rotate(0deg) translateY(0); }
+    85%{ opacity:1; }
+    100%{ opacity:0; transform:scale(1) translateY(-30px); }
+  }
+
+  .flip-hint-row{
+    text-align:center;
+    font-family:'Nunito', sans-serif;
+    color:var(--ink-muted);
+    font-size:0.8rem;
+    margin-bottom:26px;
+  }
+
+  .done-panel{
+    border:1px solid var(--rule);
+    background:var(--paper);
+    padding:32px 26px;
+    text-align:center;
+    border-radius:14px;
+  }
+  .done-panel h2{
+    font-family:'Fredoka', sans-serif;
+    font-weight:700;
+    font-size:1.9rem;
+    margin:0 0 10px;
+    color:var(--success-deep);
+  }
+  .done-panel p{ font-family:'Nunito', sans-serif; color:var(--ink-muted); margin:0 0 20px; }
+  .done-panel .row{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; }
+  .done-panel button{
+    padding:11px 18px;
+    background:var(--blue);
+    color:#fff;
+    border:none;
+    font-weight:600;
+    font-family:'Nunito', sans-serif;
+    border-radius:10px;
+    cursor:pointer;
+  }
+  .done-panel button.ghost{
+    background:transparent;
+    color:var(--blue-deep);
+    border:1px solid var(--blue-light);
+  }
+
+  footer.bottom{
+    margin-top:30px;
+    text-align:center;
+  }
+  footer.bottom button{
+    color:var(--ink-muted);
+    font-size:0.78rem;
+    text-decoration:underline;
+    cursor:pointer;
+    background:none;
+    border:none;
+    font-family:'Nunito', sans-serif;
+  }
+
+  @media (max-width:480px){
+    .card{ min-height:400px; }
+    .q-text{ font-size:1.14rem; }
+    header.top{ align-items:flex-start; }
+  }
+</style>
+</head>
+<body>
+<script src="stats.js" data-deck="belle"></script>
+<div class="popup-overlay" id="popupOverlay"></div>
+
+<div class="wrap">
+
+  <div class="banner-love-row"><span class="banner-love">Courage ma Lolo d'amour ! 💙</span></div>
+  <div style="text-align:center; margin-bottom:14px;"><a href="index.html" style="color:var(--blue-light); font-family:'Nunito', sans-serif; font-size:0.85rem; text-decoration:none;">← Tous les decks</a></div>
+
+  <header class="top">
+    <div class="title-block">
+      <h1>France de la Belle Époque — Flashcards</h1>
+      <p>Mythe ou réalité ? — 53 cartes</p>
+    </div>
+    <div class="stats">
+      <span>À réviser <b id="statDue">0</b></span>
+      <span>Maîtrisées <b id="statMastered">0</b>/<span id="statTotal">53</span></span>
+    </div>
+  </header>
+
+  <div class="controls">
+    <div class="filter-row">
+      <select id="blocFilter" aria-label="Filtrer par thème"></select>
+      <button class="shuffle-btn" id="shuffleBtn" title="Mélanger l'ordre des cartes">🔀 Mélanger</button>
+    </div>
+    <div class="counter" id="counter">—</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+  </div>
+  <div class="almost-label" id="almostLabel">Tu y es presque ! 💙</div>
+
+  <div id="stage" class="stage">
+    <div class="card" id="card" tabindex="0">
+      <span class="swipe-flag no" id="flagNo">Demain !</span>
+      <span class="swipe-flag yes" id="flagYes">Trop facile !</span>
+      <div class="face front">
+        <div class="face-head">
+          <span class="tag" id="tagFront">—</span>
+          <div class="box-dots" id="dotsFront"></div>
+        </div>
+        <div class="face-label">Question</div>
+        <p class="q-text" id="qText"></p>
+        <div class="hint">Clique ou tape la carte pour voir la réponse</div>
+      </div>
+      <div class="face back">
+        <div class="face-head">
+          <span class="tag" id="tagBack">—</span>
+          <div class="box-dots" id="dotsBack"></div>
+        </div>
+        <div class="face-label">Réponse</div>
+        <p class="a-text" id="aText"></p>
+        <div class="hint">Glisse la carte ← → ou utilise les boutons</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="answer-buttons" id="answerButtons" hidden>
+    <button class="btn-no" id="btnNo">Pas aujourd'hui, mais demain !</button>
+    <button class="btn-mid" id="btnMid">À revoir</button>
+    <button class="btn-yes" id="btnYes">TROP FACILE pour LOLOCHE</button>
+  </div>
+  <div class="flip-hint-row" id="flipHintRow">Espace ou clic = retourner la carte</div>
+
+  <div id="donePanel" class="done-panel" style="display:none;">
+    <h2 id="doneTitle">Session terminée</h2>
+    <p id="doneText">Toutes les cartes dues ont été révisées.</p>
+    <div class="row">
+      <button id="btnPractice">Réviser quand même</button>
+      <button class="ghost" id="btnAllBlocs">Voir tous les thèmes</button>
+    </div>
+  </div>
+
+  <footer class="bottom">
+    <button id="resetProgress">Réinitialiser ma progression</button>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CARDS = [
+    {id:1,bloc:1,front:"Que désigne l'expression « Belle Époque » et quand s'impose-t-elle ?",back:"Elle s'impose dès 1919 pour désigner l'avant-guerre, qui pouvait concerner 40 millions de Français (en 1900). Son succès populaire est d'autant plus fort que ce temps ancien était « bel et bien révolu » : la brutalité de la Grande Guerre y avait mis fin, et les difficultés de l'après-guerre rendaient le contraste plus concret."},
+    {id:2,bloc:1,front:"Quelle est la problématique sur la Belle Époque ?",back:"La Belle Époque est-elle un mythe, une « illusion rétrospective » (H. Bergson), ou une réalité ?"},
+    {id:3,bloc:1,front:"Comment caractériser le début du XXe siècle en France ?",back:"Une période de prospérité, de stabilité intérieure, d'innovation technique et artistique et de rayonnement international."},
+    {id:4,bloc:1,front:"Quel rang l'économie française occupe-t-elle en 1914 ?",back:"Le 4e rang mondial, avec 6 % de la production totale."},
+    {id:5,bloc:1,front:"Qu'est-ce qui soutient la croissance française à partir de 1896 ?",back:"Une phase de hausse des prix mondiaux, qui stimule l'investissement, la recherche, la production et les échanges."},
+    {id:6,bloc:1,front:"Quels prix Nobel illustrent les progrès techniques français ?",back:"Deux Nobel de physique (1903 avec Becquerel et Curie, 1908 avec Lippmann) et le Nobel de chimie de Marie Curie (1911)."},
+    {id:7,bloc:1,front:"Qu'est-ce que la deuxième révolution industrielle, et quels sont ses secteurs ?",back:"L'époque de la chimie de synthèse, de l'électricité, de l'aluminium et des industries utilisant le moteur à explosion : l'automobile et l'aéronautique."},
+    {id:8,bloc:1,front:"Quelle place la France occupe-t-elle dans l'aluminium, la soie artificielle et l'automobile ?",back:"1er producteur mondial d'aluminium et de soie artificielle, 2e producteur d'automobiles."},
+    {id:9,bloc:1,front:"Quels repères illustrent l'essor de l'automobile française ?",back:"Louis Renault et les usines de Billancourt, lancement du salon de l'automobile en 1898, naissance des cartes Michelin en 1910 ; la production automobile est multipliée par 20 de 1900 à 1913."},
+    {id:10,bloc:1,front:"Quels exploits d'aviateurs font connaître l'aviation française ?",back:"Louis Blériot traverse la Manche (1909) et Roland Garros la Méditerranée (1913)."},
+    {id:11,bloc:1,front:"Que se passe-t-il chez Renault et Berliet en 1912-1913 ?",back:"Des grèves, provoquées par l'organisation scientifique du travail (OST) et le chronométrage, qui commencent à s'appliquer dans ces grandes usines (Renault occupe plus de 4 000 ouvriers à Billancourt)."},
+    {id:12,bloc:1,front:"Comment les entreprises françaises se regroupent-elles (trusts, cartels, syndicats) ?",back:"Trusts : groupes d'entreprises à direction unique (Schneider, Saint-Gobain, Kuhlmann). Cartels nationaux (aluminium, 1912) et internationaux fixant des prix communs (acier, 1904). « Syndicats » patronaux organisés en groupes de pression, comme l'UIMM."},
+    {id:13,bloc:1,front:"Quels secteurs connaissent une croissance rapide et lesquels sont attardés ?",back:"Rapide : la sidérurgie (7,6 % par an). Attardés : les mines et le textile (40 % des travailleurs industriels)."},
+    {id:14,bloc:1,front:"Quels événements de 1900 confirment la modernité technologique française ?",back:"L'inauguration du métropolitain en juillet 1900 et l'Exposition universelle de 1900 (plus de 50 millions de visiteurs, 76 000 exposants, palais de la « fée-électricité » comme clou du spectacle)."},
+    {id:15,bloc:2,front:"Quels facteurs handicapent l'économie française ?",back:"Un croît démographique faible (faible natalité), un trop faible investissement industriel, la faible modernisation de la marine française (1/4 des navires fonctionnent encore à la voile) et la faible internationalisation des banques."},
+    {id:16,bloc:2,front:"Quels secteurs industriels français sont à la traîne ?",back:"Les cuirs et peaux, l'habillement, le textile."},
+    {id:17,bloc:2,front:"Que dit-on de l'agriculture française vers 1900-1910 ?",back:"Elle piétine, avec des rendements faibles (13,6 quintaux à l'hectare pour le blé en moyenne de 1901 à 1910), alors qu'elle représente 40 % du produit physique de l'économie française en 1910."},
+    {id:18,bloc:2,front:"Pourquoi le protectionnisme (Méline, 1892) est-il jugé nécessaire ?",back:"Pour défendre les produits agricoles français contre la concurrence des pays neufs (qui provoque une baisse des prix depuis 1882-1885), mais aussi pour réserver le marché intérieur et colonial aux industries cotonnières et métallurgiques."},
+    {id:19,bloc:2,front:"Quelle mentalité domine dans l'économie française de la Belle Époque ?",back:"Malgré des exceptions brillantes, la mentalité du rentier plutôt que celle de l'entrepreneur."},
+    {id:20,bloc:3,front:"Quelle est la répartition ville / campagne en 1900 ?",back:"60 % des Français vivent à la campagne et 40 % à la ville (agglomération d'au moins 2 000 habitants) ; 58 % des actifs sont des agriculteurs."},
+    {id:21,bloc:3,front:"Qu'est-ce qui fait l'unité culturelle de la paysannerie ?",back:"Des coutumes locales (fêtes patronales, carnaval, veillées), des valeurs communes (travail, épargne, conquête de l'indépendance par la propriété) et l'uniformité du genre de vie (alimentation, vêtement, logement). Les hiérarchies sociales restent pourtant très fortes dans les villages."},
+    {id:22,bloc:3,front:"Comment le monde ouvrier est-il caractérisé ?",back:"Un travail encore proche de l'artisanat, même si les usines se développent ; une condition qui s'améliore (hausse des salaires, meilleure alimentation, législation du travail) ; le grand problème est l'insécurité du travail, liée au chômage saisonnier ; une conscience de classe très inégale."},
+    {id:23,bloc:3,front:"Quels sont les droits de grève et de syndicat ?",back:"La grève est légale depuis 1864 (sauf pour les fonctionnaires) ; les syndicats sont légaux depuis 1884 (loi Waldeck-Rousseau)."},
+    {id:24,bloc:3,front:"Qu'est-ce que le syndicalisme révolutionnaire ?",back:"Un syndicalisme qui vise à regrouper une minorité résolue de militants, sans chercher de gros effectifs ni d'appareil centralisé ; il compte sur la grève générale ou l'action directe des ouvriers contre leurs patrons plutôt que sur la conquête du pouvoir politique."},
+    {id:25,bloc:3,front:"Comment décrire la bourgeoisie de la Belle Époque ?",back:"Un monde étroit : négociants et industriels sont minoritaires. On y trouve surtout des rentiers (560 000 en 1906) et des professions libérales (20 000 médecins, 13 000 pharmaciens, 8 500 notaires, 6 500 avocats), des officiers (31 000), des magistrats et hauts fonctionnaires. Tous sont propriétaires et en tirent des revenus."},
+    {id:26,bloc:3,front:"Comment la bourgeoisie se distingue-t-elle par son mode de vie ?",back:"Les familles bourgeoises ont des domestiques (au moins une « bonne ») ; les manières nécessaires à la vie de relation (visites, cercle) ne s'apprennent pas au lycée (arts d'agrément pour les filles, escrime et équitation pour les garçons) ; mais les humanités façonnent une culture commune."},
+    {id:27,bloc:3,front:"Comment se fait la mobilité sociale à la Belle Époque ?",back:"Essentiellement par les études : l'école est gratuite, laïque et obligatoire depuis les lois Ferry de 1881-1882."},
+    {id:28,bloc:4,front:"Comment évolue le niveau de vie entre 1900 et 1914 ?",back:"Il s'améliore en moyenne : l'alimentation devient plus variée, la consommation s'accroît. Mais le logement reste médiocre pour la majorité (ni égout, ni eau courante, ni électricité) et l'accès à la culture reste l'apanage d'une élite."},
+    {id:29,bloc:4,front:"Qu'est-ce que la « civilisation des loisirs » à la Belle Époque ?",back:"La société française la découvre lentement et avec des inégalités. Le sport devient plus populaire mais est souvent associé à l'idéal patriotique (former une jeunesse forte pour combattre les Allemands) ; émerge aussi la culture du grand air (mode des bains de mer, naissance du scoutisme)."},
+    {id:30,bloc:4,front:"Comment naît et évolue le cinéma à la Belle Époque ?",back:"Le cinématographe est lancé en 1895 par les frères Lumière. Dès 1896 : premiers documentaires, films de fiction, premiers trucages. Georges Méliès (premier long-métrage sur l'affaire Dreyfus, 1899) est vite étouffé par les industriels Gaumont et Pathé, le cinéma évoluant vers les films de grand spectacle et d'action."},
+    {id:31,bloc:4,front:"Pourquoi Paris est-elle la « Ville Lumière » ?",back:"À cause de l'illumination de Paris (parc de réverbères à gaz densifié et modernisé au XIXe siècle) ; l'Exposition universelle de 1900 révèle la « ville Lumière »."},
+    {id:32,bloc:4,front:"Comment évoluent les transports publics parisiens ?",back:"La traction hippomobile est remplacée par les tramways électriques dès 1892 et les omnibus automobiles en 1905."},
+    {id:33,bloc:4,front:"Que sait-on du métropolitain parisien ?",back:"Grande innovation de la Belle Époque, il façonne une nouvelle géographie de la capitale. Prévue pour aider aux déplacements des athlètes des Jeux olympiques de 1900, la première ligne (porte Maillot – porte de Vincennes) ouvre le 19 juillet 1900. Le succès populaire est immédiat."},
+    {id:34,bloc:4,front:"Pourquoi Paris est-elle une capitale culturelle ?",back:"Capitale des avant-gardes (Art Nouveau) et des spectacles : théâtre (Sarah Bernhardt), cabaret (le Chat Noir), artistes (peintres de Montmartre), peintres impressionnistes."},
+    {id:35,bloc:5,front:"Quelle est la situation de la France après 1870 ?",back:"Écrasée par la Prusse et humiliée par le traité de Francfort (1871), la France est incapable d'assurer la Revanche."},
+    {id:36,bloc:5,front:"Quelle dispute oppose Jules Ferry et Georges Clemenceau ?",back:"La France est déchirée entre ceux qui prônent une politique d'expansion coloniale (Jules Ferry) et ceux qui préfèrent une politique d'alliance européenne pour battre l'Allemagne (Georges Clemenceau)."},
+    {id:37,bloc:5,front:"Quelles sont les trois priorités de la diplomatie de Delcassé (1899) ?",back:"Un rapprochement avec la GB (pour ne pas contrarier l'expansion coloniale) ; la poursuite de l'alliance avec la Russie ; un effort en direction de l'Italie, afin de l'empêcher de rejoindre les Empires centraux."},
+    {id:38,bloc:5,front:"Qu'est-ce que l'Action française ?",back:"Un mouvement fondé en 1907 par Charles Maurras, dont le fonds de commerce est la menace allemande."},
+    {id:39,bloc:5,front:"Que chante Paul Déroulède ?",back:"Le chantre des Provinces perdues (Alsace et Lorraine)."},
+    {id:40,bloc:5,front:"Qu'est-ce que la « loi de 3 ans » (1913) ?",back:"Le passage du service militaire de 2 à 3 ans. De grandes manifestations en sa faveur rassemblent des centaines de milliers de personnes, malgré l'hostilité du socialiste Jean Jaurès."},
+    {id:41,bloc:5,front:"Qu'est-ce que l'Union sacrée ?",back:"Le ralliement patriotique massif à la guerre, provoqué par l'assassinat de François-Ferdinand qui fait basculer la France en guerre."},
+    {id:42,bloc:6,front:"Comment la France étend-elle son empire colonial ?",back:"Soit de manière pacifique, par des traités de protectorat (1880 : Savorgnan de Brazza avec le Makoko, souverain des batéké du Congo ; 1912 : Maroc), soit de manière violente, par des guerres de conquête."},
+    {id:43,bloc:6,front:"Quelle est l'ampleur de l'empire colonial français en 1914 ?",back:"De 1875 à 1914, il passe d'1 à 10 millions de km² et de 6 à 50 millions d'habitants : c'est le 2e empire au monde."},
+    {id:44,bloc:6,front:"Quels sont les trois grands foyers de l'empire français ?",back:"L'Afrique du Nord (avec la seule colonie de peuplement de la France, l'Algérie) ; l'Afrique noire (trois gouvernements généraux : AOF en 1895, Madagascar en 1897, AEF en 1910) ; l'Indochine, porte ouverte sur la Chine (gouvernement général dès 1887)."},
+    {id:45,bloc:6,front:"Pourquoi l'empire est-il un champ d'expansion pour le capitalisme français ?",back:"Tant pour les investissements de capitaux que pour le commerce : la valeur des échanges entre la métropole et les colonies progresse de 100 % entre 1900 et 1913, et les territoires ultramarins assurent des débouchés fondamentaux (Jacques Marseille)."},
+    {id:46,bloc:6,front:"Que la France importe-t-elle et exporte-t-elle avec ses colonies ?",back:"Importe : arachides (Sénégal), cacao (Côte d'Ivoire), sucre (Antilles), vin (Algérie), caoutchouc (Indochine), minerais (Nouvelle-Calédonie). Exporte : ciment, locomotives, rails, produits de la sidérurgie et de la métallurgie."},
+    {id:47,bloc:6,front:"Où vont les investissements publics dans les colonies ?",back:"Aménagement des villes, ouverture de voies maritimes régulières, construction de ports, routes et chemins de fer (ligne Djibouti-Addis-Abeba, Trans-indochinois)."},
+    {id:48,bloc:6,front:"Comment l'opinion française voit-elle la colonisation ?",back:"Globalement favorable. Dès la fin des années 1870, l'idée se développe que la conquête coloniale est un instrument de la grandeur nationale et doit permettre à la France de relever la tête (Jules Ferry : « le recueillement est le chemin de la décadence »)."},
+    {id:49,bloc:6,front:"Quels arguments justifient la colonisation ?",back:"Une mission morale et civilisatrice (vantée par Gambetta) ; des raisons économiques portées par les chambres de commerce et lobbys coloniaux (J. Ferry : « la politique coloniale est fille de la politique industrielle »)."},
+    {id:50,bloc:6,front:"Qui sont les « héros nationaux » de la colonisation ?",back:"Les artisans de la colonisation : Gallieni, Lyautey, ou le commandant Marchand, qui a résisté aux Anglais à Fachoda en 1898."},
+    {id:51,bloc:6,front:"Pourquoi la France coloniale ne s'est-elle pas donné les moyens de ses ambitions ?",back:"À cause de l'insuffisance des investissements publics et privés, de la faiblesse de la concurrence et de l'absence d'administration digne de ce nom, qui expliquent le sous-développement croissant des colonies et la misère des colonisés."},
+    {id:52,bloc:6,front:"Qu'est-ce que le code de l'indigénat ?",back:"Un régime juridique d'exception pour les colonisés : réquisitions, travaux forcés, interdiction de réunion… Les droits des indigènes sont bafoués."},
+    {id:53,bloc:6,front:"Quels affrontements l'aventure coloniale provoque-t-elle ?",back:"Avec les Anglais sur le Soudan (1898) et surtout avec l'Allemagne au sujet du Maroc (crise de Tanger en 1905, crise d'Agadir en 1911)."}
+  ];
+
+  var BLOCS = {
+    1:"Problématique & prospérité",
+    2:"Ombres et retards de l'économie",
+    3:"Clivages sociaux",
+    4:"Société de consommation & rayonnement culturel",
+    5:"Nationalisme & diplomatie",
+    6:"Colonisation & empire"
+  };
+
+  var STORAGE_KEY = "belle_epoque_progress_v1";
+  var INTERVALS = [0,1,3,7,16]; // days, index = box-1 (box 1..5)
+
+  function todayStr(){
+    var d = new Date();
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+  function addDays(dateStr, n){
+    var d = new Date(dateStr+"T00:00:00");
+    d.setDate(d.getDate()+n);
+    return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0");
+  }
+
+  function loadProgress(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      if(!raw) return {};
+      var parsed = JSON.parse(raw);
+      return (parsed && typeof parsed === "object") ? parsed : {};
+    }catch(e){ return {}; }
+  }
+  function saveProgress(p){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(p)); }
+    catch(e){ /* storage unavailable — session continues without persistence */ }
+  }
+
+  var progress = loadProgress();
+  var today = todayStr();
+
+  function stateFor(cardId){
+    var s = progress[cardId];
+    if(!s){ s = {box:1, due:today}; }
+    return s;
+  }
+
+  var blocFilter = document.getElementById("blocFilter");
+  var counterEl = document.getElementById("counter");
+  var stageEl = document.getElementById("stage");
+  var cardEl = document.getElementById("card");
+  var qText = document.getElementById("qText");
+  var aText = document.getElementById("aText");
+  var tagFront = document.getElementById("tagFront");
+  var tagBack = document.getElementById("tagBack");
+  var dotsFront = document.getElementById("dotsFront");
+  var dotsBack = document.getElementById("dotsBack");
+  var answerButtons = document.getElementById("answerButtons");
+  var flipHintRow = document.getElementById("flipHintRow");
+  var btnNo = document.getElementById("btnNo");
+  var btnMid = document.getElementById("btnMid");
+  var btnYes = document.getElementById("btnYes");
+  var donePanel = document.getElementById("donePanel");
+  var doneTitle = document.getElementById("doneTitle");
+  var doneText = document.getElementById("doneText");
+  var btnPractice = document.getElementById("btnPractice");
+  var btnAllBlocs = document.getElementById("btnAllBlocs");
+  var statDue = document.getElementById("statDue");
+  var statMastered = document.getElementById("statMastered");
+  var statTotal = document.getElementById("statTotal");
+  var resetBtn = document.getElementById("resetProgress");
+  var progressFill = document.getElementById("progressFill");
+  var almostLabel = document.getElementById("almostLabel");
+  var shuffleBtn = document.getElementById("shuffleBtn");
+  var flagYes = document.getElementById("flagYes");
+  var flagNo = document.getElementById("flagNo");
+
+  statTotal.textContent = CARDS.length;
+
+  var opt = document.createElement("option");
+  opt.value = "all"; opt.textContent = "Tous les thèmes (" + CARDS.length + " cartes)";
+  blocFilter.appendChild(opt);
+  Object.keys(BLOCS).forEach(function(k){
+    var count = CARDS.filter(function(c){ return c.bloc == k; }).length;
+    var o = document.createElement("option");
+    o.value = k;
+    o.textContent = BLOCS[k] + " (" + count + ")";
+    blocFilter.appendChild(o);
+  });
+
+  var queue = [];
+  var qIndex = 0;
+  var current = null;
+  var practiceMode = false;
+
+  function shuffleArray(arr){
+    for(var i = arr.length - 1; i > 0; i--){
+      var j = Math.floor(Math.random() * (i + 1));
+      var tmp = arr[i]; arr[i] = arr[j]; arr[j] = tmp;
+    }
+    return arr;
+  }
+
+  function cardsForFilter(){
+    var f = blocFilter.value;
+    if(f === "all") return CARDS.slice();
+    return CARDS.filter(function(c){ return String(c.bloc) === f; });
+  }
+
+  function buildQueue(forcePractice){
+    var pool = cardsForFilter();
+    var list;
+    if(forcePractice){
+      list = pool.slice();
+    }else{
+      list = pool.filter(function(c){
+        var s = stateFor(c.id);
+        return s.due <= today;
+      });
+    }
+    shuffleArray(list);
+    queue = list;
+    qIndex = 0;
+    practiceMode = !!forcePractice;
+  }
+
+  function updateStats(){
+    var pool = cardsForFilter();
+    var dueCount = pool.filter(function(c){ return stateFor(c.id).due <= today; }).length;
+    var masteredCount = pool.filter(function(c){ return stateFor(c.id).box >= 5; }).length;
+    statDue.textContent = dueCount;
+    statMastered.textContent = masteredCount;
+    statTotal.textContent = pool.length;
+  }
+
+  function renderDots(container, box){
+    container.innerHTML = "";
+    for(var i=1;i<=5;i++){
+      var s = document.createElement("span");
+      if(i <= box) s.className = "filled";
+      container.appendChild(s);
+    }
+  }
+
+  function showCard(){
+    if(qIndex >= queue.length){
+      showDone();
+      return;
+    }
+    current = queue[qIndex];
+    var s = stateFor(current.id);
+    cardEl.classList.remove("flipped");
+    qText.textContent = current.front;
+    aText.textContent = current.back;
+    var label = BLOCS[current.bloc];
+    tagFront.textContent = label;
+    tagBack.textContent = label;
+    renderDots(dotsFront, s.box);
+    renderDots(dotsBack, s.box);
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "block";
+    counterEl.textContent = "Carte " + (qIndex+1) + " / " + queue.length + (practiceMode ? " · révision libre" : "");
+    stageEl.style.display = "block";
+    donePanel.style.display = "none";
+    var pct = queue.length ? Math.round((qIndex/queue.length)*100) : 0;
+    progressFill.style.width = pct + "%";
+    almostLabel.style.opacity = (pct >= 70 && pct < 100) ? 1 : 0;
+    cardEl.style.transform = "";
+    cardEl.classList.remove("fly-left","fly-right","dragging","drag-yes","drag-no");
+  }
+
+  function showDone(){
+    stageEl.style.display = "none";
+    answerButtons.hidden = true;
+    flipHintRow.style.display = "none";
+    counterEl.textContent = "";
+    donePanel.style.display = "block";
+    progressFill.style.width = "100%";
+    almostLabel.style.opacity = 0;
+    doneTitle.textContent = "BRAVOOO ! 🎉";
+    if(practiceMode){
+      doneText.textContent = "T'as tout repassé en révision libre, Lolo — t'assures ! 💙";
+    }else{
+      doneText.textContent = "T'as fini toutes les cartes du jour. On est trop fiers de toi ! 💙";
+    }
+    updateStats();
+  }
+
+  function flip(){
+    if(!current) return;
+    var willShowBack = !cardEl.classList.contains("flipped");
+    cardEl.classList.toggle("flipped");
+    if(willShowBack){
+      answerButtons.hidden = false;
+      flipHintRow.style.display = "none";
+    }else{
+      answerButtons.hidden = true;
+      flipHintRow.style.display = "block";
+    }
+  }
+
+  var popupOverlay = document.getElementById("popupOverlay");
+
+  function spawnPopup(text, color){
+    var el = document.createElement("div");
+    el.className = "popup-text";
+    el.textContent = text;
+    el.style.color = color;
+    popupOverlay.innerHTML = "";
+    popupOverlay.appendChild(el);
+    setTimeout(function(){
+      if(el.parentNode) el.parentNode.removeChild(el);
+    }, 900);
+  }
+
+  function answer(kind){
+    if(!current) return;
+    if(window.FCStats) FCStats.log("belle", current, arguments[0], BLOCS[current.bloc]);
+    var s = stateFor(current.id);
+    if(kind === "yes"){
+      s.box = Math.min(5, s.box + 1);
+      s.due = addDays(today, INTERVALS[s.box - 1]);
+      spawnPopup("VAMOSSS 🔥", "#4FAE7B");
+    }else if(kind === "mid"){
+      s.due = addDays(today, 1);
+    }else{
+      s.box = 1;
+      s.due = addDays(today, INTERVALS[0]);
+      spawnPopup("Next time :)", "#EE9280");
+    }
+    progress[current.id] = s;
+    saveProgress(progress);
+    qIndex++;
+    updateStats();
+    showCard();
+  }
+
+  var dragState = null;
+  var DRAG_THRESHOLD = 90;
+
+  function onPointerDown(e){
+    if(answerButtons.hidden) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState = { startX: point.clientX, dx: 0, moved:false, pointerId: e.pointerId };
+    cardEl.classList.add("dragging");
+    try{ if(e.pointerId !== undefined) cardEl.setPointerCapture(e.pointerId); }catch(err){}
+  }
+  function onPointerMove(e){
+    if(!dragState) return;
+    var point = (e.touches && e.touches[0]) || e;
+    dragState.dx = point.clientX - dragState.startX;
+    if(Math.abs(dragState.dx) > 4) dragState.moved = true;
+    var rot = dragState.dx / 18;
+    cardEl.style.transform = "rotateY(180deg) translateX(" + dragState.dx + "px) rotate(" + (-rot) + "deg)";
+    cardEl.classList.toggle("drag-yes", dragState.dx > 30);
+    cardEl.classList.toggle("drag-no", dragState.dx < -30);
+    flagYes.style.opacity = dragState.dx > 30 ? Math.min(1,(dragState.dx-30)/60) : 0;
+    flagNo.style.opacity = dragState.dx < -30 ? Math.min(1,(-dragState.dx-30)/60) : 0;
+    if(e.cancelable) e.preventDefault();
+  }
+  function onPointerUp(){
+    if(!dragState) return;
+    cardEl.classList.remove("dragging");
+    var dx = dragState.dx;
+    var wasDrag = dragState.moved;
+    dragState = null;
+    flagYes.style.opacity = 0;
+    flagNo.style.opacity = 0;
+    if(Math.abs(dx) > DRAG_THRESHOLD){
+      var flyRight = dx > 0;
+      cardEl.classList.add(flyRight ? "fly-right" : "fly-left");
+      cardEl.style.transform = "rotateY(180deg) translateX(" + (flyRight ? 900 : -900) + "px) rotate(" + (flyRight ? 20 : -20) + "deg)";
+      setTimeout(function(){ answer(flyRight ? "yes" : "no"); }, 320);
+    }else{
+      cardEl.classList.remove("drag-yes","drag-no");
+      cardEl.style.transform = "";
+    }
+    if(wasDrag){
+      cardEl.addEventListener("click", function swallow(ev){ ev.stopPropagation(); cardEl.removeEventListener("click", swallow, true); }, {capture:true, once:true});
+    }
+  }
+
+  cardEl.addEventListener("pointerdown", onPointerDown);
+  cardEl.addEventListener("pointermove", onPointerMove);
+  cardEl.addEventListener("pointerup", onPointerUp);
+  cardEl.addEventListener("pointercancel", onPointerUp);
+  cardEl.addEventListener("pointerleave", function(){ if(dragState) onPointerUp(); });
+
+  cardEl.addEventListener("click", flip);
+  cardEl.addEventListener("keydown", function(e){
+    if(e.code === "Space" || e.key === "Enter"){ e.preventDefault(); flip(); }
+  });
+  document.addEventListener("keydown", function(e){
+    var backVisible = !answerButtons.hidden;
+    if(!backVisible) return;
+    if(e.key === "ArrowRight"){ e.preventDefault(); answer("yes"); }
+    if(e.key === "ArrowLeft"){ e.preventDefault(); answer("no"); }
+    if(e.key === "ArrowUp"){ e.preventDefault(); answer("mid"); }
+  });
+  btnNo.addEventListener("click", function(){ answer("no"); });
+  btnMid.addEventListener("click", function(){ answer("mid"); });
+  btnYes.addEventListener("click", function(){ answer("yes"); });
+
+  blocFilter.addEventListener("change", function(){
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  shuffleBtn.addEventListener("click", function(){
+    var remaining = queue.slice(qIndex);
+    shuffleArray(remaining);
+    queue = queue.slice(0, qIndex).concat(remaining);
+    showCard();
+  });
+
+  btnPractice.addEventListener("click", function(){
+    buildQueue(true);
+    showCard();
+  });
+  btnAllBlocs.addEventListener("click", function(){
+    blocFilter.value = "all";
+    buildQueue(false);
+    updateStats();
+    showCard();
+  });
+
+  resetBtn.addEventListener("click", function(){
+    if(confirm("Réinitialiser toute ta progression sur ces 53 cartes ?")){
+      progress = {};
+      saveProgress(progress);
+      today = todayStr();
+      buildQueue(false);
+      updateStats();
+      showCard();
+    }
+  });
+
+  buildQueue(false);
+  updateStats();
+  showCard();
+})();
+</script>
+</body>
+</html>
