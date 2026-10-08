@@ -11,7 +11,8 @@
     tot: { user: "lolo", title: "Régimes totalitaires", file: "totalitarismes-flashcards.html", key: "totalitarismes_progress_v1", total: 78, mid: true },
     meiji: { user: "lolo", title: "Japon à l'époque Meiji", file: "japon-meiji-flashcards.html", key: "japon_meiji_progress_v1", total: 45, mid: true },
     belle: { user: "lolo", title: "France de la Belle Époque", file: "belle-epoque-flashcards.html", key: "belle_epoque_progress_v1", total: 53, mid: true },
-    es: { user: "lolo", title: "Espagnol : vocabulaire", file: "espagnol-vocabulaire-flashcards.html", key: "espagnol_vocabulaire_progress_v1", total: 156, mid: true }
+    es: { user: "lolo", title: "Espagnol : vocabulaire", file: "espagnol-vocabulaire-flashcards.html", key: "espagnol_vocabulaire_progress_v1", total: 156, mid: true },
+    es2: { user: "lolo", title: "Espagnol : FR → ES", file: "espagnol-fr-es-flashcards.html", key: "espagnol_fr_es_progress_v1", total: 156, mid: true }
   };
 
   function pad(n) { return String(n).padStart(2, "0"); }
