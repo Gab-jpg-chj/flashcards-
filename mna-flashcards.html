@@ -176,21 +176,31 @@
   .card.drag-yes .face{ border-color:var(--forest); box-shadow:0 18px 40px -14px rgba(63,108,78,0.55); }
   .card.drag-no .face{ border-color:var(--rust); box-shadow:0 18px 40px -14px rgba(168,64,47,0.55); }
 
+  /* Retour visuel du glissement : en dehors de la carte (qui est retournée), donc jamais en miroir */
+  .stage{ position:relative; }
   .swipe-flag{
     position:absolute;
-    top:18px;
-    padding:5px 12px;
-    font-family:'IBM Plex Mono', monospace;
-    font-size:0.72rem;
-    font-weight:600;
-    border-radius:3px;
+    inset:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:16px;
+    border-radius:8px;
+    font-size:1.9rem;
+    font-weight:800;
+    line-height:1.2;
+    text-align:center;
+    letter-spacing:0.01em;
+    color:#FFFFFF;
+    text-shadow:0 2px 8px rgba(0,0,0,0.45);
     opacity:0;
-    transition:opacity 0.15s ease;
     pointer-events:none;
-    z-index:2;
+    z-index:20;
+    transform:none;
+    transition:opacity 0.1s ease;
   }
-  .swipe-flag.yes{ right:18px; background:var(--forest); color:#EAF2EC; transform:rotate(6deg); }
-  .swipe-flag.no{ left:18px; background:var(--rust); color:#F6ECE8; transform:rotate(-6deg); }
+  .swipe-flag.yes{ background:rgba(34,150,90,0.78); }
+  .swipe-flag.no{ background:rgba(214,60,50,0.78); }
 
   .face-head{
     display:flex;
@@ -346,9 +356,9 @@
   <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
 
   <div id="stage" class="stage">
+    <span class="swipe-flag no" id="flagNo">✗ Mauvaise réponse</span>
+    <span class="swipe-flag yes" id="flagYes">✓ Bonne réponse</span>
     <div class="card" id="card" tabindex="0">
-      <span class="swipe-flag no" id="flagNo">Je ne savais pas</span>
-      <span class="swipe-flag yes" id="flagYes">Je savais</span>
       <div class="face front">
         <div class="face-head">
           <span class="tag" id="tagFront">—</span>
